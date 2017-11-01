@@ -1,0 +1,43 @@
+CREATE TABLE [dbo].[tblCableParent]
+(
+[ParentItem] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Base] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[JacketColor] [nvarchar] (15) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[ColorChip] [nvarchar] (15) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[EZStrip] [nvarchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[TBMaterial] [nvarchar] (25) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[TBChipType] [nvarchar] (15) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[TBNomOD] [decimal] (6, 4) NULL,
+[TBODTolPlus] [nvarchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[TBODTolMinus] [nvarchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Fiber1] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Fiber1FirstReqFreq] [int] NULL,
+[Fiber1FirstMaxAtten] [decimal] (6, 4) NULL,
+[Fiber1FirstMinBandW] [int] NULL,
+[Fiber1SecondReqFreq] [int] NULL,
+[Fiber1SecondMaxAtten] [decimal] (6, 4) NULL,
+[Fiber1SecondMinBandW] [int] NULL,
+[Fiber2] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Fiber2FirstReqFreq] [int] NULL,
+[Fiber2FirstMaxAtten] [decimal] (6, 4) NULL,
+[Fiber2FirstMinBandW] [int] NULL,
+[Fiber2SecondReqFreq] [int] NULL,
+[Fiber2SecondMaxAtten] [decimal] (6, 4) NULL,
+[Fiber2SecondMinBandW] [int] NULL,
+[Fiber3] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Fiber3FirstReqFreq] [int] NULL,
+[Fiber3FirstMaxAtten] [decimal] (6, 4) NULL,
+[Fiber3FirstMinBandW] [int] NULL,
+[Fiber3SecondReqFreq] [int] NULL,
+[Fiber3SecondMaxAtten] [decimal] (6, 4) NULL,
+[Fiber3SecondMinBandW] [int] NULL,
+[RibbonHighCure] [bit] NULL CONSTRAINT [DF_tblCableParent_RibbonHighCure] DEFAULT ((0)),
+[TimeStamp] [timestamp] NULL,
+[DateCreated] [datetime2] NULL CONSTRAINT [DF_tblCableParent_DateCreated] DEFAULT (getdate()),
+[CreatedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblCableParent_CreatedBy] DEFAULT (suser_sname()),
+[RevisedBy] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblCableParent_RevisedBy] DEFAULT (suser_sname()),
+[RevisedDate] [datetime2] NULL CONSTRAINT [DF_tblCableParent_RevisedDate] DEFAULT (getdate())
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[tblCableParent] ADD CONSTRAINT [PK_tblCableParent] PRIMARY KEY CLUSTERED  ([ParentItem]) ON [PRIMARY]
+GO

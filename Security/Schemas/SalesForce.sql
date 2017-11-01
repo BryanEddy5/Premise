@@ -1,0 +1,3 @@
+CREATE SCHEMA [SalesForce]
+AUTHORIZATION [dbo]
+GO

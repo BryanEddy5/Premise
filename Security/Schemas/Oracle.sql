@@ -1,0 +1,3 @@
+CREATE SCHEMA [Oracle]
+AUTHORIZATION [dbo]
+GO

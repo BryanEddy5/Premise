@@ -1,0 +1,42 @@
+CREATE TABLE [dbo].[SalesHistory]
+(
+[Org] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Shipped] [date] NULL,
+[CustNum] [int] NULL,
+[Customer] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[OrderNum] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Customer PO] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Item] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Description] [varchar] (350) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Price] [float] NULL,
+[Qty] [float] NULL,
+[ValueBuCurrency] [float] NULL,
+[UOM] [varchar] (3) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[FreightCarrier] [varchar] (150) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[TrackingNum] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[DeliveryReceipt] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[BillableTolerance Pct] [int] NULL,
+[CustomerPID] [varchar] (max) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[ProductClass] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[ProductGroup] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Location] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[CustomerPOLine] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Value_USD] [float] NULL,
+[ItemCost] [float] NULL,
+[ShipmentCost] [float] NULL,
+[SalesOrderType] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[CustomerReference] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[InvoiceNumber] [float] NULL,
+[PromiseDate] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[ScheduleDate] [date] NULL,
+[CableWeigth] [smallint] NULL,
+[SuggestedReel] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[ReelDescription] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[ReelType] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Lagging] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[ReelWeight] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[DateInserted] [datetime] NULL CONSTRAINT [DF_SalesHistory_DateInserted] DEFAULT (getdate())
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[SalesHistory] ADD CONSTRAINT [PK_SalesHistory] PRIMARY KEY CLUSTERED  ([OrderNum]) ON [PRIMARY]
+GO

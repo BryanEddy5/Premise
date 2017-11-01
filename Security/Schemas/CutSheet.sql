@@ -1,0 +1,3 @@
+CREATE SCHEMA [CutSheet]
+AUTHORIZATION [dbo]
+GO

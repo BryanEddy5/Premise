@@ -1,0 +1,3 @@
+CREATE ROLE [SPB_Premise_RW]
+AUTHORIZATION [db_owner]
+GO
