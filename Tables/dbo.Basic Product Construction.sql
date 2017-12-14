@@ -203,7 +203,7 @@ AS
                          [2nd Min BandW - C], Colored_Fiber
 						 , ActiveStatusChangedBy, ActiveStatusChangedDate
 		FROM            DELETED	
-		WHERE convert(date,DateCreated) <> convert(date,getdate())
+		--WHERE convert(date,DateCreated) <> convert(date,getdate())
 
 
 			END

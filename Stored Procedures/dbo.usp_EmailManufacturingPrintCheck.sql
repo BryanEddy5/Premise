@@ -4,6 +4,7 @@ SET ANSI_NULLS ON
 GO
 
 
+
 -- =============================================
 -- Author:		Bryan Eddy
 -- ALTER date: 6/12/17
@@ -26,6 +27,9 @@ EXECUTE AS USER = 'dbo'
 
 DECLARE @Receipientlist varchar(1000)
 DECLARE @BlindRecipientlist varchar(1000)
+--DECLARE @UserName NVARCHAR(50)
+
+--SET @UserName = SUSER_SNAME()
 
 INSERT INTO Schedule.PrintVerificationError(ItemNumber,PrintCheck,CurrentPrint,SoNumber,UserName)
 VALUES (@ItemNumber, @NewFiberPrint, @CurrentFiberPrint,@OrderNumber,@UserName)

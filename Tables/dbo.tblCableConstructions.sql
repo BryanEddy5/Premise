@@ -67,7 +67,9 @@ CREATE TABLE [dbo].[tblCableConstructions]
 [AdditivePercentage2] [numeric] (7, 5) NULL CONSTRAINT [DF_tblCableConstructions_AdditivePercentage1] DEFAULT ((0)),
 [TensileRatingShortTerm_N] [smallint] NULL,
 [TensileRatingLongTerm_N] [smallint] NULL,
-[EngineeringAssistReason] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
+[EngineeringAssistReason] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[CableShapeID] [int] NULL,
+[FiberApplicationID] [int] NULL
 ) ON [PRIMARY]
 GO
 SET QUOTED_IDENTIFIER ON
@@ -142,6 +144,10 @@ GO
 CREATE NONCLUSTERED INDEX [IX_tblCableConstructions_2] ON [dbo].[tblCableConstructions] ([ID], [NominalOD], [JacketMaterial], [StandardOperation]) ON [PRIMARY]
 GO
 CREATE UNIQUE NONCLUSTERED INDEX [IX_tblCableConstructions] ON [dbo].[tblCableConstructions] ([StandardOperation], [CablePasses]) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[tblCableConstructions] ADD CONSTRAINT [FK_CableShape_Cable] FOREIGN KEY ([CableShapeID]) REFERENCES [Construction].[CableShape] ([CableShapeID]) ON DELETE SET NULL ON UPDATE CASCADE
+GO
+ALTER TABLE [dbo].[tblCableConstructions] ADD CONSTRAINT [FK_FiberApplication_Cable] FOREIGN KEY ([FiberApplicationID]) REFERENCES [Construction].[FiberApplication] ([FiberApplicationID]) ON DELETE SET NULL ON UPDATE CASCADE
 GO
 ALTER TABLE [dbo].[tblCableConstructions] ADD CONSTRAINT [FK_tblCableConstructions_tblCableTemperatureStandards] FOREIGN KEY ([TemperatureApplication]) REFERENCES [dbo].[tblCableTemperatureStandards] ([TemperatureApplication]) ON DELETE SET NULL ON UPDATE CASCADE
 GO

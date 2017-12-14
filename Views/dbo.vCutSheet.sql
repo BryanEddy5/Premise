@@ -2,36 +2,36 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
-/*WHERE dbo.tblCableConstructions.TemperatureApplication IS NOT NULL  AND ( Customer like 'AFL STANDARD%' OR Customer LIKE 'AFL GENERIC%')  AND ReleasedDesign <> 0
+
+/*WHERE tblCableConstructions.TemperatureApplication IS NOT NULL  AND ( Customer like 'AFL STANDARD%' OR Customer LIKE 'AFL GENERIC%')  AND ReleasedDesign <> 0
 where C.Oracle = 'PS07442-01'*/
 CREATE VIEW [dbo].[vCutSheet]
 AS
-SELECT        C.Oracle, C.Color, dbo.qryBasePrint.PrintLine1, dbo.qryBasePrint.PrintLine2, dbo.qryBasePrint.PrintLine3, dbo.qryBasePrint.[Print Item No], 
-                         dbo.qryBasePrint.PrintLine4, C.ItemNo AS DesignCode, ROUND(dbo.tblCableConstructions.NominalOD, 1) AS NominalOD, 
-                         dbo.tblCableConstructionReferences.NumSubFillers, dbo.tblCableConstructionReferences.NumSubPositions, dbo.qryBasePrint.[Print Reel No], 
-                         dbo.tblCableConstructionReferences.ConstructionDescription, dbo.tblCableConstructionReferences.Base, dbo.tblCableTemperatureStandards.Operation_C, 
-                         dbo.tblCableTemperatureStandards.StorageShipping_C, dbo.tblCableTemperatureStandards.Installation_C, C.Fiber, 
-                         dbo.tblCableConstructions.TensileRatingLongTerm_N, dbo.tblCableConstructions.TensileRatingShortTerm_N, T.Tensile_LongTerm_Less_12Fiber_Newton, 
-                         T.Tensile_LongTerm_GreaterEqual_12Fiber_Newton, dbo.tblCutSheetOpticalFiberChart.CodeFiberType, dbo.tblCutSheetOpticalFiberChart.Mode, 
-                         dbo.tblCutSheetOpticalFiberChart.Attn_dbkm_850nm, dbo.tblCutSheetOpticalFiberChart.Attn_dbkm_1300nm, dbo.tblCutSheetOpticalFiberChart.Attn_dbkm_1310nm, 
-                         dbo.tblCutSheetOpticalFiberChart.Attn_dbkm_1550nm, dbo.tblCutSheetOpticalFiberChart.BW_MHzkm_850nm, 
-                         dbo.tblCutSheetOpticalFiberChart.BW_MHzkm_1300nm, dbo.tblCutSheetOpticalFiberChart.EMBc_MHzkm, 
-                         dbo.tblCutSheetOpticalFiberChart.[1GigEthMin_LinkDist_850nm], dbo.tblCutSheetOpticalFiberChart.[1GigEthMin_LinkDist_1300nm], 
-                         dbo.tblCutSheetOpticalFiberChart.[10GigEthMin_LinkDist_850nm], dbo.tblCutSheetOpticalFiberChart.[10GigEthMin_LinkDist_1300nm], 
-                         dbo.tblCutSheetOpticalFiberChart.FiberLetter, dbo.tblCutSheetOpticalFiberChart.FiberExtension, C.Fiber2, dbo.tblDesignTypes.SalesForceDescription, 
-                         dbo.tblCableConstructionReferences.FiberCount, dbo.tblCableConstructions.BaseID, dbo.tblCableConstructionReferences.CableFamily, 
-                         dbo.tblCutSheetApproval.Commercial_Approval, dbo.tblCutSheetApproval.Technical_Approval, dbo.tblCableConstructions.CablePasses AS Location, 
-                         dbo.tblCutSheetApproval.Requested
-FROM            dbo.tblCableConstructionReferences INNER JOIN
-                         dbo.tblCableConstructions ON dbo.tblCableConstructionReferences.BaseID = dbo.tblCableConstructions.BaseID INNER JOIN
-                         dbo.CableUnion AS C ON dbo.tblCableConstructionReferences.Base = C.Base INNER JOIN
-                         dbo.qryBasePrint ON C.Oracle = dbo.qryBasePrint.Oracle INNER JOIN
-                         dbo.tblCableTensileRating AS T ON dbo.tblCableConstructions.TensileApplication = T.TensileApplication INNER JOIN
-                         dbo.tblCableTemperatureStandards ON dbo.tblCableConstructions.TemperatureApplication = dbo.tblCableTemperatureStandards.TemperatureApplication INNER JOIN
-                         dbo.tbl_Fibers ON C.Fiber = dbo.tbl_Fibers.Fiber INNER JOIN
-                         dbo.tblDesignTypes ON dbo.tblCableConstructionReferences.DesignTypeID = dbo.tblDesignTypes.DesignTypeID INNER JOIN
-                         dbo.tblCutSheetApproval ON dbo.tblCableConstructionReferences.Base = dbo.tblCutSheetApproval.Base LEFT OUTER JOIN
-                         dbo.tblCutSheetOpticalFiberChart ON dbo.tbl_Fibers.OpticalID = dbo.tblCutSheetOpticalFiberChart.OpticalID
+SELECT        C.Oracle, C.Color, qryBasePrint.PrintLine1, qryBasePrint.PrintLine2, qryBasePrint.PrintLine3, qryBasePrint.[Print Item No], 
+                         qryBasePrint.PrintLine4, C.ItemNo AS DesignCode, ROUND(tblCableConstructions.NominalOD, 1) AS NominalOD, 
+                         tblCableConstructionReferences.NumSubFillers, tblCableConstructionReferences.NumSubPositions, qryBasePrint.[Print Reel No], 
+                         tblCableConstructionReferences.ConstructionDescription, tblCableConstructionReferences.Base, tblCableTemperatureStandards.Operation_C, 
+                         tblCableTemperatureStandards.StorageShipping_C, tblCableTemperatureStandards.Installation_C, C.Fiber, 
+                         tblCableConstructions.TensileRatingLongTerm_N, tblCableConstructions.TensileRatingShortTerm_N,
+                          tblCutSheetOpticalFiberChart.CodeFiberType, tblCutSheetOpticalFiberChart.Mode, 
+                         tblCutSheetOpticalFiberChart.Attn_dbkm_850nm, tblCutSheetOpticalFiberChart.Attn_dbkm_1300nm, tblCutSheetOpticalFiberChart.Attn_dbkm_1310nm, 
+                         tblCutSheetOpticalFiberChart.Attn_dbkm_1550nm, tblCutSheetOpticalFiberChart.BW_MHzkm_850nm, 
+                         tblCutSheetOpticalFiberChart.BW_MHzkm_1300nm, tblCutSheetOpticalFiberChart.EMBc_MHzkm, 
+                         tblCutSheetOpticalFiberChart.[1GigEthMin_LinkDist_850nm], tblCutSheetOpticalFiberChart.[1GigEthMin_LinkDist_1300nm], 
+                         tblCutSheetOpticalFiberChart.[10GigEthMin_LinkDist_850nm], tblCutSheetOpticalFiberChart.[10GigEthMin_LinkDist_1300nm], 
+                         tblCutSheetOpticalFiberChart.FiberLetter, tblCutSheetOpticalFiberChart.FiberExtension, C.Fiber2, tblDesignTypes.SalesForceDescription, 
+                         tblCableConstructionReferences.FiberCount, tblCableConstructions.BaseID, tblCableConstructionReferences.CableFamily, 
+                         tblCutSheetApproval.Commercial_Approval, tblCutSheetApproval.Technical_Approval, tblCableConstructions.CablePasses AS Location, 
+                         tblCutSheetApproval.Requested
+FROM            tblCableConstructionReferences INNER JOIN
+                         tblCableConstructions ON tblCableConstructionReferences.BaseID = tblCableConstructions.BaseID INNER JOIN
+                         CableUnion AS C ON tblCableConstructionReferences.Base = C.Base INNER JOIN
+                         qryBasePrint ON C.Oracle = qryBasePrint.Oracle INNER JOIN
+                         tblCableTemperatureStandards ON tblCableConstructions.TemperatureApplication = tblCableTemperatureStandards.TemperatureApplication INNER JOIN
+                         tbl_Fibers ON C.Fiber = tbl_Fibers.Fiber INNER JOIN
+                         tblDesignTypes ON tblCableConstructionReferences.DesignTypeID = tblDesignTypes.DesignTypeID INNER JOIN
+                         tblCutSheetApproval ON tblCableConstructionReferences.Base = tblCutSheetApproval.Base LEFT OUTER JOIN
+                         tblCutSheetOpticalFiberChart ON tbl_Fibers.OpticalID = tblCutSheetOpticalFiberChart.OpticalID
 GO
 EXEC sp_addextendedproperty N'MS_DiagramPane1', N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
 Begin DesignProperties = 

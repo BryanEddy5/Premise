@@ -2,11 +2,16 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
+/*
 -- =============================================
--- Author:		<Author,,Name>
--- Create date: <Create Date,,>
--- Description:	<Description,,>
+	Author:			Bryan Eddy
+	Create date:	12/11/2017
+	Description:	Invoke URL to push data to Sales Force
+	Version:		2
+	Update:			Added header.
 -- =============================================
+
+*/
 CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_InvokeURL_SalesForce_Update] 
 
 

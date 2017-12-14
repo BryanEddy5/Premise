@@ -42,7 +42,7 @@ SET @Receipientlist = 'AFLMTYInactiveComponentAlertDL@aflglobal.com'
 declare @body1 varchar(max)
 declare @subject varchar(max)
 declare @query varchar(max) = N'SELECT * FROM tempdb..#Results;'
-set @subject = 'TEST MTY ALERT - Inactive Components in BOM' 
+set @subject = 'MTY ALERT - Inactive Components in BOM' 
 set @body1 = 'There are  ' + CAST(@numRows AS NVARCHAR) + ' inactive components in MTY BOMs.  Please review.' +char(13)+CHAR(13)
 
 DECLARE @tableHTML  NVARCHAR(MAX) ;

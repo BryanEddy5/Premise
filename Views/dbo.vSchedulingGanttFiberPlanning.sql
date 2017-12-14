@@ -3,26 +3,30 @@ GO
 SET ANSI_NULLS ON
 GO
 
+
 CREATE VIEW [dbo].[vSchedulingGanttFiberPlanning]
 AS
 
-	WITH ceJob as 
+	WITH ceJob AS 
 	(
 		SELECT        --k.Start,K.Finish,K.RequiredDays, K.Sequence,K.[Item number],K.Job#,K.Line#,
-					K.*, G.[Fiber Oracle item],
+					K.*, G.[Fiber Oracle item],E.EngineeringAssist,
 								 G.[Fiber Type], G.FiberType2, FIRST_VALUE(Start) OVER (PARTITION BY Line# ORDER BY Line#,ISNULL(Job#,0),Sequence) NextEmptyJobTime,ISNULL(Job#,0) NextEmptyJobFlag --, CASE WHEN Job# IS NULL AND (lag(Job#) OVER  (PARTITION BY Line# ORDER BY Line#, Sequence)) IS NOT NULL THEN 0 ELSE 1 END NextTimeFlag
 
 		FROM            dbo.[Temp (Premise Load)] K LEFT JOIN
 								 dbo.[Basic Product Construction] G ON K.[Item number] = G.[New Oracle Part #]
-		where K.Start IS NOT NULL and [Item number] not like 'buff%'
+								 LEFT JOIN dbo.tblCableConstructionReferences I ON I.Base = K.Base
+								 LEFT JOIN dbo.tblCableConstructions E ON E.BaseID = I.BaseID
+		WHERE K.Start IS NOT NULL AND [Item number] NOT LIKE 'buff%'
 		--ORDER BY Line#,Sequence
 	) 
-	SELECT *,CONVERT(VARCHAR(10),(datediff(SECOND,getdate(),NextEmptyJobTime)/86400)) + ':' +
-		convert(varchar(10),(((datediff(SECOND,getdate(),NextEmptyJobTime)%86400)/3600))) + ':' +
-			convert(varchar(10),(((datediff(SECOND,getdate(),NextEmptyJobTime)%86400%3600)/60)))   'DD:HH:MM' 
-	from ceJob
+	SELECT *,CONVERT(VARCHAR(10),(DATEDIFF(SECOND,GETDATE(),NextEmptyJobTime)/86400)) + ':' +
+		CONVERT(VARCHAR(10),(((DATEDIFF(SECOND,GETDATE(),NextEmptyJobTime)%86400)/3600))) + ':' +
+			CONVERT(VARCHAR(10),(((DATEDIFF(SECOND,GETDATE(),NextEmptyJobTime)%86400%3600)/60)))   'DD:HH:MM' 
+	FROM ceJob
 	--ORDER BY LINE#, Sequence 
 	--Where NextTime is null
+
 
 
 GO

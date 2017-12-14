@@ -5,11 +5,13 @@ GO
 
 
 
+
 -- =============================================
 -- Author:		Bryan Eddy
 -- ALTER date: 6/12/17
 -- Description:	Send email of missing line speeds to Process Engineers
--- 
+-- Version:		1
+-- Update:		Added header 2 to the email and put it in red to alert the process engineers of the urgency
 -- =============================================
 CREATE PROCEDURE [dbo].[usp_SchedulingMissingLineSpeedEmail]
 
@@ -24,7 +26,7 @@ EXECUTE AS USER = 'dbo'
 
 
 /*******************************************************************
-First query is to determine what setups are either not present in the setup databse or
+First query is to determine what setups are either not present in the setup database or
 what setups are shutoff in the setup db that is in active items.
 All setups in query following are in activec items.
 *********************************************************************
@@ -75,10 +77,7 @@ Determine what items and sub-items are located in open orders.
 
 
 
---Run around 8:30am everyday
-DECLARE @numRows int
-DECLARE @Receipientlist varchar(1000)
-DECLARE @BlindRecipientlist varchar(1000)
+
 
 --Check if any open item requests need commercial approval
 IF OBJECT_ID(N'tempdb..#Results', N'U') IS NOT NULL
@@ -107,15 +106,21 @@ FROM
 	INNER JOIN #SetupLocation K ON G.AssemblyItemNumber = K.Item
 	INNER JOIN AFLPRD_INVSysItemCost_CAB B ON B.ItemNumber = K.ITEM 
 	WHERE B.Make_Buy = 'MAKE' AND k.MachineNumber IS NULL  and left(ITEM,3) NOT in ('WTC','DNT')
-	and LEFT(setup,1) not in ('k','Q','O','I') and setup not in ('R696','R093')
+	and LEFT(setup,1) not in ('k','Q','O','I') and setup not in ('R696','R093','qpc')
 	) X 
 WHERE X.Max_SechuduleDate = x.ScheduleDate and x.item = x.Max_Item --AND X.RowNumber = 1
 ORDER BY ScheduleDate
 
-SELECT * FROM #Results;
+--SELECT * FROM #Results;
+
+
+
+--Run around 8:30am everyday
+DECLARE @numRows int
+DECLARE @Receipientlist varchar(1000)
+DECLARE @BlindRecipientlist varchar(1000)
 
 SELECT @numRows = count(*) FROM #Results;
-
 
 
 SET @ReceipientList = (STUFF((SELECT ';' + UserEmail 
@@ -141,6 +146,8 @@ BEGIN
 	
 			SET @tableHTML =
 				N'<H1>Missing Setup Line Speed Report</H1>' +
+				N'<H2 span style=''font-size:16.0pt;font-family:"Calibri","sans-serif";color:#EB3814''>Items with the setups below will be unable to schedule.</H2>' +
+				--N'<H2 style = ''color: EB3814''>' +
 				N'<p>'+@body1+'</p>' +
 				N'<p class=MsoNormal><span style=''font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497D''>'+
 				N'<table border="1">' +
@@ -162,10 +169,11 @@ BEGIN
 			--SET @tableHTML =
 			--	N'<H1>Premise Cut Sheet Approval</H1>' +
 			--	N'<p>'+@body1+'</p>' +
-			--	N'</table>' ;
+			--	N'</table>' 
 		
 			EXEC msdb.dbo.sp_send_dbmail 
 			@recipients=@ReceipientList,
+			--@recipients = 'bryan.eddy@aflglobal.com',
 			@blind_copy_recipients =  @BlindRecipientlist, --@ReceipientList
 			@subject = @subject,
 			@body = @tableHTML,

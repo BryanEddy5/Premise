@@ -8,6 +8,7 @@ GO
 
 
 
+
 CREATE VIEW [dbo].[vCustomers] AS
 
 --SELECT  Customer
@@ -16,7 +17,7 @@ CREATE VIEW [dbo].[vCustomers] AS
 --UNION 
 SELECT   Customer, CustomerSpecialNotes
 FROM  Customers
-WHERE Customer NOT LIKE '%UNPRINT%'
+--WHERE Customer NOT LIKE '%UNPRINT%'
 
 
 

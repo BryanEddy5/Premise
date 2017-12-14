@@ -16,7 +16,7 @@ CREATE TABLE [dbo].[sales_pivot_bi]
 [CLUSTER_ACCOUNT] [int] NULL,
 [SHIP_TO_STATE] [varchar] (22) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [SHIP_TO_COUNTRY] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-[SHIP_TO_POSTAL_CODE] [varchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[SHIP_TO_POSTAL_CODE] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [ITEM_NUMBER] [varchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [ITEM_DESCRIPTION] [varchar] (250) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [REVENUE] [real] NULL,
