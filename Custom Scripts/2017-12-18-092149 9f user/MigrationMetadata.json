@@ -1,0 +1,26 @@
+{
+  "Id": "862e9901-e6e6-4447-9422-a88dafabde62",
+  "Name": "Covers changes to: Color, Compounds, tblJacketMaterialColorChips_DeleteIfNotUsed, tblNames_Test. Script created at 2017-12-18 09:13.",
+  "ObjectIds": [
+    {
+      "Name": "Color",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "Compounds",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblJacketMaterialColorChips_DeleteIfNotUsed",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblNames_Test",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    }
+  ]
+}

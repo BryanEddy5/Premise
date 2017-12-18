@@ -1,0 +1,159 @@
+diff --git a/RedGateDatabaseInfo.xml b/RedGateDatabaseInfo.xml
+new file mode 100644
+index 0000000..d1e3a18
+--- /dev/null
++++ b/RedGateDatabaseInfo.xml
+@@ -0,0 +1,62 @@
++﻿<?xml version="1.0" encoding="utf-8"?>
++<DatabaseInformation Version="2">
++  <ScriptFileEncoding>UTF8</ScriptFileEncoding>
++  <DefaultCollation>SQL_Latin1_General_CP1_CI_AS</DefaultCollation>
++  <DefaultSchema>dbo</DefaultSchema>
++  <DefaultUser>dbo</DefaultUser>
++  <DefaultFilegroup>PRIMARY</DefaultFilegroup>
++  <DatabaseVersion>12</DatabaseVersion>
++  <IsAzure>False</IsAzure>
++  <MaxDataFileSize>10485760</MaxDataFileSize>
++  <WriteToFileOptions>
++    <Prefixes>
++      <None>
++      </None>
++      <Table>Tables</Table>
++      <StoredProcedure>Stored Procedures</StoredProcedure>
++      <View>Views</View>
++      <Default>Defaults</Default>
++      <FullTextCatalog>Storage\Full Text Catalogs</FullTextCatalog>
++      <Function>Functions</Function>
++      <Role>Security\Roles</Role>
++      <Rule>Rules</Rule>
++      <User>Security\Users</User>
++      <UserDefinedType>Types\User-defined Data Types</UserDefinedType>
++      <Trigger>
++      </Trigger>
++      <DdlTrigger>Database Triggers</DdlTrigger>
++      <Assembly>Assemblies</Assembly>
++      <Synonym>Synonyms</Synonym>
++      <XmlSchemaCollection>Types\XML Schema Collections</XmlSchemaCollection>
++      <MessageType>Service Broker\Message Types</MessageType>
++      <Contract>Service Broker\Contracts</Contract>
++      <Queue>Service Broker\Queues</Queue>
++      <Service>Service Broker\Services</Service>
++      <Route>Service Broker\Routes</Route>
++      <EventNotification>Service Broker\Event Notifications</EventNotification>
++      <PartitionScheme>Storage\Partition Schemes</PartitionScheme>
++      <PartitionFunction>Storage\Partition Functions</PartitionFunction>
++      <Field>
++      </Field>
++      <Index>
++      </Index>
++      <Schema>Security\Schemas</Schema>
++      <ServiceBinding>Service Broker\Remote Service Bindings</ServiceBinding>
++      <Certificate>Security\Certificates</Certificate>
++      <SymmetricKey>Security\Symmetric Keys</SymmetricKey>
++      <AsymmetricKey>Security\Asymmetric Keys</AsymmetricKey>
++      <CheckConstraint>
++      </CheckConstraint>
++      <FullTextStoplist>Storage\Full Text Stoplists</FullTextStoplist>
++      <ExtendedProperty>Extended Properties</ExtendedProperty>
++      <Data>Data</Data>
++      <Sequence>Sequences</Sequence>
++      <SearchPropertyList>Search Property Lists</SearchPropertyList>
++      <SecurityPolicy>Security Policies</SecurityPolicy>
++    </Prefixes>
++    <DataWriteAllFilesInOneDirectory>True</DataWriteAllFilesInOneDirectory>
++  </WriteToFileOptions>
++  <DataFileSet>
++    <Count>0</Count>
++  </DataFileSet>
++</DatabaseInformation>
+\ No newline at end of file
+diff --git a/Tables/dbo.Color.sql b/Tables/dbo.Color.sql
+new file mode 100644
+index 0000000..84deb57
+--- /dev/null
++++ b/Tables/dbo.Color.sql
+@@ -0,0 +1,32 @@
++CREATE TABLE [dbo].[Color]
++(
++[BUF_COLOR] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[Seq No] [smallint] NULL,
++[Colored] [int] NULL CONSTRAINT [DF__Color__Colored__30EE274C] DEFAULT ((0)),
++[Color Change] [tinyint] NULL CONSTRAINT [DF__Color__Color Cha__31E24B85] DEFAULT ((0)),
++[Print] [nvarchar] (15) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[SM Stock Qty] [int] NULL
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[Color] ADD CONSTRAINT [SSMA_CC$Color$BUF_COLOR$disallow_zero_length] CHECK ((len([BUF_COLOR])>(0)))
++GO
++ALTER TABLE [dbo].[Color] ADD CONSTRAINT [SSMA_CC$Color$Print$disallow_zero_length] CHECK ((len([Print])>(0)))
++GO
++ALTER TABLE [dbo].[Color] ADD CONSTRAINT [Color$PrimaryKey] PRIMARY KEY CLUSTERED  ([BUF_COLOR]) ON [PRIMARY]
++GO
++EXEC sp_addextendedproperty N'MS_SSMA_SOURCE', N'AccessSQLExport.[Color]', 'SCHEMA', N'dbo', 'TABLE', N'Color', NULL, NULL
++GO
++EXEC sp_addextendedproperty N'MS_SSMA_SOURCE', N'AccessSQLExport.[Color].[BUF_COLOR]', 'SCHEMA', N'dbo', 'TABLE', N'Color', 'COLUMN', N'BUF_COLOR'
++GO
++EXEC sp_addextendedproperty N'MS_SSMA_SOURCE', N'AccessSQLExport.[Color].[Color Change]', 'SCHEMA', N'dbo', 'TABLE', N'Color', 'COLUMN', N'Color Change'
++GO
++EXEC sp_addextendedproperty N'MS_SSMA_SOURCE', N'AccessSQLExport.[Color].[Colored]', 'SCHEMA', N'dbo', 'TABLE', N'Color', 'COLUMN', N'Colored'
++GO
++EXEC sp_addextendedproperty N'MS_SSMA_SOURCE', N'AccessSQLExport.[Color].[Print]', 'SCHEMA', N'dbo', 'TABLE', N'Color', 'COLUMN', N'Print'
++GO
++EXEC sp_addextendedproperty N'MS_SSMA_SOURCE', N'AccessSQLExport.[Color].[Seq No]', 'SCHEMA', N'dbo', 'TABLE', N'Color', 'COLUMN', N'Seq No'
++GO
++EXEC sp_addextendedproperty N'MS_SSMA_SOURCE', N'AccessSQLExport.[Color].[SM Stock Qty]', 'SCHEMA', N'dbo', 'TABLE', N'Color', 'COLUMN', N'SM Stock Qty'
++GO
++EXEC sp_addextendedproperty N'MS_SSMA_SOURCE', N'AccessSQLExport.[Color].[PrimaryKey]', 'SCHEMA', N'dbo', 'TABLE', N'Color', 'CONSTRAINT', N'Color$PrimaryKey'
++GO
+diff --git a/Tables/dbo.Compounds.sql b/Tables/dbo.Compounds.sql
+new file mode 100644
+index 0000000..db21a4c
+--- /dev/null
++++ b/Tables/dbo.Compounds.sql
+@@ -0,0 +1,13 @@
++CREATE TABLE [dbo].[Compounds]
++(
++[Compound] [nvarchar] (25) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Process] [nvarchar] (5) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[SG] [real] NULL,
++[Oracle Part Number] [nvarchar] (12) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[material cost] [real] NULL,
++[Short Name] [nvarchar] (25) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[SSMA_TimeStamp] [timestamp] NOT NULL
++) ON [PRIMARY]
++GO
++CREATE NONCLUSTERED INDEX [IX_Compounds] ON [dbo].[Compounds] ([Compound]) ON [PRIMARY]
++GO
+diff --git a/Tables/dbo.tblJacketMaterialColorChips_DeleteIfNotUsed.sql b/Tables/dbo.tblJacketMaterialColorChips_DeleteIfNotUsed.sql
+new file mode 100644
+index 0000000..f1693e5
+--- /dev/null
++++ b/Tables/dbo.tblJacketMaterialColorChips_DeleteIfNotUsed.sql
+@@ -0,0 +1,12 @@
++CREATE TABLE [dbo].[tblJacketMaterialColorChips_DeleteIfNotUsed]
++(
++[Jacket] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[Color] [nvarchar] (15) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[ColorChip] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[ColorLetter] [nvarchar] (1) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[TimeStamp] [timestamp] NULL,
++[DateCreated] [datetime] NULL CONSTRAINT [DF_tblJacketMaterialColorChips_DateCreated] DEFAULT (getdate())
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblJacketMaterialColorChips_DeleteIfNotUsed] ADD CONSTRAINT [PK_tblJacketMaterialColorChips_1] PRIMARY KEY CLUSTERED  ([Jacket], [ColorLetter]) ON [PRIMARY]
++GO
+diff --git a/Tables/dbo.tblNames_Test.sql b/Tables/dbo.tblNames_Test.sql
+new file mode 100644
+index 0000000..17490f7
+--- /dev/null
++++ b/Tables/dbo.tblNames_Test.sql
+@@ -0,0 +1,9 @@
++CREATE TABLE [dbo].[tblNames_Test]
++(
++[ID] [int] NOT NULL IDENTITY(1, 1),
++[FirstName] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[LastName] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblNames_Test] ADD CONSTRAINT [PK_tblNames_Test] PRIMARY KEY CLUSTERED  ([ID]) ON [PRIMARY]
++GO

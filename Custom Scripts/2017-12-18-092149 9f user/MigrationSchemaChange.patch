@@ -1,0 +1,90 @@
+diff --git a/Tables/dbo.Color.sql b/Tables/dbo.Color.sql
+deleted file mode 100644
+index 84deb57..0000000
+--- a/Tables/dbo.Color.sql
++++ /dev/null
+@@ -1,32 +0,0 @@
+-CREATE TABLE [dbo].[Color]
+-(
+-[BUF_COLOR] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+-[Seq No] [smallint] NULL,
+-[Colored] [int] NULL CONSTRAINT [DF__Color__Colored__30EE274C] DEFAULT ((0)),
+-[Color Change] [tinyint] NULL CONSTRAINT [DF__Color__Color Cha__31E24B85] DEFAULT ((0)),
+-[Print] [nvarchar] (15) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+-[SM Stock Qty] [int] NULL
+-) ON [PRIMARY]
+-GO
+-ALTER TABLE [dbo].[Color] ADD CONSTRAINT [SSMA_CC$Color$BUF_COLOR$disallow_zero_length] CHECK ((len([BUF_COLOR])>(0)))
+-GO
+-ALTER TABLE [dbo].[Color] ADD CONSTRAINT [SSMA_CC$Color$Print$disallow_zero_length] CHECK ((len([Print])>(0)))
+-GO
+-ALTER TABLE [dbo].[Color] ADD CONSTRAINT [Color$PrimaryKey] PRIMARY KEY CLUSTERED  ([BUF_COLOR]) ON [PRIMARY]
+-GO
+-EXEC sp_addextendedproperty N'MS_SSMA_SOURCE', N'AccessSQLExport.[Color]', 'SCHEMA', N'dbo', 'TABLE', N'Color', NULL, NULL
+-GO
+-EXEC sp_addextendedproperty N'MS_SSMA_SOURCE', N'AccessSQLExport.[Color].[BUF_COLOR]', 'SCHEMA', N'dbo', 'TABLE', N'Color', 'COLUMN', N'BUF_COLOR'
+-GO
+-EXEC sp_addextendedproperty N'MS_SSMA_SOURCE', N'AccessSQLExport.[Color].[Color Change]', 'SCHEMA', N'dbo', 'TABLE', N'Color', 'COLUMN', N'Color Change'
+-GO
+-EXEC sp_addextendedproperty N'MS_SSMA_SOURCE', N'AccessSQLExport.[Color].[Colored]', 'SCHEMA', N'dbo', 'TABLE', N'Color', 'COLUMN', N'Colored'
+-GO
+-EXEC sp_addextendedproperty N'MS_SSMA_SOURCE', N'AccessSQLExport.[Color].[Print]', 'SCHEMA', N'dbo', 'TABLE', N'Color', 'COLUMN', N'Print'
+-GO
+-EXEC sp_addextendedproperty N'MS_SSMA_SOURCE', N'AccessSQLExport.[Color].[Seq No]', 'SCHEMA', N'dbo', 'TABLE', N'Color', 'COLUMN', N'Seq No'
+-GO
+-EXEC sp_addextendedproperty N'MS_SSMA_SOURCE', N'AccessSQLExport.[Color].[SM Stock Qty]', 'SCHEMA', N'dbo', 'TABLE', N'Color', 'COLUMN', N'SM Stock Qty'
+-GO
+-EXEC sp_addextendedproperty N'MS_SSMA_SOURCE', N'AccessSQLExport.[Color].[PrimaryKey]', 'SCHEMA', N'dbo', 'TABLE', N'Color', 'CONSTRAINT', N'Color$PrimaryKey'
+-GO
+diff --git a/Tables/dbo.Compounds.sql b/Tables/dbo.Compounds.sql
+deleted file mode 100644
+index db21a4c..0000000
+--- a/Tables/dbo.Compounds.sql
++++ /dev/null
+@@ -1,13 +0,0 @@
+-CREATE TABLE [dbo].[Compounds]
+-(
+-[Compound] [nvarchar] (25) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+-[Process] [nvarchar] (5) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+-[SG] [real] NULL,
+-[Oracle Part Number] [nvarchar] (12) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+-[material cost] [real] NULL,
+-[Short Name] [nvarchar] (25) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+-[SSMA_TimeStamp] [timestamp] NOT NULL
+-) ON [PRIMARY]
+-GO
+-CREATE NONCLUSTERED INDEX [IX_Compounds] ON [dbo].[Compounds] ([Compound]) ON [PRIMARY]
+-GO
+diff --git a/Tables/dbo.tblJacketMaterialColorChips_DeleteIfNotUsed.sql b/Tables/dbo.tblJacketMaterialColorChips_DeleteIfNotUsed.sql
+deleted file mode 100644
+index f1693e5..0000000
+--- a/Tables/dbo.tblJacketMaterialColorChips_DeleteIfNotUsed.sql
++++ /dev/null
+@@ -1,12 +0,0 @@
+-CREATE TABLE [dbo].[tblJacketMaterialColorChips_DeleteIfNotUsed]
+-(
+-[Jacket] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+-[Color] [nvarchar] (15) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+-[ColorChip] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+-[ColorLetter] [nvarchar] (1) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+-[TimeStamp] [timestamp] NULL,
+-[DateCreated] [datetime] NULL CONSTRAINT [DF_tblJacketMaterialColorChips_DateCreated] DEFAULT (getdate())
+-) ON [PRIMARY]
+-GO
+-ALTER TABLE [dbo].[tblJacketMaterialColorChips_DeleteIfNotUsed] ADD CONSTRAINT [PK_tblJacketMaterialColorChips_1] PRIMARY KEY CLUSTERED  ([Jacket], [ColorLetter]) ON [PRIMARY]
+-GO
+diff --git a/Tables/dbo.tblNames_Test.sql b/Tables/dbo.tblNames_Test.sql
+deleted file mode 100644
+index 17490f7..0000000
+--- a/Tables/dbo.tblNames_Test.sql
++++ /dev/null
+@@ -1,9 +0,0 @@
+-CREATE TABLE [dbo].[tblNames_Test]
+-(
+-[ID] [int] NOT NULL IDENTITY(1, 1),
+-[FirstName] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+-[LastName] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
+-) ON [PRIMARY]
+-GO
+-ALTER TABLE [dbo].[tblNames_Test] ADD CONSTRAINT [PK_tblNames_Test] PRIMARY KEY CLUSTERED  ([ID]) ON [PRIMARY]
+-GO
