@@ -2,15 +2,18 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
+/*
 -- =============================================
 -- Author:		Bryan Eddy
--- ALTER date: 2/15/2017
+-- ALTER date:	2/15/2017
 -- Description:	Send out emails to notify approvers of constructions awaiting for approval.
--- Job has been ALTERd to run automatically with these notifications
+	Version:	1
+	Update:		Added in a date differential to give more time before notification
 -- =============================================
+*/
 CREATE PROCEDURE [dbo].[usp_CutSheet_Email_Reminder]
 
-@ApproverType as tinyint
+@ApproverType AS TINYINT
 AS
 
 EXECUTE AS USER = 'dbo' 
@@ -20,37 +23,37 @@ SET NOCOUNT ON;
 
 --Run around 8:30am everyday
 DECLARE @numRows int
-DECLARE @Receipientlist varchar(1000)
+DECLARE @Receipientlist VARCHAR(1000)
 
 
 --Check if any open item requests need commercial approval
 
 IF @ApproverType = 2
 BEGIN
-	SELECT @numRows =count(*)
+	SELECT @numRows =COUNT(*)
 	FROM tblCutSheetApproval
-	WHERE Requested = 1 AND Commercial_Approval =0 
+	WHERE Requested = 1 AND Commercial_Approval =0 AND DATEDIFF(DD,RecordCreationDate,GETDATE()) > 3
 END
 
 IF @ApproverType = 1
 BEGIN
-	SELECT @numRows =count(*)
+	SELECT @numRows =COUNT(*)
 	FROM tblCutSheetApproval
-	WHERE Requested = 1 AND Technical_Approval =0 
+	WHERE Requested = 1 AND Technical_Approval =0 AND DATEDIFF(DD,RecordCreationDate,GETDATE()) > 3
 END
 
 
 SET @ReceipientList = (STUFF((SELECT ';' + UserEmail FROM tblConfiguratorUser WHERE CutSheetApprover = @ApproverType AND UserTypeID = 2 FOR XML PATH('')),1,1,''))
 
-declare @body1 varchar(max)
-declare @subject varchar(max)
-set @subject = 'PAST DUE - Premise Cut Sheet Request ' 
-set @body1 = 'There are  ' + CAST(@numRows AS NVARCHAR) + ' constructions awaiting approval.  Please review.' +char(13)+CHAR(13)
+DECLARE @body1 VARCHAR(MAX)
+DECLARE @subject VARCHAR(MAX)
+SET @subject = 'PAST DUE - Premise Cut Sheet Request ' 
+SET @body1 = 'There are  ' + CAST(@numRows AS NVARCHAR) + ' constructions awaiting approval.  Please review.' +CHAR(13)+CHAR(13)
 
 
 DECLARE @tableHTML  NVARCHAR(MAX) ;
-if @numRows > 0
-begin
+IF @numRows > 0
+BEGIN
 	
 			SET @tableHTML =
 				N'<H1>Premise Cut Sheet Approval</H1>' +
@@ -65,7 +68,7 @@ begin
 			
 
 
-end
+END
 
 
 

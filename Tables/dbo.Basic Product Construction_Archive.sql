@@ -101,13 +101,15 @@ CREATE TABLE [dbo].[Basic Product Construction_Archive]
 [2nd Max Atten - C] [decimal] (6, 4) NULL,
 [2nd Min BandW - C] [nvarchar] (4) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Colored_Fiber] [bit] NULL CONSTRAINT [DF_Basic Product Construction_Archive_Colored_Fiber] DEFAULT ((0)),
-[ID] [int] NULL,
 [RecordCreationDate] [datetime] NULL CONSTRAINT [DF_Basic Product Construction_Archive_DateCreated1] DEFAULT (getdate()),
 [RecordCreatedBy] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_Basic Product Construction_Archive_CreatedBy1] DEFAULT (suser_sname()),
 [RecordRevisedBy] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [ActiveStatusChangedDate] [datetime] NULL,
-[ActiveStatusChangedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
+[ActiveStatusChangedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[ID] [int] NOT NULL IDENTITY(1, 1)
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[Basic Product Construction_Archive] ADD CONSTRAINT [pk_BPConstructionArchive] PRIMARY KEY CLUSTERED  ([ID]) ON [PRIMARY]
 GO
 CREATE NONCLUSTERED INDEX [NonClusteredIndex-20160817-113114] ON [dbo].[Basic Product Construction_Archive] ([Base]) ON [PRIMARY]
 GO

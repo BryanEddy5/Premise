@@ -7,7 +7,6 @@ GO
 -- Author:		Bryan Eddy
 -- ALTER date:	11/6/2017
 -- Desc:		Finding items with obsolete components.
-
 -- =============================================
 CREATE PROCEDURE [dbo].[usp_EmailActiveItemsWithObsoleteComponents]
 
@@ -29,6 +28,7 @@ DROP TABLE #Results;
 SELECT *
 INTO #Results
 FROM Oracle.vActiveItemsWithObsoleteComponents
+WHERE salesorder IS NULL AND subinventory IS null
 ORDER BY AssemblyItemNumber
 
 
@@ -59,10 +59,13 @@ BEGIN
 				N'<p class=MsoNormal><span style=''font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497D''>'+
 				N'<table border="1">' +
 				N'<tr><th>Item</th><th>Item Status</th>' +
-				N'<th>Obsolete Component</th></tr>' +
+				N'<th>Obsolete Component</th>' +
+				N'<th>ComponentStatus</th></tr>' +
 				CAST ( ( SELECT		td=AssemblyItemNumber,       '',
 									td=AssemblyItemStatus, '',
-									td=ObsoleteComponent, ''
+									td=ObsoleteComponent, '',
+									td=Instructions,''
+
 							FROM #Results 
 						  FOR XML PATH('tr'), TYPE 
 				) AS NVARCHAR(MAX) ) +

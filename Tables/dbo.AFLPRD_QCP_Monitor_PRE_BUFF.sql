@@ -1,7 +1,7 @@
 CREATE TABLE [dbo].[AFLPRD_QCP_Monitor_PRE_BUFF]
 (
 [Machine] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-[Start Date] [datetime2] NULL,
+[Start Date] [datetime] NULL,
 [Cable Type] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Job] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Cut Number] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,

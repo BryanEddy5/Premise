@@ -37,7 +37,7 @@ SELECT [ItemRouting]
 	INTO	#Results
   FROM [Premise].[Setup].[vSetupStandardOperationMismatch] K INNER JOIN
   dbo.AFLPRD_ORDDTLREPT_UPLOAD_CAB G ON G.[Item Number] = K.ItemRouting
-  WHERE StdOpBOM <> 'R204' AND StdOpConfigurator <> 'R446'
+  --WHERE StdOpBOM <> 'R204' AND StdOpConfigurator <> 'R446'
   ORDER BY DateCreated DESC, StdOpBOM
 SELECT * FROM #Results
 
