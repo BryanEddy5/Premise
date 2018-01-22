@@ -28,11 +28,11 @@ DROP TABLE #Results;
 SELECT *
 INTO #Results
 FROM Oracle.vActiveItemsWithObsoleteComponents
-WHERE salesorder IS NULL AND subinventory IS null
+WHERE (salesorder IS NULL AND subinventory IS NULL) OR AssemblyItemStatus <> 'discontd'
 ORDER BY AssemblyItemNumber
 
 
---SELECT * FROM #Results
+SELECT * FROM #Results
 
 SELECT @numRows = count(*) FROM #Results
 

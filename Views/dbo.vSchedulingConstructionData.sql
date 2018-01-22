@@ -2,60 +2,71 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
+/*
+Author:		Bryan Eddy
+Date:		1/18/2018
+Desc:		Construction data for Scheduling Construction sheet reports
+Version:	1
+Update:		Updated construction description to pull the SalesForce description from the DesignType table.  This will remove
+			erroneous description information from the construction sheet reports
+
+*/
 
 CREATE VIEW [dbo].[vSchedulingConstructionData]
 AS
-SELECT        dbo.tblCableConstructions.CM AS CenterMember, dbo.tblCableConstructions.JacketMaterial AS [Jacket Material], dbo.vSchedulingCableUnion.[item no], 
-                         dbo.vSchedulingCableUnion.[customer part#], dbo.vSchedulingCableUnion.customer, dbo.vSchedulingCableUnion.[print type (base)], 
-                         dbo.vSchedulingCableUnion.[new oracle part #], dbo.vSchedulingCableUnion.base, dbo.vSchedulingCableUnion.[jacket color], 
-                         dbo.vSchedulingCableUnion.[print line 1], dbo.vSchedulingCableUnion.[print line 2], dbo.vSchedulingCableUnion.[print line 3], 
-                         dbo.vSchedulingCableUnion.[print line 4], dbo.vSchedulingCableUnion.[print reel no], dbo.vSchedulingCableUnion.[print item no], 
-                         dbo.vSchedulingCableUnion.[print spacing], dbo.vSchedulingCableUnion.[1st req freq], dbo.vSchedulingCableUnion.[2nd req freq], 
-                         dbo.vSchedulingCableUnion.[Fiber Type], dbo.vSchedulingCableUnion.[Base Oracle], dbo.vSchedulingCableUnion.active, 
-                         dbo.vSchedulingCableUnion.[revision date], dbo.vSchedulingCableUnion.[revision history], dbo.vSchedulingCableUnion.Fiber2, dbo.vSchedulingCableUnion.PID, 
-                         dbo.vSchedulingCableUnion.oraclestatus, dbo.vSchedulingCableUnion.enumber, dbo.vSchedulingCableUnion.Fiber3, dbo.vSchedulingCableUnion.customerrev, 
-                         dbo.vSchedulingCableUnion.Location, dbo.vSchedulingCableUnion.StdOp, dbo.vSchedulingCableUnion.Fiber, dbo.vSchedulingCableUnion.[1st Req Freq - A], 
-                         dbo.vSchedulingCableUnion.[1st Max Atten - A], dbo.vSchedulingCableUnion.[1st Min BandW - A], dbo.vSchedulingCableUnion.[2nd Req Freq - A], 
-                         dbo.vSchedulingCableUnion.[2nd Max Atten - A], dbo.vSchedulingCableUnion.[2nd Min BandW - A], dbo.vSchedulingCableUnion.[1st Req Freq - B], 
-                         dbo.vSchedulingCableUnion.[1st Max Atten - B], dbo.vSchedulingCableUnion.[1st Min BandW - B], dbo.vSchedulingCableUnion.[2nd Req Freq - B], 
-                         dbo.vSchedulingCableUnion.[2nd Max Atten - B], dbo.vSchedulingCableUnion.[2nd Min BandW - B], dbo.vSchedulingCableUnion.[1st Req Freq - C], 
-                         dbo.vSchedulingCableUnion.[1st Max Atten - C], dbo.vSchedulingCableUnion.[1st Min BandW - C], dbo.vSchedulingCableUnion.[2nd Req Freq - C], 
-                         dbo.vSchedulingCableUnion.[2nd Max Atten - C], dbo.vSchedulingCableUnion.[2nd Min BandW - C], dbo.vSchedulingCableUnion.[Print Height], 
-                         dbo.vSchedulingCableUnion.[FRP Dia], dbo.vSchedulingCableUnion.CustomerInstructions, dbo.vSchedulingCableUnion.[tb nominal od], 
-                         dbo.vSchedulingCableUnion.[tb od tol  (-)], dbo.vSchedulingCableUnion.[tb od tol  (+)], dbo.vSchedulingCableUnion.[ez strip], 
-                         dbo.vSchedulingCableUnion.[tb material], dbo.vSchedulingCableUnion.[tb chips type], dbo.vSchedulingCableUnion.[unit series], 
-                         dbo.vSchedulingCableUnion.SpecialInstructions1, dbo.vSchedulingCableUnion.SpecialInstructions2, dbo.tblCableConstructions.JacketMaterial AS JacketMat, 
-                         dbo.tblCableConstructionReferences.DesignCode, dbo.tblCableConstructionReferences.DesignExtension, 
-                         dbo.tblCableConstructionReferences.ConstructionDescription, dbo.tblCableConstructionReferences.NumSubFillers, 
-                         dbo.tblCableConstructionReferences.Active AS ActiveConstruction, dbo.tblCableConstructionReferences.PrefixID, dbo.tblCableConstructionReferences.ProductID, 
-                         dbo.tblCableConstructionReferences.SetupID, dbo.tblCableConstructionReferences.FamilyID, dbo.tblCableConstructionReferences.FibersPerBundle, 
-                         dbo.tblCableConstructionReferences.UnitIDTypeNumber, dbo.tblCableConstructionReferences.InactiveReason, 
-                         dbo.tblCableConstructionReferences.NumSubPositions, dbo.tblCableConstructionReferences.TBType, dbo.tblCableConstructionReferences.CableFamily, 
-                         dbo.tblCableConstructionReferences.CableLevel1, dbo.tblCableConstructionReferences.DesignTypeID, dbo.tblCableConstructionReferences.NumCopperUnits, 
-                         dbo.tblCableConstructionReferences.ReleasedDesign, dbo.tblCableConstructions.TemperatureApplication, dbo.tblCableConstructions.TensileApplication, 
-                         dbo.tblCableConstructions.CablePasses, dbo.tblCableConstructions.StandardOperation, dbo.tblCableConstructions.JacketMaterial, 
-                         dbo.tblCableConstructions.NominalOD, dbo.tblCableConstructions.ODTolPlus, dbo.tblCableConstructions.ODTolMinus, dbo.tblCableConstructions.Height, 
-                         dbo.tblCableConstructions.HeightTolPlus, dbo.tblCableConstructions.HeightTolMinus, dbo.tblCableConstructions.NominalWall, 
-                         dbo.tblCableConstructions.MaxAveWall, dbo.tblCableConstructions.MinAveWall, dbo.tblCableConstructions.MinSpotWall, dbo.tblCableConstructions.AramidType1, 
-                         dbo.tblCableConstructions.AramidEnds1, dbo.tblCableConstructions.AramidType2, dbo.tblCableConstructions.AramidEnds2, dbo.tblCableConstructions.Ripcord, 
-                         dbo.tblCableConstructions.RipcordQty, dbo.tblCableConstructions.LayLength, dbo.tblCableConstructions.Talc, dbo.tblCableConstructions.FRP_Dia, 
-                         dbo.tblCableConstructions.CM, dbo.tblCableConstructions.CMMaterial, dbo.tblCableConstructions.CM_OD, dbo.tblCableConstructions.CMODTolPlus, 
-                         dbo.tblCableConstructions.CMODTolMinus, dbo.tblCableConstructions.CMWall, dbo.tblCableConstructions.CMMinWall, dbo.tblCableConstructions.HelixFactor, 
-                         dbo.tblCableConstructions.CoreWrap, dbo.tblCableConstructions.CoreDia, dbo.tblCableConstructions.Binder1, dbo.tblCableConstructions.QtyBinder1, 
-                         dbo.tblCableConstructions.Binder1LayLength, dbo.tblCableConstructions.Binder2, dbo.tblCableConstructions.QtyBinder2, 
-                         dbo.tblCableConstructions.Binder2LayLength, dbo.tblCableConstructions.Binder3, dbo.tblCableConstructions.QtyBinder3, 
-                         dbo.tblCableConstructions.Binder3LayLength, dbo.tblCableConstructions.RevisionNumber, dbo.tblCableConstructions.RevisionHistory, 
-                         dbo.tblCableConstructions.Instructions, dbo.tblCableConstructions.Instructions2, dbo.tblCableConstructions.Additive, dbo.tblCableConstructions.AdditivePercentage, 
-                         dbo.tblCableConstructions.FirstRun, dbo.tblCableConstructions.EngineeringAssist, dbo.tblCableConstructions.AramidType3, dbo.tblCableConstructions.AramidEnds3, 
-                         dbo.vColor_Chip_Jacket_Material.Color_Chip_Concentration AS ColorChipPercentage, dbo.vColor_Chip_Jacket_Material.ColorChip AS [Color Chip ID], 
-                         dbo.vColor_Chip_Jacket_Material.ColorChipType AS ChipType,
-						 dbo.customers.CustomerSpecialNotes
-FROM            dbo.vSchedulingCableUnion INNER JOIN
-                         dbo.tblCableConstructionReferences ON dbo.vSchedulingCableUnion.base = dbo.tblCableConstructionReferences.Base INNER JOIN
-                         dbo.tblCableConstructions ON dbo.tblCableConstructionReferences.BaseID = dbo.tblCableConstructions.BaseID INNER JOIN
-                         dbo.vColor_Chip_Jacket_Material ON dbo.tblCableConstructions.JacketMaterial = dbo.vColor_Chip_Jacket_Material.JacketMaterial AND 
-                         dbo.vSchedulingCableUnion.[jacket color] = dbo.vColor_Chip_Jacket_Material.Color
-						 INNER JOIN dbo.Customers  ON Customers.Customer = dbo.vSchedulingCableUnion.customer
+SELECT        tblCableConstructions.CM AS CenterMember, tblCableConstructions.JacketMaterial AS [Jacket Material], vSchedulingCableUnion.[item no], 
+                         vSchedulingCableUnion.[customer part#], vSchedulingCableUnion.customer, vSchedulingCableUnion.[print type (base)], 
+                         vSchedulingCableUnion.[new oracle part #], vSchedulingCableUnion.base, vSchedulingCableUnion.[jacket color], 
+                         vSchedulingCableUnion.[print line 1], vSchedulingCableUnion.[print line 2], vSchedulingCableUnion.[print line 3], 
+                         vSchedulingCableUnion.[print line 4], vSchedulingCableUnion.[print reel no], vSchedulingCableUnion.[print item no], 
+                         vSchedulingCableUnion.[print spacing], vSchedulingCableUnion.[1st req freq], vSchedulingCableUnion.[2nd req freq], 
+                         vSchedulingCableUnion.[Fiber Type], vSchedulingCableUnion.[Base Oracle], vSchedulingCableUnion.active, 
+                         vSchedulingCableUnion.[revision date], vSchedulingCableUnion.[revision history], vSchedulingCableUnion.Fiber2, vSchedulingCableUnion.PID, 
+                         vSchedulingCableUnion.oraclestatus, vSchedulingCableUnion.enumber, vSchedulingCableUnion.Fiber3, vSchedulingCableUnion.customerrev, 
+                         vSchedulingCableUnion.Location, vSchedulingCableUnion.StdOp, vSchedulingCableUnion.Fiber, vSchedulingCableUnion.[1st Req Freq - A], 
+                         vSchedulingCableUnion.[1st Max Atten - A], vSchedulingCableUnion.[1st Min BandW - A], vSchedulingCableUnion.[2nd Req Freq - A], 
+                         vSchedulingCableUnion.[2nd Max Atten - A], vSchedulingCableUnion.[2nd Min BandW - A], vSchedulingCableUnion.[1st Req Freq - B], 
+                         vSchedulingCableUnion.[1st Max Atten - B], vSchedulingCableUnion.[1st Min BandW - B], vSchedulingCableUnion.[2nd Req Freq - B], 
+                         vSchedulingCableUnion.[2nd Max Atten - B], vSchedulingCableUnion.[2nd Min BandW - B], vSchedulingCableUnion.[1st Req Freq - C], 
+                         vSchedulingCableUnion.[1st Max Atten - C], vSchedulingCableUnion.[1st Min BandW - C], vSchedulingCableUnion.[2nd Req Freq - C], 
+                         vSchedulingCableUnion.[2nd Max Atten - C], vSchedulingCableUnion.[2nd Min BandW - C], vSchedulingCableUnion.[Print Height], 
+                         vSchedulingCableUnion.[FRP Dia], vSchedulingCableUnion.CustomerInstructions, vSchedulingCableUnion.[tb nominal od], 
+                         vSchedulingCableUnion.[tb od tol  (-)], vSchedulingCableUnion.[tb od tol  (+)], vSchedulingCableUnion.[ez strip], 
+                         vSchedulingCableUnion.[tb material], vSchedulingCableUnion.[tb chips type], vSchedulingCableUnion.[unit series], 
+                         vSchedulingCableUnion.SpecialInstructions1, vSchedulingCableUnion.SpecialInstructions2, tblCableConstructions.JacketMaterial AS JacketMat, 
+                         tblCableConstructionReferences.DesignCode, tblCableConstructionReferences.DesignExtension 
+                         --tblCableConstructionReferences.ConstructionDescription
+						 , tblCableConstructionReferences.NumSubFillers, 
+                         tblCableConstructionReferences.Active AS ActiveConstruction, tblCableConstructionReferences.PrefixID, tblCableConstructionReferences.ProductID, 
+                         tblCableConstructionReferences.SetupID, tblCableConstructionReferences.FamilyID, tblCableConstructionReferences.FibersPerBundle, 
+                         tblCableConstructionReferences.UnitIDTypeNumber, tblCableConstructionReferences.InactiveReason, 
+                         tblCableConstructionReferences.NumSubPositions, tblCableConstructionReferences.TBType, tblCableConstructionReferences.CableFamily, 
+                         tblCableConstructionReferences.CableLevel1, tblCableConstructionReferences.DesignTypeID, tblCableConstructionReferences.NumCopperUnits, 
+                         tblCableConstructionReferences.ReleasedDesign, tblCableConstructions.TemperatureApplication, tblCableConstructions.TensileApplication, 
+                         tblCableConstructions.CablePasses, tblCableConstructions.StandardOperation, tblCableConstructions.JacketMaterial, 
+                         tblCableConstructions.NominalOD, tblCableConstructions.ODTolPlus, tblCableConstructions.ODTolMinus, tblCableConstructions.Height, 
+                         tblCableConstructions.HeightTolPlus, tblCableConstructions.HeightTolMinus, tblCableConstructions.NominalWall, 
+                         tblCableConstructions.MaxAveWall, tblCableConstructions.MinAveWall, tblCableConstructions.MinSpotWall, tblCableConstructions.AramidType1, 
+                         tblCableConstructions.AramidEnds1, tblCableConstructions.AramidType2, tblCableConstructions.AramidEnds2, tblCableConstructions.Ripcord, 
+                         tblCableConstructions.RipcordQty, tblCableConstructions.LayLength, tblCableConstructions.Talc, tblCableConstructions.FRP_Dia, 
+                         tblCableConstructions.CM, tblCableConstructions.CMMaterial, tblCableConstructions.CM_OD, tblCableConstructions.CMODTolPlus, 
+                         tblCableConstructions.CMODTolMinus, tblCableConstructions.CMWall, tblCableConstructions.CMMinWall, tblCableConstructions.HelixFactor, 
+                         tblCableConstructions.CoreWrap, tblCableConstructions.CoreDia, tblCableConstructions.Binder1, tblCableConstructions.QtyBinder1, 
+                         tblCableConstructions.Binder1LayLength, tblCableConstructions.Binder2, tblCableConstructions.QtyBinder2, 
+                         tblCableConstructions.Binder2LayLength, tblCableConstructions.Binder3, tblCableConstructions.QtyBinder3, 
+                         tblCableConstructions.Binder3LayLength, tblCableConstructions.RevisionNumber, tblCableConstructions.RevisionHistory, 
+                         tblCableConstructions.Instructions, tblCableConstructions.Instructions2, tblCableConstructions.Additive, tblCableConstructions.AdditivePercentage, 
+                         tblCableConstructions.FirstRun, tblCableConstructions.EngineeringAssist, tblCableConstructions.AramidType3, tblCableConstructions.AramidEnds3, 
+                         vColor_Chip_Jacket_Material.Color_Chip_Concentration AS ColorChipPercentage, vColor_Chip_Jacket_Material.ColorChip AS [Color Chip ID], 
+                         vColor_Chip_Jacket_Material.ColorChipType AS ChipType,
+						 customers.CustomerSpecialNotes,Design.SalesForceDescription AS ConstructionDescription
+FROM            vSchedulingCableUnion INNER JOIN
+                         tblCableConstructionReferences ON vSchedulingCableUnion.base = tblCableConstructionReferences.Base INNER JOIN
+                         tblCableConstructions ON tblCableConstructionReferences.BaseID = tblCableConstructions.BaseID INNER JOIN
+                         vColor_Chip_Jacket_Material ON tblCableConstructions.JacketMaterial = vColor_Chip_Jacket_Material.JacketMaterial AND 
+                         vSchedulingCableUnion.[jacket color] = vColor_Chip_Jacket_Material.Color
+						 INNER JOIN Customers  ON Customers.Customer = vSchedulingCableUnion.customer 
+						 left JOIN dbo.tblDesignTypes Design ON Design.DesignTypeID = tblCableConstructionReferences.DesignTypeID
 
 
 

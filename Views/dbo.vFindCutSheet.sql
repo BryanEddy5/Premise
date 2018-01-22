@@ -14,56 +14,51 @@ GO
 
 
 
-/* AND TemperatureApplication IS NOT NULL*/
-CREATE VIEW [dbo].[vFindCutSheet]
-AS
-SELECT  DISTINCT 
-                         CableUnion.Oracle, CableUnion.Fiber, CableUnion.Color, CableUnion.Base, tblCableConstructions_1.StandardOperation, CableUnion.ItemNo, 
-                         tblCableConstructions_1.CablePasses AS Location, tblCableConstructionReferences.RevisionDate, 
-                         CableUnion.OracleStatus, CableUnion.PID, CableUnion.Fiber2,
-                         CableUnion.Customer, 
-                         tblCableConstructions_1.NominalOD, CONVERT(DATE, CableUnion.[Revision Date]) AS RevDate, CableUnion.PrintSpacing, CableUnion.[Item No], 
-                         tblCableConstructions_1.TensileApplication, tblCableConstructionReferences.DesignTypeID, tblCableConstructions_1.TemperatureApplication, 
-                         tblDesignTypes.SalesForceDescription,CAST(SUBSTRING(CableUnion.ItemNo,3,3) AS INT) FiberCount
-						 , tblCableConstructionReferences.CableType,
-                         tblCableConstructionReferences.NumSubPositions, tblCableConstructionReferences.NumCopperUnits,
-						 CASE WHEN  tblCableConstructions_1.CablePasses = 1 THEN tblCableConstructionReferences.FibersPerBundle
-							  ELSE tblCableConstructionReferences_1.FibersPerBundle
-						 END FibersPerBundle, 
-						 CASE WHEN  tblCableConstructions_1.CablePasses = 1 THEN tblCableConstructions_1.NominalOD
-						 ELSE tblCableConstructions.NominalOD 
-						 END AS SubOD,
-                          tblCutSheetApproval.Technical_Approval, tblCutSheetApproval.Commercial_Approval, 
-                         tblCutSheetApproval.Requested, 
 
-							CASE WHEN ((tblCutSheetApproval.Commercial_Approval = 0 OR tblCutSheetApproval.Technical_Approval = 0 OR COALESCE(vArmorCoreItems_Approvals.CorCommercial_Approval,1) = 0 OR COALESCE(vArmorCoreItems_Approvals.CoreTechnical_Approval,1) = 0)) AND Requested = 1 THEN 'Requested' 
-							WHEN ((tblCutSheetApproval.Commercial_Approval = 0 OR tblCutSheetApproval.Technical_Approval = 0 OR COALESCE(vArmorCoreItems_Approvals.CorCommercial_Approval,1) = 0 OR COALESCE(vArmorCoreItems_Approvals.CoreTechnical_Approval,1) = 0)) AND Requested = 0 THEN 'Not Approved' ELSE 'Approved' END
-			
-							 AS Status
+/*
+Author:		Bryan Eddy
+Date:		1/11/2018
+Desc:		Data provided for cut sheet view
+Version:	1
+Update:		Changed criteria to allow for more items to be viewed for cut sheets
+
+*/
+CREATE VIEW [dbo].[vFindCutSheet]
+as
+SELECT DISTINCT 
+                         CableUnion.Oracle, CableUnion.Fiber, CableUnion.Color, CableUnion.Base, tblCableConstructions_1.StandardOperation, CableUnion.ItemNo, tblCableConstructions_1.CablePasses AS Location, 
+                         tblCableConstructionReferences.RevisionDate, CableUnion.OracleStatus, CableUnion.PID, CableUnion.Fiber2, CableUnion.Customer, tblCableConstructions_1.NominalOD, CONVERT(DATE, CableUnion.[Revision Date]) 
+                         AS RevDate, CableUnion.PrintSpacing, CableUnion.[Item No], tblCableConstructions_1.TensileApplication, tblCableConstructionReferences.DesignTypeID, tblCableConstructions_1.TemperatureApplication, 
+                         tblDesignTypes.SalesForceDescription, CAST(SUBSTRING(CableUnion.ItemNo, 3, 3) AS INT) AS FiberCount, tblCableConstructionReferences.CableType, tblCableConstructionReferences.NumSubPositions, 
+                         tblCableConstructionReferences.NumCopperUnits, 
+                         CASE WHEN tblCableConstructions_1.CablePasses = 1 THEN tblCableConstructionReferences.FibersPerBundle ELSE tblCableConstructionReferences_1.FibersPerBundle END AS FibersPerBundle, 
+                         CASE WHEN tblCableConstructions_1.CablePasses = 1 THEN tblCableConstructions_1.NominalOD ELSE tblCableConstructions.NominalOD END AS SubOD, tblCutSheetApproval.Technical_Approval, 
+                         tblCutSheetApproval.Commercial_Approval, tblCutSheetApproval.Requested, CASE WHEN ((tblCutSheetApproval.Commercial_Approval = 0 OR
+                         tblCutSheetApproval.Technical_Approval = 0 OR
+                         COALESCE (vArmorCoreItems_Approvals.CorCommercial_Approval, 1) = 0 OR
+                         COALESCE (vArmorCoreItems_Approvals.CoreTechnical_Approval, 1) = 0)) AND Requested = 1 THEN 'Requested' WHEN ((tblCutSheetApproval.Commercial_Approval = 0 OR
+                         tblCutSheetApproval.Technical_Approval = 0 OR
+                         COALESCE (vArmorCoreItems_Approvals.CorCommercial_Approval, 1) = 0 OR
+                         COALESCE (vArmorCoreItems_Approvals.CoreTechnical_Approval, 1) = 0)) AND Requested = 0 THEN 'Not Approved' ELSE 'Approved' END AS Status
 FROM            CableUnion INNER JOIN
                          tblCableConstructionReferences ON CableUnion.Base = tblCableConstructionReferences.Base INNER JOIN
                          tblCableConstructions AS tblCableConstructions_1 ON tblCableConstructionReferences.BaseID = tblCableConstructions_1.BaseID INNER JOIN
-                         tblCableTemperatureStandards ON tblCableConstructions_1.TemperatureApplication = tblCableTemperatureStandards.TemperatureApplication INNER JOIN
                          tblDesignTypes ON tblCableConstructionReferences.DesignTypeID = tblDesignTypes.DesignTypeID INNER JOIN
                          tblCableTightBufferReference ON tblCableConstructionReferences.TBType = tblCableTightBufferReference.TBType INNER JOIN
                          tblCutSheetApproval ON tblCableConstructionReferences.Base = tblCutSheetApproval.Base LEFT OUTER JOIN
-                         vSubunitBases RIGHT  JOIN
+                         --tblCableTemperatureStandards ON tblCableConstructions_1.TemperatureApplication = tblCableTemperatureStandards.TemperatureApplication LEFT OUTER JOIN
+                         vSubunitBases RIGHT OUTER JOIN
                          tblCableConstructionReferences AS tblCableConstructionReferences_1 ON vSubunitBases.[Level 1 Product] = tblCableConstructionReferences_1.Base ON 
                          tblCableConstructionReferences.SetupID = vSubunitBases.ProductID LEFT OUTER JOIN
-                         tblCableConstructions ON tblCableConstructionReferences_1.BaseID = tblCableConstructions.BaseID
-						 LEFT JOIN standards.CableConstructionStandards ON standards.CableConstructionStandards.BaseID = tblCableConstructions_1.BaseID
-						 LEFT JOIN vArmorCoreItems_Approvals ON vArmorCoreItems_Approvals.ArmoredItem = CableUnion.Oracle
-WHERE        (CableUnion.Customer LIKE 'AFL STANDARD%' OR  CableUnion.Customer LIKE 'AFL GENERIC%') AND (tblCableConstructionReferences.ReleasedDesign <> 0)  
-                          AND (tblCableConstructions_1.TensileRatingShortTerm_N IS NOT NULL) AND (CableUnion.Oracle NOT LIKE '%test%') AND (CableUnion.OracleStatus <> 'Obsolete')  
-                         AND (CableUnion.OracleStatus <> 'Discontd') AND (tblCableConstructions_1.TensileRatingLongTerm_N IS NOT NULL OR CableUnion.Oracle LIKE '%ia')
-					 AND ISNUMERIC(SUBSTRING(ItemNo,3,3) ) = 1 AND CableUnion.Active <> 0 --AND Oracle = 'PQ00152-01'
-
-
-
-
-
-
-
+                         tblCableConstructions ON tblCableConstructionReferences_1.BaseID = tblCableConstructions.BaseID LEFT OUTER JOIN
+                         Standards.CableConstructionStandards ON Standards.CableConstructionStandards.BaseID = tblCableConstructions_1.BaseID LEFT OUTER JOIN
+                         vArmorCoreItems_Approvals ON vArmorCoreItems_Approvals.ArmoredItem = CableUnion.Oracle
+						 INNER JOIN dbo.tblCableType K ON K.CableType = tblCableConstructionReferences.CableType
+WHERE        (CableUnion.Customer LIKE 'AFL STANDARD%' OR
+                         CableUnion.Customer LIKE 'AFL GENERIC%' OR  CableUnion.Oracle LIKE 'DN%') AND (tblCableConstructionReferences.ReleasedDesign <> 0) AND (CableUnion.Oracle NOT LIKE '%test%') AND (CableUnion.OracleStatus <> 'Obsolete') AND 
+                         (CableUnion.OracleStatus <> 'Discontd') AND (ISNUMERIC(SUBSTRING(CableUnion.ItemNo, 3, 3)) = 1) AND (CableUnion.Active <> 0) AND 
+                         (tblCableConstructionReferences.ReleasedDesign <> 0) AND (CableUnion.OracleStatus <> 'Obsolete') AND (CableUnion.OracleStatus <> 'Discontd') AND 
+                         (ISNUMERIC(SUBSTRING(CableUnion.ItemNo, 3, 3)) = 1) AND (CableUnion.Active <> 0) AND (CableUnion.Oracle NOT LIKE '%test%') AND K.CableID = 1 --AND LEFT(ORACLE,1) = 'P'
 
 
 

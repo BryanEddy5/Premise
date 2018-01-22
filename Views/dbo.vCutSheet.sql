@@ -3,8 +3,18 @@ GO
 SET ANSI_NULLS ON
 GO
 
-/*WHERE tblCableConstructions.TemperatureApplication IS NOT NULL  AND ( Customer like 'AFL STANDARD%' OR Customer LIKE 'AFL GENERIC%')  AND ReleasedDesign <> 0
-where C.Oracle = 'PS07442-01'*/
+
+
+/*
+Author:		Bryan Eddy
+Date:		1/11/2018
+Desc:		Data provided for cut sheet report
+Version:	1
+Update:		Changed the temperature table to left join to allow for cut sheets to be generated missing temperatures
+			The technical review will provide the necessary temperatures
+
+
+*/
 CREATE VIEW [dbo].[vCutSheet]
 AS
 SELECT        C.Oracle, C.Color, qryBasePrint.PrintLine1, qryBasePrint.PrintLine2, qryBasePrint.PrintLine3, qryBasePrint.[Print Item No], 
@@ -26,7 +36,7 @@ SELECT        C.Oracle, C.Color, qryBasePrint.PrintLine1, qryBasePrint.PrintLine
 FROM            tblCableConstructionReferences INNER JOIN
                          tblCableConstructions ON tblCableConstructionReferences.BaseID = tblCableConstructions.BaseID INNER JOIN
                          CableUnion AS C ON tblCableConstructionReferences.Base = C.Base INNER JOIN
-                         qryBasePrint ON C.Oracle = qryBasePrint.Oracle INNER JOIN
+                         qryBasePrint ON C.Oracle = qryBasePrint.Oracle LEFT JOIN
                          tblCableTemperatureStandards ON tblCableConstructions.TemperatureApplication = tblCableTemperatureStandards.TemperatureApplication INNER JOIN
                          tbl_Fibers ON C.Fiber = tbl_Fibers.Fiber INNER JOIN
                          tblDesignTypes ON tblCableConstructionReferences.DesignTypeID = tblDesignTypes.DesignTypeID INNER JOIN

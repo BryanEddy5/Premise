@@ -5,13 +5,12 @@ GO
 
 
 
-
 -- =============================================
 -- Author:		Bryan Eddy
 -- ALTER date: 6/12/17
 -- Description:	Send email of missing line speeds to Process Engineers
--- Version:		1
--- Update:		Added header 2 to the email and put it in red to alert the process engineers of the urgency
+-- Version:		3
+-- Update:		Updated "Days Missing" from month to day.  This was an error.
 -- =============================================
 CREATE PROCEDURE [dbo].[usp_SchedulingMissingLineSpeedEmail]
 
@@ -20,9 +19,6 @@ AS
 
 
 SET NOCOUNT ON;
-EXECUTE AS USER = 'dbo' 
-
-
 
 
 /*******************************************************************
@@ -74,11 +70,6 @@ Determine what items and sub-items are located in open orders.
 **********************************************************************/
 
 
-
-
-
-
-
 --Check if any open item requests need commercial approval
 IF OBJECT_ID(N'tempdb..#Results', N'U') IS NOT NULL
 DROP TABLE #Results;
@@ -106,14 +97,33 @@ FROM
 	INNER JOIN #SetupLocation K ON G.AssemblyItemNumber = K.Item
 	INNER JOIN AFLPRD_INVSysItemCost_CAB B ON B.ItemNumber = K.ITEM 
 	WHERE B.Make_Buy = 'MAKE' AND k.MachineNumber IS NULL  and left(ITEM,3) NOT in ('WTC','DNT')
-	and LEFT(setup,1) not in ('k','Q','O','I') and setup not in ('R696','R093','qpc')
+	and LEFT(setup,1) not in ('k','Q','O','I') and setup not in ('R696','R093','qpc','pk01') AND setup NOT LIKE 'm00[4-9]'
 	) X 
 WHERE X.Max_SechuduleDate = x.ScheduleDate and x.item = x.Max_Item --AND X.RowNumber = 1
 ORDER BY ScheduleDate
 
---SELECT * FROM #Results;
 
+--Add new missing setups
+INSERT INTO [NAACAB-SCH01].PlanetTogether_Data_Test.setup.MissingSetups(Setup)
+SELECT DISTINCT G.Setup
+FROM #Results G LEFT JOIN [NAACAB-SCH01].PlanetTogether_Data_Test.setup.MissingSetups K ON K.Setup = G.Setup
+WHERE K.Setup IS NULL
 
+--Update existing records with the most recent date of the apperance
+UPDATE K
+SET K.DateMostRecentAppearance = GETDATE()
+FROM [NAACAB-SCH01].PlanetTogether_Data_Test.setup.MissingSetups K INNER JOIN	#Results J ON K.Setup = J.Setup
+
+--Results to populate the email table
+IF OBJECT_ID(N'tempdb..#FinalResults', N'U') IS NOT NULL
+DROP TABLE #FinalResults;
+SELECT J.*,DATEDIFF(dd,K.DateCreated,K.DateMostRecentAppearance) DaysMissing
+INTO #FinalResults
+FROM [NAACAB-SCH01].PlanetTogether_Data_Test.setup.MissingSetups K INNER JOIN	#Results J ON K.Setup = J.Setup
+ORDER BY J.ScheduleDate,DaysMissing DESC
+
+--SELECT *
+--FROM #Results
 
 --Run around 8:30am everyday
 DECLARE @numRows int
@@ -151,29 +161,29 @@ BEGIN
 				N'<p>'+@body1+'</p>' +
 				N'<p class=MsoNormal><span style=''font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497D''>'+
 				N'<table border="1">' +
-				N'<tr><th>FinishedGood</th><th>Item</th>' +
+				N'<tr>' +
+				'<th>Days Missing</th><th>FinishedGood</th><th>Item</th>' +
 				N'<th>ItemDesc</th><th>ScheduleDate</th>' +
-				N'<th>Setup</th><th>Atlernate</th><th>DepartmentCode</th></tr>' +
-				CAST ( ( SELECT		td=FinishedGood,    '',
+				N'<th>Setup</th><th>Atlernate</th><th>DepartmentCode</th>'+
+				'</tr>' +
+				CAST ( ( SELECT		td=DaysMissing, '',
+									td=FinishedGood,    '',
 									td=Item, '',
 									td=ItemDesc, '', 
 									td=ScheduleDate, '',
 									td=Setup, '', 
 									td=PrimaryAlt, '',
-									td=DepartmentCode, ''
+									td=DepartmentCode
 									
-							FROM #Results 
+							FROM #FinalResults 
 						  FOR XML PATH('tr'), TYPE 
 				) AS NVARCHAR(MAX) ) +
 				N'</table>' ;
-			--SET @tableHTML =
-			--	N'<H1>Premise Cut Sheet Approval</H1>' +
-			--	N'<p>'+@body1+'</p>' +
-			--	N'</table>' 
+
 		
 			EXEC msdb.dbo.sp_send_dbmail 
 			@recipients=@ReceipientList,
-			--@recipients = 'bryan.eddy@aflglobal.com',
+			--@recipients = 'bryan.eddy@aflglobal.com;Rich.DiDonato@aflglobal.com',
 			@blind_copy_recipients =  @BlindRecipientlist, --@ReceipientList
 			@subject = @subject,
 			@body = @tableHTML,

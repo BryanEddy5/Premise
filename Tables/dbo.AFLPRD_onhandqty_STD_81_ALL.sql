@@ -16,9 +16,10 @@ CREATE TABLE [dbo].[AFLPRD_onhandqty_STD_81_ALL]
 [Res Value] [int] NULL,
 [OSP Value] [int] NULL,
 [Nettable Flag] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-[Owning Party] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Owning Party] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Number] [int] NOT NULL IDENTITY(1, 1),
-[DateInserted] [datetime] NULL CONSTRAINT [DF_AFLPRD_onhandqty_STD_81_ALL_DateInserted] DEFAULT (getdate())
+[DateInserted] [datetime] NULL CONSTRAINT [DF_AFLPRD_onhandqty_STD_81_ALL_DateInserted] DEFAULT (getdate()),
+[RunDate] [datetime] NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[AFLPRD_onhandqty_STD_81_ALL] ADD CONSTRAINT [pk_AFLPRD_onhandqty_STD_81_ALL] PRIMARY KEY CLUSTERED  ([Number]) ON [PRIMARY]

@@ -10,5 +10,5 @@ ALTER TABLE [Users].[UserResponsibility] ADD CONSTRAINT [PK_UserResponsibility] 
 GO
 ALTER TABLE [Users].[UserResponsibility] ADD CONSTRAINT [FK_UserResponsibility_Responsibility] FOREIGN KEY ([ResponsibilityID]) REFERENCES [Users].[Responsibility] ([ResponsebilityID]) ON DELETE CASCADE ON UPDATE CASCADE
 GO
-ALTER TABLE [Users].[UserResponsibility] ADD CONSTRAINT [FK_UserResponsibility_tblConfiguratorUser] FOREIGN KEY ([UserID]) REFERENCES [dbo].[tblConfiguratorUser] ([UserID])
+ALTER TABLE [Users].[UserResponsibility] ADD CONSTRAINT [FK_UserResponsibility_tblConfiguratorUser] FOREIGN KEY ([UserID]) REFERENCES [dbo].[tblConfiguratorUser] ([UserID]) ON DELETE CASCADE ON UPDATE CASCADE
 GO
