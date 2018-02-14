@@ -1,7 +1,7 @@
 CREATE TABLE [dbo].[AFLPRD_COMMON_QA_PROCESS_FY_2017_todate]
 (
 [Transaction Date] [datetime] NULL,
-[Transaction Time] [datetime] NULL,
+[Transaction Time] [time] NULL,
 [Record Entered By] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [JOB] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Op Seq Number] [bigint] NULL,
@@ -48,6 +48,11 @@ CREATE TABLE [dbo].[AFLPRD_COMMON_QA_PROCESS_FY_2017_todate]
 [Days in Month] [bigint] NULL,
 [OA 30 Month] [float] NULL,
 [Performance] [float] NULL,
-[QTS OTDR Length] [float] NULL
+[QTS OTDR Length] [float] NULL,
+[MesID] [int] NOT NULL IDENTITY(1, 1)
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[AFLPRD_COMMON_QA_PROCESS_FY_2017_todate] ADD CONSTRAINT [pk_Mes] PRIMARY KEY CLUSTERED  ([MesID]) ON [PRIMARY]
+GO
+CREATE NONCLUSTERED INDEX [IX_AFLPRD_COMMON_QA_PROCESS_FY_2017_todate] ON [dbo].[AFLPRD_COMMON_QA_PROCESS_FY_2017_todate] ([Actual Machine], [JOB]) ON [PRIMARY]
 GO

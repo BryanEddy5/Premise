@@ -2,17 +2,12 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
-
-
-
-
-
 CREATE VIEW [dbo].[vItemSearch]
 AS
 SELECT        dbo.CableUnion.Oracle, dbo.CableUnion.Fiber, dbo.CableUnion.Color, dbo.CableUnion.Base, dbo.tblCableConstructions.StandardOperation, ItemNo, 
                          dbo.tblCableConstructions.CablePasses as 'Location', dbo.tblCableConstructionReferences.RevisionDate, dbo.CableUnion.Active, dbo.CableUnion.Reason, 
                          dbo.CableUnion.OracleStatus, dbo.CableUnion.PID, dbo.CableUnion.Fiber2, dbo.CableUnion.Fiber3, dbo.CableUnion.CustomerRev, dbo.CableUnion.[Revision Date], 
-                         dbo.CableUnion.RibbonHighCure, dbo.CableUnion.PrintLine4, dbo.CableUnion.Customer, dbo.tblCableConstructions.JacketMaterial, 
+                         dbo.CableUnion.RibbonHighCure, dbo.CableUnion.PrintLine4, dbo.CableUnion.Customer, dbo.tblCableConstructions.JacketMaterial,dbo.CableUnion.ItemID,
                          dbo.tblCableConstructions.NominalOD, convert(date, [Revision Date]) RevDate, PrintSpacing , [Item No], dbo.CableUnion.DateCreated as CreationDate
 						 ,tblCableConstructionReferences.DesignCode
 FROM            dbo.CableUnion INNER JOIN

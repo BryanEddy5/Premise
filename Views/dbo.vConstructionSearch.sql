@@ -2,8 +2,6 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
-
-
 /*WHERE FamilyID = 25
 WHERE tblCableConstructionReferences.base = 'ER012-3.0-SW'*/
 CREATE VIEW [dbo].[vConstructionSearch]
@@ -32,7 +30,7 @@ SELECT DISTINCT
                          dbo.tblCableConstructionReferences.ReleasedDesign, dbo.tblCableConstructionReferences.TBType, dbo.tblDesignTypes.SalesForceDescription, 
                          CASE WHEN CablePasses = 1 THEN '' ELSE SUBSTRING(dbo.vSubunitBases.[Level 1 Product], 3, 3) END AS SubFiberCount, 
                          dbo.tblCableConstructionReferences.FiberCount, dbo.tblDesignCodeJacket.JacketDescription_SalesForce, 
-                         dbo.tblCableConstructionReferences.ApprovedForQuoting
+                         dbo.tblCableConstructionReferences.ApprovedForQuoting, dbo.tblCableConstructionReferences.SetupID AS ConstructionID
 FROM            dbo.tblCableConstructionReferences LEFT OUTER JOIN
                          dbo.tblDesignTypes ON dbo.tblCableConstructionReferences.DesignTypeID = dbo.tblDesignTypes.DesignTypeID LEFT OUTER JOIN
                          dbo.tblDesignCodeJacket ON dbo.tblCableConstructionReferences.CableFamily = dbo.tblDesignCodeJacket.CableLetter AND 

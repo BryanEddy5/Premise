@@ -2,28 +2,16 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
-
-
-
-
-
-
-
-
-
-
-
-
-
 CREATE VIEW [dbo].[CableUnion]
 AS
-SELECT        [Basic Product Construction].[New Oracle Part #] AS Oracle, LEFT([Basic Product Construction].[Fiber Oracle Item], 8) AS Fiber, [Jacket Color] AS Color, 
-                         [Jacket Material] AS [Jacket], [Base], [Color Chip ID] AS ColorChip, [Listing Company] AS ListingCompany, [Customer], [Print Line 4] AS PrintLine4, Active, Reason, 
+SELECT        [New Oracle Part #] AS Oracle, LEFT([Fiber Oracle Item], 8) AS Fiber, [Jacket Color] AS Color, 
+                          I.JacketMaterial AS [Jacket], G.BASE, [Color Chip ID] AS ColorChip, [Listing Company] AS ListingCompany, [Customer], [Print Line 4] AS PrintLine4, K.Active, Reason, 
                          [Item No],[Item No] as ItemNo, FiberType2 AS Fiber2, [Customer Part#] AS PID, [OracleStatus], Enumber
 						 , FiberType3 AS Fiber3, CustomerRev, 1 AS Location, [Revision Date], [RibbonHighCure], [Print Spacing] as PrintSpacing, [Print Line 2] PrintLine2
-						 , DateCreated, [Print Line 3] PrintLine3, [Print Line 1] PrintLine1, CreatedBy, [Unit Series]
+						 , K.DateCreated, [Print Line 3] PrintLine3, [Print Line 1] PrintLine1, K.CreatedBy, [Unit Series], k.ID AS ItemID
 						
-FROM            [Basic Product Construction]
+FROM            [Basic Product Construction] K INNER JOIN dbo.tblCableConstructionReferences G ON G.BASE = K.Base
+				INNER JOIN dbo.tblCableConstructions I ON I.BaseID = G.BaseID
 --UNION ALL
 --SELECT        [Basic (Cable/Sheath)].[New Oracle Part Number] AS Oracle, LEFT([Basic (Cable/Sheath)].[Fiber Type A], 8) AS Fiber, [Jacket Color] AS Color, 
 --                         [Jacket Material] AS [Jacket], [Base], ColorChip, [Listing Company] AS ListingCompany, [Customer], [Print Line 4] AS PrintLine4, Active, Reason, [Item No],  [Item No] as ItemNo,
@@ -32,19 +20,6 @@ FROM            [Basic Product Construction]
 --						 , DateCreated, [Print Line 3] PrintLine3, [Print Line 1] PrintLine1, CreatedBy,[Unit Series]
 						
 --FROM            [Basic (Cable/Sheath)];
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 GO
 EXEC sp_addextendedproperty N'MS_DiagramPane1', N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]

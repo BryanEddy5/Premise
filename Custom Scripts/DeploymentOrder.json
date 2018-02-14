@@ -3,6 +3,8 @@
   "Deployment order": [
     {"Description":"Changes before migration script 'Covers changes to: Color, Compounds, tblJacketMaterialColorChips_DeleteIfNotUsed, tblNames_Test. Script created at 2017-12-18 09:13.'","Type":"Compare","Id":"2017-12-18-092149 9e auto"},
     {"Description":"Migration script 'Covers changes to: Color, Compounds, tblJacketMaterialColorChips_DeleteIfNotUsed, tblNames_Test. Script created at 2017-12-18 09:13.'","Type":"Migration","Id":"2017-12-18-092149 9f user"},
+    {"Description":"Changes before migration script 'Script created at 2018-02-14 13:19.'","Type":"Compare","Id":"2018-02-14-132320 b0 auto"},
+    {"Description":"Migration script 'Script created at 2018-02-14 13:19.'","Type":"Migration","Id":"2018-02-14-132320 b1 user"},
   ],
   "Conflict in this file?": "If there’s a conflict in this file, you probably want to keep both changes. Learn more: http://www.red-gate.com/SOC4/order-file-more-info"
 }

@@ -9,6 +9,8 @@ CREATE TABLE [dbo].[tblUnitSeriesTemplate]
 [UnitIDTypeNumber] [int] NOT NULL
 ) ON [PRIMARY]
 GO
+ALTER TABLE [dbo].[tblUnitSeriesTemplate] ADD CONSTRAINT [chk_UnitType] CHECK (([UnitIDType]='Unit' OR [UnitIDType]='Color' OR [UnitIDType]='Filler'))
+GO
 ALTER TABLE [dbo].[tblUnitSeriesTemplate] ADD CONSTRAINT [PK_tblUnitSeriesTemplate] PRIMARY KEY CLUSTERED  ([UnitNumber], [UnitIDTypeNumber]) ON [PRIMARY]
 GO
 CREATE NONCLUSTERED INDEX [IX_tblUnitSeriesTemplate] ON [dbo].[tblUnitSeriesTemplate] ([UnitID]) ON [PRIMARY]

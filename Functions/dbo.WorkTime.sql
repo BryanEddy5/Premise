@@ -31,7 +31,7 @@ BEGIN
     SET @FinishTime = CONVERT(TIME, @FinishDate)
 
     DECLARE @WorkStart TIME
-    SET @WorkStart = '09:00'
+    SET @WorkStart = '08:00'
 
     DECLARE @WorkFinish TIME
     SET @WorkFinish = '17:00'

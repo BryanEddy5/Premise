@@ -1,0 +1,146 @@
+{
+  "Id": "3c09a7e9-cf9a-4ce8-b895-8018498b1b68",
+  "Name": "Script created at 2018-02-14 13:19.",
+  "ObjectIds": [
+    {
+      "Name": "MachineMappingToNCMIR",
+      "Owner": "Oracle",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "Machines",
+      "Owner": "Oracle",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "MarginRevenueExtractSalesHistory",
+      "Owner": "Oracle",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "AFLPRD_COMMON_QA_PROCESS_FY_2017_todate",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "AFLPRD_onhandqty_STD_Detailed_81_CAB",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "rp_revenue_margin_extract_POBI_AllHistory",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblFiberElementValue",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblFiberTBCatalog",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblStockItems",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblUnitSeriesTemplate",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "usp_PrintDefectImageBackup",
+      "Owner": "PrintSafe",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_SchedulingMissingLineSpeedEmail",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "vInterFaceMesNcmirProcessData",
+      "Owner": "Oracle",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vFBR00466Selection",
+      "Owner": "Schedule",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "CableUnion",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "qryBasePrint",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vBurnListingInventory",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vConstructionSearch",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vCutSheet_Constructions",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vCutSheet_Constructions_DELETE",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vFindCutSheet",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vItemSearch",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vSalesHistory",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vScheduling_Construction_SubunitPrintSheet",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vScheduling_SubUnitPrintSpacing",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vSinglePassComponentParent",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "NumericParser",
+      "Owner": "dbo",
+      "ObjectType": "Function_UserDefinedFunction_Table"
+    },
+    {
+      "Name": "WorkTime",
+      "Owner": "dbo",
+      "ObjectType": "Function_UserDefinedFunction_Scalar"
+    }
+  ]
+}

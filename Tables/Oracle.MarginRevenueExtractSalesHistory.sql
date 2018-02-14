@@ -73,7 +73,7 @@ CREATE TABLE [Oracle].[MarginRevenueExtractSalesHistory]
 [NEW_PRODUCT] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [NEW_PRODUCT_CATEGORY] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [ACTUAL_COST_UPDATE_DATE] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-[PRIMARY_QUANTITY] [decimal] (12, 4) NULL,
+[PRIMARY_QUANTITY] [decimal] (18, 5) NULL,
 [PRIMARY_UOM_CODE] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [INVOICE_SOURCE] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [QUOTE_TYPE] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
@@ -89,4 +89,6 @@ CREATE TABLE [Oracle].[MarginRevenueExtractSalesHistory]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 ALTER TABLE [Oracle].[MarginRevenueExtractSalesHistory] ADD CONSTRAINT [PK_MarginRevenueExtractSalesHistory] PRIMARY KEY CLUSTERED  ([SalesID]) ON [PRIMARY]
+GO
+CREATE NONCLUSTERED INDEX [IX_MarginRevenueExtractSalesHistory] ON [Oracle].[MarginRevenueExtractSalesHistory] ([ITEM_NUMBER]) ON [PRIMARY]
 GO

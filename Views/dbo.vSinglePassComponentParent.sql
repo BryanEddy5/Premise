@@ -2,19 +2,19 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
-
 CREATE VIEW [dbo].[vSinglePassComponentParent]
 AS
 SELECT        CASE WHEN [New Oracle Part #] LIKE 'pt%' THEN LEFT([New Oracle Part #], 7) ELSE LEFT([New Oracle Part #], 8) END AS Component, COUNT(*) AS Count, 
                          LEFT(Customer, 3) AS Customer, [TB Material], [TB Nominal OD], [EZ Strip], [Fiber Oracle item] AS Fiber, RibbonHighCure, SUBSTRING([Item No], 3, 3) AS FiberCount, 
-                         SUBSTRING([Item No], 12, 1) AS TBLetter
-FROM            dbo.[Basic Product Construction]
+                         SUBSTRING([Item No], 12, 1) AS TBLetter, I.FibersPerBundle
+FROM            dbo.[Basic Product Construction] K INNER JOIN dbo.tblCableConstructionReferences I ON I.BASE = K.Base
 GROUP BY CASE WHEN [New Oracle Part #] LIKE 'pt%' THEN LEFT([New Oracle Part #], 7) ELSE LEFT([New Oracle Part #], 8) END, SUBSTRING([Item No], 3, 3), 
-                         SUBSTRING([Item No], 12, 1), [TB Material], [TB Nominal OD], [EZ Strip], [Fiber Oracle item], RibbonHighCure, Active, LEFT(Customer, 3)
+                         SUBSTRING([Item No], 12, 1), [TB Material], [TB Nominal OD], [EZ Strip], [Fiber Oracle item], RibbonHighCure, K.Active, LEFT(Customer, 3)
+						 ,I.FibersPerBundle, I.CableType
 HAVING        (CASE WHEN [New Oracle Part #] LIKE 'pt%' THEN LEFT([New Oracle Part #], 7) ELSE LEFT([New Oracle Part #], 8) END LIKE 'pt%' OR
                          CASE WHEN [New Oracle Part #] LIKE 'pt%' THEN LEFT([New Oracle Part #], 7) ELSE LEFT([New Oracle Part #], 8) END LIKE 'rbn%' OR
-                         CASE WHEN [New Oracle Part #] LIKE 'pt%' THEN LEFT([New Oracle Part #], 7) ELSE LEFT([New Oracle Part #], 8) END LIKE 'swr%') AND (Active <> 0) AND 
-                         (LEFT(Customer, 3) = 'AFL' or LEFT(Customer, 3) = 'unp')
+                         CASE WHEN [New Oracle Part #] LIKE 'pt%' THEN LEFT([New Oracle Part #], 7) ELSE LEFT([New Oracle Part #], 8) END LIKE 'swr%') AND (K.Active <> 0) AND 
+                         (LEFT(Customer, 3) = 'AFL' or LEFT(Customer, 3) = 'unp') AND CABLETYPE <> 'FILLER'
 
 GO
 EXEC sp_addextendedproperty N'MS_DiagramPane1', N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]

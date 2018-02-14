@@ -3,31 +3,30 @@ GO
 SET ANSI_NULLS ON
 GO
 
+
+
 CREATE VIEW [dbo].[vScheduling_SubUnitPrintSpacing]
-as
-SELECT DISTINCT dbo.cableunion.oracle, 
-                dbo.cableunion.customer, 
-                tblunitseriestemplate.printspacing AS [print spacing], 
-                [unit series].[unit color series], 
-                [basic product construction].[item no] as [unit type], 
-                tblunitseriestemplate.printspacing, 
-                [basic product construction].[item no], 
-                [basic product construction].[new oracle part #] 
-FROM   [basic product construction] 
-       INNER JOIN (tblunitseriestemplate 
-                   RIGHT JOIN ((dbo.cableunion 
-                                INNER JOIN [unit series] 
-                                        ON dbo.cableunion.[unit series] = 
-                                           [unit series].[unit color series]) 
-                               INNER JOIN tblcableconstructionreferences 
-                                       ON dbo.cableunion.base = 
-                   tblcableconstructionreferences.base) 
-                           ON ( tblunitseriestemplate.unitnumber = 
-                                [unit series].unitnumber ) 
-                              AND ( tblunitseriestemplate.unitidtypenumber = 
-       tblcableconstructionreferences.unitidtypenumber )) 
-               ON [basic product construction].[new oracle part #] = 
-                  [unit series].oracleitem; 
+AS
+SELECT DISTINCT
+    dbo.CableUnion.Oracle,
+    dbo.CableUnion.Customer,
+    tblUnitSeriesTemplate.PrintSpacing AS [print spacing],
+    [Unit Series].[Unit Color Series],
+    [Basic Product Construction].[Item No] AS [unit type],
+    tblUnitSeriesTemplate.PrintSpacing,
+    [Basic Product Construction].[Item No],
+    [Basic Product Construction].[New Oracle Part #]
+	,tblUnitSeriesTemplate.UnitNumber
+FROM [Basic Product Construction]
+    INNER JOIN(tblUnitSeriesTemplate
+    RIGHT JOIN((dbo.CableUnion
+    INNER JOIN [Unit Series]
+        ON dbo.CableUnion.[Unit Series] = [Unit Series].[Unit Color Series])
+    INNER JOIN tblCableConstructionReferences
+        ON dbo.CableUnion.Base = tblCableConstructionReferences.Base)
+        ON (tblUnitSeriesTemplate.UnitNumber = [Unit Series].UnitNumber)
+           AND (tblUnitSeriesTemplate.UnitIDTypeNumber = tblCableConstructionReferences.UnitIDTypeNumber))
+        ON [Basic Product Construction].[New Oracle Part #] = [Unit Series].OracleItem;
 
 
 GO

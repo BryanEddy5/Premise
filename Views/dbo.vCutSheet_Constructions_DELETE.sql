@@ -3,7 +3,7 @@ GO
 SET ANSI_NULLS ON
 GO
 
-CREATE VIEW [dbo].[vCutSheet_Constructions]
+CREATE VIEW [dbo].[vCutSheet_Constructions_DELETE]
 as
 
 SELECT DISTINCT 

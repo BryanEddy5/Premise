@@ -10,7 +10,7 @@ CREATE TABLE [dbo].[AFLPRD_onhandqty_STD_Detailed_81_CAB]
 [Locator] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Lot Number] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [UOM] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-[QTY] [int] NULL,
+[QTY] [float] NULL,
 [Cost Type] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Value] [int] NULL,
 [Matl Value] [int] NULL,

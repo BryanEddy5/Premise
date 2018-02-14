@@ -2,11 +2,12 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
+
 CREATE VIEW [dbo].[vScheduling_Construction_SubunitPrintSheet]
 AS
 SELECT        dbo.[Basic Product Construction].[New Oracle Part #] AS Oracle, [Basic Product Construction_1].[Item No], dbo.tblUnitSeriesTemplate.UnitID, 
                          dbo.[Unit Series].[Fiber Code], dbo.tblUnitSeriesTemplate.PrintSpacing, dbo.[Unit Series].[Print type], dbo.[Unit Series].OracleItem AS Oracle_Sub, 
-                         dbo.[Basic Product Construction].Customer, dbo.[Basic Product Construction].[Item No] AS Finished_ItemNo
+                         dbo.[Basic Product Construction].Customer, dbo.[Basic Product Construction].[Item No] AS Finished_ItemNo, tblUnitSeriesTemplate.UnitNumber
 FROM            dbo.[Basic Product Construction] AS [Basic Product Construction_1] INNER JOIN
                          dbo.[Unit Series] ON [Basic Product Construction_1].[New Oracle Part #] = dbo.[Unit Series].OracleItem INNER JOIN
                          dbo.[Basic Product Construction] ON dbo.[Unit Series].[Unit Color Series] = dbo.[Basic Product Construction].[Unit Series] INNER JOIN

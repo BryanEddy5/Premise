@@ -2,19 +2,6 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*
 Author:		Bryan Eddy
 Date:		1/11/2018
@@ -40,6 +27,7 @@ SELECT DISTINCT
                          tblCutSheetApproval.Technical_Approval = 0 OR
                          COALESCE (vArmorCoreItems_Approvals.CorCommercial_Approval, 1) = 0 OR
                          COALESCE (vArmorCoreItems_Approvals.CoreTechnical_Approval, 1) = 0)) AND Requested = 0 THEN 'Not Approved' ELSE 'Approved' END AS Status
+						 ,tblCableConstructionReferences.SetupID AS ConstructionID, ItemID
 FROM            CableUnion INNER JOIN
                          tblCableConstructionReferences ON CableUnion.Base = tblCableConstructionReferences.Base INNER JOIN
                          tblCableConstructions AS tblCableConstructions_1 ON tblCableConstructionReferences.BaseID = tblCableConstructions_1.BaseID INNER JOIN

@@ -3,10 +3,21 @@ GO
 SET ANSI_NULLS ON
 GO
 
+/*
+Author:		Bryan Eddy
+Date:		1/25/2018
+Desc:		View to show print for items
+Version:	1
+Update:		Addd concatenated print field
+*/
+
 CREATE VIEW [dbo].[qryBasePrint]
 AS
 SELECT        [Print Line 1] AS PrintLine1, RTRIM([Customer]) AS Cust, [Print Line 2] AS PrintLine2, [Print Line 3] AS PrintLine3, LEFT([Item No], 2) AS CabFam, 
                          [New Oracle Part #] AS Oracle, [Print Line 4] AS PrintLine4, [Print Item No], [Print Type (base)], [Print Reel No], [Item No], OracleStatus, [NewPrintLine4]
+						 , COALESCE([Print Line 1],'') + ' ' + COALESCE([print line 2],'') + ' ' + CASE WHEN [Print Item No] <> 0 THEN [Item No] + ' ' ELSE ' ' END 
+						+ COALESCE([Print Line 3],'') + ' ' 
+						+ CASE WHEN [Print Reel No] <> 0 THEN 'LOT ###### ' ELSE ' ' END + COALESCE([Print Line 4],'') AS ConcatPrintLine
 FROM            [Basic Product Construction]
 --UNION ALL
 --SELECT        [Print Line 1] AS PrintLine1, RTRIM([Customer]) AS Cust, [Print Line 2] AS PrintLine2, [Print Line 3] AS PrintLine3, LEFT([Item No], 2) AS CabFam, 
