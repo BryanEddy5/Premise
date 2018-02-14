@@ -1,17 +1,43 @@
-SET QUOTED_IDENTIFIER ON
+/*
+This migration script replaces uncommitted changes made to these objects:
+Premise_Cable_Shipments
+usp_Order_History_Update_Premise_Cable_Shipments
+
+Use this script to make necessary schema and data changes for these objects only. Schema changes to any other objects won't be deployed.
+
+Schema changes and migration scripts are deployed in the order they're committed.
+
+Migration scripts must not reference static data. When you deploy migration scripts alongside static data 
+changes, the migration scripts will run first. This can cause the deployment to fail. 
+Read more at https://documentation.red-gate.com/display/SOC6/Static+data+and+migrations.
+*/
+
+SET NUMERIC_ROUNDABORT OFF
 GO
-SET ANSI_NULLS ON
+SET ANSI_PADDING, ANSI_WARNINGS, CONCAT_NULL_YIELDS_NULL, ARITHABORT, QUOTED_IDENTIFIER, ANSI_NULLS ON
+GO
+PRINT N'Dropping constraints from [dbo].[Premise_Cable_Shipments]'
+GO
+ALTER TABLE [dbo].[Premise_Cable_Shipments] DROP CONSTRAINT [PK_Premise_Cable_Shipments]
+GO
+PRINT N'Dropping [dbo].[Premise_Cable_Shipments]'
+GO
+DROP TABLE [dbo].[Premise_Cable_Shipments]
+GO
+PRINT N'Altering [dbo].[usp_Order_History_Update_Premise_Cable_Shipments]'
 GO
 
 /*
 Author:			Bryan Eddy
 Date:			1/12/2017
 Desc:			Update the Sales History table for reporting ( Oracle.MarginRevenueExtractSalesHistory)
-Version:		2
+Version:		1
 Update:			Updated criteria for deleting and updating information
+
+
 */
 
-CREATE PROCEDURE [dbo].[usp_Order_History_Update_Premise_Cable_Shipments]
+ALTER PROCEDURE [dbo].[usp_Order_History_Update_Premise_Cable_Shipments]
 AS
 
 DELETE FROM Oracle.MarginRevenueExtractSalesHistory
@@ -80,13 +106,15 @@ FROM            rp_revenue_margin_extract_POBI_CAB LEFT OUTER JOIN
                          Oracle.MarginRevenueExtractSalesHistory AS Premise_Cable_Shipments_1 ON 
                          rp_revenue_margin_extract_POBI_CAB.ORDER_NUMBER = Premise_Cable_Shipments_1.ORDER_NUMBER AND 
                          rp_revenue_margin_extract_POBI_CAB.SO_LINE_NUMBER = Premise_Cable_Shipments_1.SO_LINE_NUMBER AND 
+                         rp_revenue_margin_extract_POBI_CAB.INVOICE_NUMBER = Premise_Cable_Shipments_1.INVOICE_NUMBER AND 
+                         rp_revenue_margin_extract_POBI_CAB.INV_LINE_NUMBER = Premise_Cable_Shipments_1.INV_LINE_NUMBER AND
                          Premise_Cable_Shipments_1.ORG_CODE = rp_revenue_margin_extract_POBI_CAB.ORG_CODE
-WHERE        rp_revenue_margin_extract_POBI_CAB.ORDER_NUMBER IS NOT NULL AND rp_revenue_margin_extract_POBI_CAB.SO_LINE_NUMBER IS NOT NULL AND 
-                         --rp_revenue_margin_extract_POBI_CAB.INVOICE_NUMBER IS NOT NULL AND 
-						 rp_revenue_margin_extract_POBI_CAB.INV_LINE_NUMBER IS NOT NULL
-						  AND  Premise_Cable_Shipments_1.ORDER_NUMBER IS NULL AND Premise_Cable_Shipments_1.SO_LINE_NUMBER IS NULL 
-						  --AND Premise_Cable_Shipments_1.INVOICE_NUMBER IS NULL AND Premise_Cable_Shipments_1.INV_LINE_NUMBER IS NULL
+WHERE        (rp_revenue_margin_extract_POBI_CAB.ORDER_NUMBER IS NOT NULL AND rp_revenue_margin_extract_POBI_CAB.SO_LINE_NUMBER IS NOT NULL AND 
+                         rp_revenue_margin_extract_POBI_CAB.INVOICE_NUMBER IS NOT NULL AND rp_revenue_margin_extract_POBI_CAB.INV_LINE_NUMBER IS NOT NULL)
+						  AND  (Premise_Cable_Shipments_1.ORDER_NUMBER IS NULL AND Premise_Cable_Shipments_1.SO_LINE_NUMBER IS NULL AND 
+                         Premise_Cable_Shipments_1.INVOICE_NUMBER IS NULL AND Premise_Cable_Shipments_1.INV_LINE_NUMBER IS NULL) 
 						 AND rp_revenue_margin_extract_POBI_CAB.ORDER_NUMBER IS NOT NULL AND rp_revenue_margin_extract_POBI_CAB.SO_LINE_NUMBER IS NOT null
 
 
 GO
+

@@ -1,0 +1,16 @@
+{
+  "Id": "d507a9d4-5ec8-4839-b1db-f799e7284559",
+  "Name": "Covers changes to: Premise_Cable_Shipments, usp_Order_History_Update_Premise_Cable_Shipments. Script created at 2018-01-22 08:20.",
+  "ObjectIds": [
+    {
+      "Name": "Premise_Cable_Shipments",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "usp_Order_History_Update_Premise_Cable_Shipments",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    }
+  ]
+}
