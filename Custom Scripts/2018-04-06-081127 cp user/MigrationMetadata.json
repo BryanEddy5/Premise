@@ -1,0 +1,271 @@
+{
+  "Id": "fab861e7-a415-467f-b31e-764d7341a599",
+  "Name": "Script created at 2018-04-06 08:10.",
+  "ObjectIds": [
+    {
+      "Name": "ImageGroupReference",
+      "Owner": "CutSheet",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "ImageGroup",
+      "Owner": "CutSheet",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "Images",
+      "Owner": "CutSheet",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "MachineMapping",
+      "Owner": "Setup",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblProcessMachines",
+      "Owner": "Setup",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "Basic Product Construction",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "Buff#1/#2 Alloc Table",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "BurnTestVerticalTray",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "SalesHistory",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "SalesHistory_BI_Data",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "SalesHistory_BI_Data_TEMP",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "SalesHistory_Temp",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "TB Color Series",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "XXAFL_CAB_DESIGN_ITEMS_ATTR",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "XXAFL_CAB_DESIGN_ITEMS_ATTR_DELETE",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "sales_pivot_bi",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblCableConstructionReferences",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblSwitchboard",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "usp_EmailInactiveItemsOnSchedule",
+      "Owner": "Schedule",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CutSheet_Email_Reminder",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_EmailActiveItemsWithObsoleteComponents",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_GetWhereUsedMaterials",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_MTY_ObsoleteComponentNotification",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_MissingSpecsNotification",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_QueryToHtmlTable",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_SalesHistoryUpdate_BI",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_SalesHistoryUpdate_BI_DELETE",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_SchedulingMissingLineSpeedEmail",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_WhereUsed_SalesHistory",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "vImageGroupPivotImages",
+      "Owner": "CutSheet",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vImage",
+      "Owner": "CutSheet",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vInactiveItems",
+      "Owner": "Schedule",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vSetupAttributes_Scheduling",
+      "Owner": "Setup",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vSetupLineSpeed",
+      "Owner": "Setup",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vSetupLineSpeed_New",
+      "Owner": "Setup",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vSetupSheet",
+      "Owner": "Setup",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vSetup_Cable_Machine",
+      "Owner": "Setup",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vBurnListingInventory",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vBurnListingLengthRequirement",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vCableConstruction",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vConstructionSearch",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vCosntructionReferenceActiveDesignCodeExtensions",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vCreateItemBaseCableExtensions",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vCreateItemBaseCenterMember",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vCreateItemBaseFurcation",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vCreateItemBase",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vFindCutSheet",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vSalesHistory",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vSetup_Scheduling_LineSpeed",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "GetBurnVerticalTrayTestLength",
+      "Owner": "dbo",
+      "ObjectType": "Function_UserDefinedFunction_Table"
+    },
+    {
+      "Name": "GetExistingOracleItemByBase",
+      "Owner": "dbo",
+      "ObjectType": "Function_UserDefinedFunction_Table"
+    },
+    {
+      "Name": "fn_ExplodeRoute",
+      "Owner": "dbo",
+      "ObjectType": "Function_UserDefinedFunction_Table"
+    },
+    {
+      "Name": "usf_BOM_Weight",
+      "Owner": "dbo",
+      "ObjectType": "Function_UserDefinedFunction_Table"
+    }
+  ]
+}

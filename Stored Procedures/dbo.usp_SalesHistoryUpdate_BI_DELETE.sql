@@ -10,7 +10,7 @@ GO
 	
 	 */
 
-CREATE PROCEDURE [dbo].[usp_SalesHistoryUpdate_BI]
+CREATE PROCEDURE [dbo].[usp_SalesHistoryUpdate_BI_DELETE]
 as
 
 

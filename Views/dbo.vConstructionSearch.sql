@@ -30,7 +30,7 @@ SELECT DISTINCT
                          dbo.tblCableConstructionReferences.ReleasedDesign, dbo.tblCableConstructionReferences.TBType, dbo.tblDesignTypes.SalesForceDescription, 
                          CASE WHEN CablePasses = 1 THEN '' ELSE SUBSTRING(dbo.vSubunitBases.[Level 1 Product], 3, 3) END AS SubFiberCount, 
                          dbo.tblCableConstructionReferences.FiberCount, dbo.tblDesignCodeJacket.JacketDescription_SalesForce, 
-                         dbo.tblCableConstructionReferences.ApprovedForQuoting, dbo.tblCableConstructionReferences.SetupID AS ConstructionID
+                         dbo.tblCableConstructionReferences.ApprovedForQuoting, dbo.tblCableConstructionReferences.SetupID AS ConstructionID, ImageGroupID
 FROM            dbo.tblCableConstructionReferences LEFT OUTER JOIN
                          dbo.tblDesignTypes ON dbo.tblCableConstructionReferences.DesignTypeID = dbo.tblDesignTypes.DesignTypeID LEFT OUTER JOIN
                          dbo.tblDesignCodeJacket ON dbo.tblCableConstructionReferences.CableFamily = dbo.tblDesignCodeJacket.CableLetter AND 

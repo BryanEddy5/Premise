@@ -2,12 +2,6 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
-
-
-
-
-
-
 CREATE VIEW [dbo].[vCableConstruction]
 AS
 SELECT         DISTINCT dbo.tblCableConstructionReferences.Base, dbo.tblCableConstructionReferences.ConstructionDescription, dbo.tblCableConstructions.NominalOD AS OD, 
@@ -17,7 +11,7 @@ SELECT         DISTINCT dbo.tblCableConstructionReferences.Base, dbo.tblCableCon
                           dbo.tblCableConstructionReferences.TBType, dbo.tblCableConstructionReferences.BaseID, dbo.tblCableConstructions.Additive, 
                          dbo.tblCableTightBufferReference.TBTypeID, dbo.tblCableConstructionReferences.FibersPerBundle, dbo.tblCableTightBufferReference.TightBuffered, 
                          dbo.tblCableConstructionReferences.ProductID, dbo.tblCableConstructionReferences.DesignTypeID, dbo.tblCableConstructionReferences.CableFamily
-						 ,FiberCount, dbo.tblCableConstructionReferences.SetupID, StandardOperation
+						 ,FiberCount, dbo.tblCableConstructionReferences.SetupID, StandardOperation, IsCommoned
 FROM            dbo.tblCableConstructions INNER JOIN
                          dbo.tblCableConstructionReferences INNER JOIN
                          dbo.CableRunSpeeds ON dbo.tblCableConstructionReferences.PrefixID = dbo.CableRunSpeeds.PrefixID ON 

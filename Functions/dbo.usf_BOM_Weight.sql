@@ -56,7 +56,7 @@ FROM
 			END
 			AS Weight_kg_m
 
-		FROM  [dbo].[fn_ExplodeBOM](@Item) AS e 
+		FROM  [dbo].[fn_ExplodeBOM]((SELECT * FROM GetExistingOracleItemByBase(@Item)))  e 
 		INNER JOIN dbo.[AFLPRD_INVSysItemCost_CAB] s ON e.ComponentItemNumber = s.ItemNumber
 		LEFT OUTER JOIN [dbo].[tblMaterialWeightsMetersUOM] m ON e.ComponentItemNumber = m.Material
 		GROUP BY e.FinishedGood,e.[PrimaryUOM],e.ComponentItemNumber,ExtendedQuantityPer,s.Make_Buy,m.density

@@ -16,11 +16,11 @@ WHERE ItemNumber LIKE 'RBN%SW%' AND ItemNumber NOT LIKE '%OSP%'
 
 IF OBJECT_ID(N'tempdb..#FinishedCables', N'U') IS NOT NULL 
 DROP TABLE #FinishedCables
-SELECT K.AssemblyItemNumber,  sum(k.ComponentQuantity) as Component_Qty, date, REVENUE, CASE WHEN UOM = 'FT' THEN QUANTITY / 3.281 ELSE QUANTITY END AS Quantity,
-CASE WHEN UOM = 'FT' THEN 'M' ELSE  UOM END AS UOM, SO_NUMBER, SO_LINE, INVOICE_NUMBER
+SELECT K.AssemblyItemNumber,  sum(k.ComponentQuantity) as Component_Qty, E.BOOKED_DATE AS Date, REVENUE, CASE WHEN E.UNIT_OF_MEASURE = 'FT' THEN QUANTITY / 3.281 ELSE QUANTITY END AS Quantity,
+CASE WHEN E.UNIT_OF_MEASURE = 'FT' THEN 'M' ELSE  UNIT_OF_MEASURE END AS UOM, E.ORDER_NUMBER AS SO_NUMBER, E.SO_LINE_NUMBER AS SO_LINE, INVOICE_NUMBER
 INTO #FinishedCables
-FROM #ItemWhereUsed K INNER JOIN SalesHistory_BI_Data E ON E.ITEM_NUMBER = K.AssemblyItemNumber
-GROUP BY K.AssemblyItemNumber, DATE, REVENUE, Quantity, UOM, SO_NUMBER, SO_LINE, INVOICE_NUMBER
+FROM #ItemWhereUsed K INNER JOIN oracle.MarginRevenueExtractSalesHistory E ON E.ITEM_NUMBER = K.AssemblyItemNumber
+GROUP BY K.AssemblyItemNumber, E.BOOKED_DATE, REVENUE, Quantity, UNIT_OF_MEASURE, ORDER_NUMBER, SO_LINE_NUMBER, INVOICE_NUMBER
 
 SELECT DISTINCT K.[Item No], G.*
 FROM #FinishedCables G INNER JOIN dbo.[Basic Product Construction] K ON G.AssemblyItemNumber = K.[New Oracle Part #]

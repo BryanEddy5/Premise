@@ -38,17 +38,18 @@ drop table ##MaterialUsage;
 
 --Shows orders for all FG contianing materials from the queried list.  Also shows where there have been no orders.
 SELECT DISTINCT Material, AssemblyItemNumber, round(sum(ComponentQuantity),6) MaterialQuantity_PerPrimaryUOM--,CategoryName
-,round(sum(ComponentQuantity),3) *CASE WHEN S.UOM = 'FT' THEN ROUND(S.QUANTITY / 3.281,0) ELSE S.QUANTITY END as MaterialQuanitty_PerOrder, PrimaryUOM,p.Item_Status
+,round(sum(ComponentQuantity),7) *CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN ROUND(S.QUANTITY / 3.281,7) ELSE S.QUANTITY END as MaterialQuanitty_PerOrder, PrimaryUOM,p.Item_Status
 --, CASE WHEN CategoryName like '%premise%' THEN 'Premise' ELSE 'ACS' END BU
-, S.Customer, S.SO_NUMBER as OrderNum,s.DATE as Shipped
-,CASE WHEN S.UOM = 'FT' THEN ROUND(S.QUANTITY / 3.281,0) ELSE S.QUANTITY END as Quantity, CASE WHEN S.UOM = 'FT' THEN 'M' ELSE S.UOM END as QTY_UOM, s.REVENUE
+, S.BILL_TO_NAME Customer, S.ORDER_NUMBER as OrderNum,S.PROMISE_DATE as Shipped
+,CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN ROUND(S.QUANTITY / 3.281,0) ELSE S.QUANTITY END as Quantity, CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN 'M' ELSE S.UNIT_OF_MEASURE END as QTY_UOM, s.REVENUE
+,p.Description
 INTO ##MaterialUsage
 FROM #TempFG T --INNER JOIN AFLPRD_INVItmCatg_CAB G ON G.ItemNumber = T.AssemblyItemNumber 
 INNER JOIN AFLPRD_INVSysItem_CAB K ON K.ItemNumber = t.AssemblyItemNumber
 INNER JOIN AFLPRD_INVSysItemCost_CAB P ON P.ItemNumber = K.ItemNumber
-LEFT JOIN [SalesHistory_BI_Data] S ON S.ITEM_NUMBER = K.ItemNumber
+LEFT JOIN oracle.MarginRevenueExtractSalesHistory S ON S.ITEM_NUMBER = K.ItemNumber
 GROUP BY  Material, AssemblyItemNumber, PrimaryUOM,--CategorySetName,CategoryName,
-TemplateName,Item_Status, S.Customer, S.SO_NUMBER, S.QUANTITY, s.DATE, S.UOM,s.REVENUE
+TemplateName,Item_Status, S.BILL_TO_NAME, S.ORDER_NUMBER, S.QUANTITY, s.PROMISE_DATE, S.UNIT_OF_MEASURE,s.REVENUE,p.Description
 --HAVING shipped like '201[76]%'
 ORDER BY Shipped desc
 

@@ -2,21 +2,16 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
-
-
-
-
-
 CREATE VIEW [dbo].[vCreateItemBase]
 AS
-SELECT        dbo.tblCableConstructionReferences.Base, dbo.tblCableConstructionReferences.ConstructionDescription, dbo.tblCableConstructions.NominalOD AS OD, 
+SELECT       DISTINCT dbo.tblCableConstructionReferences.Base, dbo.tblCableConstructionReferences.ConstructionDescription, dbo.tblCableConstructions.NominalOD AS OD, 
                          dbo.tblCableConstructionReferences.NumSubPositions AS NumPositions, dbo.tblCableConstructionReferences.NumSubFillers AS NumFillers, 
-                         dbo.tblCableConstructions.JacketMaterial, COUNT(dbo.CableUnion.Base) AS CountOfBase, dbo.tblCableConstructionReferences.Active, 
+                         dbo.tblCableConstructions.JacketMaterial, '' AS CountOfBase, dbo.tblCableConstructionReferences.Active, 
                          dbo.tblCableConstructionReferences.DesignCode, dbo.tblCableConstructions.CablePasses AS Location, dbo.tblCableConstructionReferences.ReleasedDesign, 
                          dbo.tblCableTBType.TBLetter, dbo.tblCableConstructionReferences.TBType, dbo.tblCableConstructionReferences.BaseID, dbo.tblCableConstructions.Additive, 
                          dbo.tblCableTightBufferReference.TBTypeID, dbo.tblCableConstructionReferences.FibersPerBundle, dbo.tblCableTightBufferReference.TightBuffered, 
                          dbo.tblCableConstructionReferences.ProductID, dbo.tblCableConstructionReferences.DesignTypeID, dbo.tblCableConstructionReferences.CableFamily
-						 ,FiberCount, dbo.tblCableConstructionReferences.SetupID, StandardOperation
+						 ,FiberCount, dbo.tblCableConstructionReferences.SetupID, StandardOperation, DesignExtension
 FROM            dbo.tblCableConstructions INNER JOIN
                          dbo.tblCableConstructionReferences INNER JOIN
                          dbo.CableRunSpeeds ON dbo.tblCableConstructionReferences.PrefixID = dbo.CableRunSpeeds.PrefixID ON 
@@ -24,14 +19,14 @@ FROM            dbo.tblCableConstructions INNER JOIN
                          dbo.CableUnion ON dbo.tblCableConstructionReferences.Base = dbo.CableUnion.Base INNER JOIN
                          dbo.tblCableTightBufferReference ON dbo.tblCableConstructionReferences.TBType = dbo.tblCableTightBufferReference.TBType INNER JOIN
                          dbo.tblCableTBType ON dbo.tblCableTightBufferReference.TBTypeID = dbo.tblCableTBType.TBIndicatorID
-GROUP BY dbo.tblCableConstructionReferences.Base, dbo.tblCableConstructionReferences.ConstructionDescription, dbo.tblCableConstructions.NominalOD, 
-                         dbo.tblCableConstructionReferences.NumSubPositions, dbo.tblCableConstructionReferences.NumSubFillers, dbo.tblCableConstructions.JacketMaterial, 
-                         dbo.tblCableConstructionReferences.Active, dbo.tblCableConstructionReferences.DesignCode, dbo.tblCableConstructions.CablePasses, 
-                         dbo.tblCableConstructionReferences.ReleasedDesign, dbo.tblCableTBType.TBLetter, dbo.tblCableConstructionReferences.TBType, 
-                         dbo.tblCableConstructionReferences.BaseID, dbo.tblCableConstructions.Additive, dbo.tblCableTightBufferReference.TBTypeID, 
-                         dbo.tblCableConstructionReferences.FibersPerBundle, dbo.tblCableTightBufferReference.TightBuffered, dbo.tblCableConstructionReferences.ProductID, 
-                         dbo.tblCableConstructionReferences.DesignTypeID, dbo.tblCableConstructionReferences.CableFamily,FiberCount,dbo.tblCableConstructionReferences.SetupID,StandardOperation
-HAVING        (dbo.tblCableConstructionReferences.Active <> 0)
+--GROUP BY dbo.tblCableConstructionReferences.Base, dbo.tblCableConstructionReferences.ConstructionDescription, dbo.tblCableConstructions.NominalOD, 
+--                         dbo.tblCableConstructionReferences.NumSubPositions, dbo.tblCableConstructionReferences.NumSubFillers, dbo.tblCableConstructions.JacketMaterial, 
+--                         dbo.tblCableConstructionReferences.Active, dbo.tblCableConstructionReferences.DesignCode, dbo.tblCableConstructions.CablePasses, 
+--                         dbo.tblCableConstructionReferences.ReleasedDesign, dbo.tblCableTBType.TBLetter, dbo.tblCableConstructionReferences.TBType, 
+--                         dbo.tblCableConstructionReferences.BaseID, dbo.tblCableConstructions.Additive, dbo.tblCableTightBufferReference.TBTypeID, 
+--                         dbo.tblCableConstructionReferences.FibersPerBundle, dbo.tblCableTightBufferReference.TightBuffered, dbo.tblCableConstructionReferences.ProductID, 
+--                         dbo.tblCableConstructionReferences.DesignTypeID, dbo.tblCableConstructionReferences.CableFamily,FiberCount,dbo.tblCableConstructionReferences.SetupID,StandardOperation
+WHERE        (dbo.tblCableConstructionReferences.Active <> 0)
 
 
 

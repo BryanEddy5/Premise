@@ -215,6 +215,8 @@ ALTER TABLE [dbo].[Basic Product Construction] ADD CONSTRAINT [PK_Basic Product 
 GO
 CREATE NONCLUSTERED INDEX [BasicProdConstruction_IXX] ON [dbo].[Basic Product Construction] ([Active], [OracleStatus]) INCLUDE ([Base], [Customer], [Customer Part#], [Fiber Oracle item], [FiberType2], [Item No], [Jacket Color], [New Oracle Part #], [Print Spacing], [Revision Date]) ON [PRIMARY]
 GO
+CREATE NONCLUSTERED INDEX [BasicProdConstruction_XI] ON [dbo].[Basic Product Construction] ([Active], [OracleStatus]) INCLUDE ([Base], [Customer], [Customer Part#], [Fiber Oracle item], [FiberType2], [ID], [Item No], [Jacket Color], [New Oracle Part #], [Print Spacing], [Revision Date]) ON [PRIMARY]
+GO
 CREATE NONCLUSTERED INDEX [IX_Basic Product Construction] ON [dbo].[Basic Product Construction] ([Customer], [Customer Part#], [Item No], [EZ Strip], [Jacket Color], [Jacket Material], [Base], [OracleStatus], [Fiber Oracle item], [Active]) ON [PRIMARY]
 GO
 CREATE NONCLUSTERED INDEX [IXI_BasicProdConstruction] ON [dbo].[Basic Product Construction] ([Customer], [OracleStatus]) INCLUDE ([Base], [Customer Part#], [Fiber Oracle item], [FiberType2], [Item No], [Jacket Color], [New Oracle Part #], [Print Spacing], [Revision Date]) ON [PRIMARY]

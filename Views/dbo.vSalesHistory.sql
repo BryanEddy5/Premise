@@ -3,25 +3,29 @@ GO
 SET ANSI_NULLS ON
 GO
 
-
 /*
 Author:		Bryan Eddy
 Desc:		Show sales history to various applications
 Date:		1/23/2018
-Version:	1
-Update:		Updated table to pull data from SalesHistory_BI_Data to Oracle.MarginRevenueExtractSalesHistory (Margin extract from Oracle)
+Version:	2
+Update:		1. Updated table to pull data from SalesHistory_BI_Data to Oracle.MarginRevenueExtractSalesHistory (Margin extract from Oracle)
+			2. 
 
 */
 
 
 CREATE VIEW [dbo].[vSalesHistory]
 AS
+WITH cteSales
+AS(
 SELECT BOOKED_DATE AS DATE, BILL_TO_NAME AS CUSTOMER, ITEM_NUMBER, ITEM_DESCRIPTION,ORDER_NUMBER AS SO_NUMBER,REVENUE, SO_LINE_NUMBER
 ,CASE WHEN UNIT_OF_MEASURE = 'FT' THEN ROUND(QUANTITY/3.281,2) ELSE QUANTITY END AS QUANTITY
-, CASE WHEN UNIT_OF_MEASURE = 'FT' THEN ROUND(REVENUE/QUANTITY/3.281,5) ELSE REVENUE END AS PricePerUOM
 , CASE WHEN UNIT_OF_MEASURE = 'FT' THEN 'M' ELSE UNIT_OF_MEASURE END AS UOM
 ,CURR_MATERIAL_COST, CURR_RESOURCE_COST, CURR_OVERHEAD_COST
 FROM Oracle.MarginRevenueExtractSalesHistory
+)
+SELECT *,  CASE WHEN QUANTITY <> 0 THEN ROUND(REVENUE/QUANTITY,5)  ELSE 0 END PricePerUOM
+FROM cteSales
 
 
 GO

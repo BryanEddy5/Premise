@@ -40,7 +40,7 @@ SELECT @numRows = count(*) FROM #Results
 
 SET @ReceipientList = (STUFF((SELECT ';' + UserEmail 
 						FROM tblConfiguratorUser G  INNER JOIN users.UserResponsibility  K ON  G.UserID = K.UserID
-  						WHERE K.ResponsibilityID = 5 FOR XML PATH('')),1,1,''))
+  						WHERE K.ResponsibilityID IN(5) FOR XML PATH('')),1,1,''))
 						--WHERE g.UserTypeID = 1 FOR XML PATH('')),1,1,''))
 
 DECLARE @body1 VARCHAR(MAX)

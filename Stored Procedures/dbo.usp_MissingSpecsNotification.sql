@@ -36,8 +36,10 @@ SELECT @numRows = count(*) FROM #Results
 
 
 
-SET @ReceipientList = (STUFF((SELECT ';' + UserEmail FROM tblConfiguratorUser WHERE ItemBuilder <> 0 FOR XML PATH('')),1,1,''))
 
+SET @ReceipientList = (STUFF((SELECT ';' + UserEmail 
+						FROM tblConfiguratorUser G  INNER JOIN users.UserResponsibility  K ON  G.UserID = K.UserID
+  						WHERE K.ResponsibilityID = 5 FOR XML PATH('')),1,1,''))
 declare @body1 varchar(max)
 declare @subject varchar(max)
 declare @query varchar(max) = N'SELECT * FROM tempdb..#Results;'

@@ -2,6 +2,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
+
 CREATE VIEW [dbo].[vBurnListingInventory]
 AS
 
@@ -32,12 +33,12 @@ SELECT DISTINCT dbo.CableUnion.Oracle
 ,tblCableConstructions.CablePasses
 --,substring( PrintLine3, charindex('OF', PrintLine3),CHARINDEX(' ',PrintLine3,CHARINDEX('OF',PrintLine3))-CHARINDEX('OF',PrintLine3)) as BurnPrint 
 FROM DBO.AFLPRD_acswopattn_CAB_SNF K 
-RIGHT JOIN dbo.CableUnion ON K.Item = dbo.CableUnion.Oracle
+INNER JOIN dbo.CableUnion ON K.Item = dbo.CableUnion.Oracle
 INNER JOIN tblCableConstructionReferences ON tblCableConstructionReferences.Base = dbo.CableUnion.Base
 INNER JOIN tblCableConstructions ON tblCableConstructionReferences.BaseID = tblCableConstructions.BaseID
 INNER JOIN tblBurnListing ON dbo.CableUnion.Base = tblBurnListing.base AND CableUnion.ListingCompany = tblBurnListing.ListingCompany
 INNER JOIN dbo.AFLPRD_INVSysItemCost_CAB B ON dbo.CableUnion.Oracle = B.ItemNumber
 --WHERE tblBurnListing.ListingCompany IN ('etl', 'ul')
-WHERE NominalOD <>0 --AND ITEM = 'PD05668-01' 
+WHERE NominalOD <>0 AND K.AvailQty <> 0
 
 GO

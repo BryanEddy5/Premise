@@ -2,16 +2,24 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
+/*
+Author:		Bryan Eddy
+Date:		2/20/2018
+Desc:		Get cable images
+Version:	2
+Update:		Added ImageID and ImageGroupID
+
+*/
 CREATE VIEW [CutSheet].[vImage]
 AS
-SELECT        CutSheet.Images.ImageName, CutSheet.ImageType.ImageTypeName, dbo.tblCableConstructionReferences.Base, CutSheet.ImageGroupReference.Color, 
-                         CutSheet.ImageGroup.ImageGroupName, CutSheet.ImageGroupReference.ImageTypeID, CutSheet.ImageGroupReference.Armored
+SELECT        Images.ImageName, ImageType.ImageTypeName, tblCableConstructionReferences.Base, ImageGroupReference.Color, 
+                         ImageGroup.ImageGroupName, ImageGroupReference.ImageTypeID, ImageGroupReference.Armored, Images.ImageID, ImageGroup.ImageGroupID, images.ImageFileType
 FROM            CutSheet.Images INNER JOIN
                          CutSheet.ImageType ON CutSheet.Images.ImageTypeID = CutSheet.ImageType.ImageTypeID INNER JOIN
                          CutSheet.ImageGroupReference ON CutSheet.Images.ImageID = CutSheet.ImageGroupReference.ImageID AND 
                          CutSheet.Images.ImageTypeID = CutSheet.ImageGroupReference.ImageTypeID AND CutSheet.Images.Color = CutSheet.ImageGroupReference.Color AND 
                          CutSheet.Images.Armored = CutSheet.ImageGroupReference.Armored INNER JOIN
-                         dbo.tblCableConstructionReferences ON CutSheet.ImageGroupReference.ImageGroupID = dbo.tblCableConstructionReferences.ImageGroupID INNER JOIN
+                         dbo.tblCableConstructionReferences ON CutSheet.ImageGroupReference.ImageGroupID = tblCableConstructionReferences.ImageGroupID INNER JOIN
                          CutSheet.ImageGroup ON CutSheet.ImageGroupReference.ImageGroupID = CutSheet.ImageGroup.ImageGroupID
 GO
 EXEC sp_addextendedproperty N'MS_DiagramPane1', N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]

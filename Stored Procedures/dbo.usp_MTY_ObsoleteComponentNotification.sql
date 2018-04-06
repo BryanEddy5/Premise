@@ -8,7 +8,7 @@ GO
 -- Description:	Send out emails to notify approvers of constructions awaiting for approval.
 -- Job has been ALTERd to run automatically with these notifications
 -- =============================================
-CREATE PROCEDURE [dbo].[usp_MTY_ObsoleteComponentNotification]
+CREATE PROC [dbo].[usp_MTY_ObsoleteComponentNotification]
 
 
 AS
@@ -26,10 +26,18 @@ DECLARE @Receipientlist varchar(1000)
 IF OBJECT_ID(N'tempdb..#Results', N'U') IS NOT NULL
 DROP TABLE #Results;
 
-SELECT DISTINCT   ComponentItemNumber,Description, AssemblyItemStatus, CompItemStatus, NewItem--, AssemblyItemNumber
+WITH cteInventory
+AS(
+	SELECT Item, SUM(QTY) AS Quantity, [Org Code]
+	FROM dbo.AFLPRD_onhandqty_STD_81_ALL 
+	GROUP BY [Org Code], Item
+	HAVING [Org Code] = 'MTY'
+)
+SELECT DISTINCT   ComponentItemNumber,Description, AssemblyItemStatus, CompItemStatus, COALESCE(NewItem,'') NewItem, COALESCE(i.Quantity,'') QuantityOnHand, COALESCE(i.[Org Code],'') AS Org
 INTO #Results
 FROM AFLPRD_BOMInvComp_MTY K INNER JOIN AFLPRD_INVSysItemCost_CAB G ON K.ComponentItemNumber = G.ItemNumber
 LEFT JOIN PCN_History P ON P.OldItem = ComponentItemNumber
+LEFT JOIN cteInventory i ON i.Item = G.ItemNumber
 WHERE Item_Status <>'active' and AssemblyItemStatus = 'active' AND NewItem IS NULL
 
 SELECT @numRows = count(*) FROM #Results
@@ -42,7 +50,7 @@ SET @Receipientlist = 'AFLMTYInactiveComponentAlertDL@aflglobal.com'
 declare @body1 varchar(max)
 declare @subject varchar(max)
 declare @query varchar(max) = N'SELECT * FROM tempdb..#Results;'
-set @subject = 'MTY ALERT - Inactive Components in BOM' 
+set @subject = 'MTY ALERT - Inactive Components in BOM ' + CAST(GETDATE() AS NVARCHAR)
 set @body1 = 'There are  ' + CAST(@numRows AS NVARCHAR) + ' inactive components in MTY BOMs.  Please review.' +char(13)+CHAR(13)
 
 DECLARE @tableHTML  NVARCHAR(MAX) ;
@@ -55,12 +63,15 @@ begin
 				N'<p class=MsoNormal><span style=''font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497D''>'+
 				N'<table border="1">' +
 				N'<tr><th>ComponentItemNumber</th><th>Description</th>' +
-				N'<th>AssemblyItemStatus</th><th>CompItemStatus</th><th>NewItem</th></tr>' +
+				N'<th>AssemblyItemStatus</th><th>CompItemStatus</th><th>NewItem</th>' +
+				N'<th>Quantity On Hand</th><th>Org</th></tr>' +
 				CAST ( ( SELECT		td=ComponentItemNumber,       '',
 									td=Description,       '',
 									td=AssemblyItemStatus, '',
 									td=CompItemStatus, '',
-									td=NewItem, ''
+									td=NewItem, '',
+									td=QuantityOnHand, '',
+									td=Org,''
 							FROM #Results 
 						  FOR XML PATH('tr'), TYPE 
 				) AS NVARCHAR(MAX) ) +
@@ -72,6 +83,7 @@ begin
 		
 			EXEC msdb.dbo.sp_send_dbmail 
 			@recipients=@Receipientlist,
+			--@recipients = 'Bryan.Eddy@aflglobal.com',
 			@blind_copy_recipients = 'Bryan.Eddy@aflglobal.com',
 			@subject = @subject,
 			@body = @tableHTML,

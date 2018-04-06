@@ -29,13 +29,13 @@ CREATE VIEW [Setup].[vSetupLineSpeed_New]
 	 FROM  Setup.tblSetup K
 	 INNER JOIN setup.tblSetupAttributes E ON E.SetupID = K.SetupID
 	 INNER JOIN [Setup].[tblAttributes] I ON E.AttributeID = I.AttributeID
-	 INNER JOIN setup.tblProcessMachines B ON B.MachineID = K.MachineID
-	 AND B.ProcessID = E.ProcessID
+	 INNER JOIN (Setup.tblProcessMachines AS BLeft INNER JOIN Setup.MachineMapping AS BRight ON BLeft.processid=BRight.processid AND BLeft.machineid=BRight.machineid) ON BLeft.MachineID = K.MachineID
+	 AND BLeft.ProcessID = E.ProcessID
 	 WHERE I.AttributeName LIKE 'LINESPEED' 
 	  --and K.IneffectiveDate > GETDATE() 
 	  AND I.AttrIneffectiveDate >= GETDATE()
 	 and   e.IneffectiveDate >= GETDATE()
-	 AND b.Active <> 0 AND K.IneffectiveDate >= getdate()
+	 AND BLeft.Active <> 0 AND K.IneffectiveDate >= getdate()
 	 and isnumeric(AttributeValue) = 1 
 		),
 	--cteBomSetup(Item,OperationSeqNum,SetupLocation, BomSetup,Alternate,UnitId,LayerID)

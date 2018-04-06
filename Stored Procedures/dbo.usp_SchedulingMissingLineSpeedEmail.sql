@@ -2,19 +2,14 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
-
-
-
-
-
 -- =============================================
 -- Author:		Bryan Eddy
 -- ALTER date: 6/12/17
 -- Description:	Send email of missing line speeds to Process Engineers
--- Version:		4
--- Update:		Added number of missing SO Lines to the report.
+-- Version:		7
+-- Update:		Updated to pull from [SPBAPS-TST01] server while in testing
 -- =============================================
-CREATE PROCEDURE [dbo].[usp_SchedulingMissingLineSpeedEmail]
+CREATE PROC [dbo].[usp_SchedulingMissingLineSpeedEmail]
 
 AS
 
@@ -88,44 +83,48 @@ WITH
 , cteMissingSetupOrders
 as(	
 	SELECT DISTINCT FinishedGood,K.Item,K.Item_Description, ScheduleDate, AssemblyItemNumber, Setup, Make_Buy, k.PrimaryAlt, DepartmentCode, cteOrders.SalesOrder,SalesOrderLineNumber
-	, MIN(ScheduleDate) OVER (PARTITION BY Setup) Max_SechuduleDate, MAX(Item) OVER (PARTITION BY Setup) Max_Item, K.MachineNumber--, ROW_NUMBER() OVER (PARTITION BY Setup ORDER BY setup,G.FinishedGood) RowNumber
+	, MIN(ScheduleDate) OVER (PARTITION BY Setup) Max_SechuduleDate, K.MachineNumber--, ROW_NUMBER() OVER (PARTITION BY Setup ORDER BY setup,G.FinishedGood) RowNumber
 	FROM cteOrders CROSS APPLY fn_ExplodeBOM(cteOrders.ItemNumber) G
 	INNER JOIN #SetupLocation K ON G.AssemblyItemNumber = K.Item
 	INNER JOIN AFLPRD_INVSysItemCost_CAB B ON B.ItemNumber = K.ITEM 
 	WHERE B.Make_Buy = 'MAKE' AND k.MachineNumber IS NULL  and left(ITEM,3) NOT in ('WTC','DNT')
-	and LEFT(setup,1) not in ('k','Q','O','I') and setup not in ('R696','R093','PQC','pk01') AND setup NOT LIKE 'm00[4-9]'
+	and LEFT(setup,1) not in ('k','Q','O','I') and setup not in ('R696','R093','PQC','pk01','SK01') AND setup NOT LIKE 'm00[4-9]'
 	) 
 	,cteConsolidatedMissingSetupOrders
 	AS(
 		SELECT *, COUNT(SalesOrder) OVER (PARTITION BY cteMissingSetupOrders.Setup) SoLinesMissingSetups--Determine the amount of sales order affected by missing setups
 		FROM cteMissingSetupOrders
+		--WHERE	
 	)
 SELECT DISTINCT FinishedGood,Item,Item_Description ItemDesc, ScheduleDate, AssemblyItemNumber, Setup, PrimaryAlt,DepartmentCode, MachineNumber, SoLinesMissingSetups
 INTO #Results
 FROM cteConsolidatedMissingSetupOrders
-WHERE Max_SechuduleDate = ScheduleDate and item = Max_Item --AND X.RowNumber = 1
+WHERE Max_SechuduleDate = ScheduleDate --  item = Max_Item = 1 /* To get just max item another CTE will have to be used*/
 ORDER BY ScheduleDate
 
 --SELECT *
 --FROM #Results
 
+SELECT *
+FROM [SPBAPS-TST01].PlanetTogether_Data_Test.Setup.[vMissingSetupsUnion]
+
 --Add new missing setups
-INSERT INTO [NAACAB-SCH01].PlanetTogether_Data_Test.setup.MissingSetups(Setup)
+INSERT INTO [SPBAPS-TST01].PlanetTogether_Data_Test.setup.MissingSetups(Setup)
 SELECT DISTINCT G.Setup
-FROM #Results G LEFT JOIN [NAACAB-SCH01].PlanetTogether_Data_Test.setup.MissingSetups K ON K.Setup = G.Setup
+FROM #Results G LEFT JOIN [SPBAPS-TST01].PlanetTogether_Data_Test.setup.MissingSetups K ON K.Setup = G.Setup
 WHERE K.Setup IS NULL
 
 --Update existing records with the most recent date of the apperance
 UPDATE K
 SET K.DateMostRecentAppearance = GETDATE()
-FROM [NAACAB-SCH01].PlanetTogether_Data_Test.setup.MissingSetups K INNER JOIN	#Results J ON K.Setup = J.Setup
+FROM [SPBAPS-TST01].PlanetTogether_Data_Test.setup.MissingSetups K INNER JOIN	#Results J ON K.Setup = J.Setup
 
 --Results to populate the email table
 IF OBJECT_ID(N'tempdb..#FinalResults', N'U') IS NOT NULL
 DROP TABLE #FinalResults;
 SELECT J.*,DATEDIFF(dd,K.DateCreated,K.DateMostRecentAppearance) DaysMissing
 INTO #FinalResults
-FROM [NAACAB-SCH01].PlanetTogether_Data_Test.setup.MissingSetups K INNER JOIN	#Results J ON K.Setup = J.Setup
+FROM [SPBAPS-TST01].PlanetTogether_Data_Test.setup.MissingSetups K INNER JOIN	#Results J ON K.Setup = J.Setup
 ORDER BY J.ScheduleDate,DaysMissing DESC
 
 --SELECT *
@@ -154,7 +153,7 @@ PRINT @ReceipientList
 DECLARE @body1 VARCHAR(MAX)
 DECLARE @subject VARCHAR(MAX)
 DECLARE @query VARCHAR(MAX) = N'SELECT * FROM tempdb..#Results;'
-SET @subject = 'Missing Setup Line Speeds for Open Orders' 
+SET @subject = 'Missing Setup Line Speeds for Open Orders ' + CAST(GETDATE() AS NVARCHAR)
 SET @body1 = 'There are  ' + CAST(@numRows AS NVARCHAR) + ' items that are missing setup line speeds with open orders.  Please review.' +CHAR(13)+CHAR(13)
 
 DECLARE @tableHTML  NVARCHAR(MAX) ;

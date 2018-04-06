@@ -9,7 +9,17 @@ CREATE TABLE [CutSheet].[ImageGroupReference]
 [Armored] [bit] NOT NULL CONSTRAINT [DF_ImageGroupReference_Armored] DEFAULT ((0))
 ) ON [PRIMARY]
 GO
-ALTER TABLE [CutSheet].[ImageGroupReference] ADD CONSTRAINT [PK_ImageGroupReference_1] PRIMARY KEY CLUSTERED  ([ImageID], [ImageTypeID], [Color], [Armored]) ON [PRIMARY]
+ALTER TABLE [CutSheet].[ImageGroupReference] ADD CONSTRAINT [PK_ImageGroupReference] PRIMARY KEY CLUSTERED  ([ImageGroupID], [ImageTypeID], [Color], [Armored]) ON [PRIMARY]
+GO
+ALTER TABLE [CutSheet].[ImageGroupReference] ADD CONSTRAINT [IX_ImageGroupReference] UNIQUE NONCLUSTERED  ([ImageID]) ON [PRIMARY]
+GO
+ALTER TABLE [CutSheet].[ImageGroupReference] ADD CONSTRAINT [FK_ImageGroupReference_ImageGroup] FOREIGN KEY ([ImageGroupID]) REFERENCES [CutSheet].[ImageGroup] ([ImageGroupID]) ON DELETE CASCADE ON UPDATE CASCADE
 GO
 ALTER TABLE [CutSheet].[ImageGroupReference] ADD CONSTRAINT [FK_ImageGroupReference_Images] FOREIGN KEY ([ImageID], [ImageTypeID], [Color], [Armored]) REFERENCES [CutSheet].[Images] ([ImageID], [ImageTypeID], [Color], [Armored]) ON DELETE CASCADE ON UPDATE CASCADE
+GO
+GRANT DELETE ON  [CutSheet].[ImageGroupReference] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT INSERT ON  [CutSheet].[ImageGroupReference] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ON  [CutSheet].[ImageGroupReference] TO [NAA\SPB Premise SQL RO]
 GO

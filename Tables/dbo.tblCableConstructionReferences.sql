@@ -36,7 +36,8 @@ CREATE TABLE [dbo].[tblCableConstructionReferences]
 [ActiveStatusChangedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [ReleasedStatusChangedDate] [datetime] NULL,
 [ReleasedStatusChangedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-[ImageGroupID] [int] NULL
+[ImageGroupID] [int] NULL,
+[IsCommoned] [bit] NULL CONSTRAINT [DF_tblCableConstructionReferences_IsCommoned] DEFAULT ((1))
 ) ON [PRIMARY]
 GO
 SET QUOTED_IDENTIFIER ON
@@ -151,4 +152,6 @@ GO
 ALTER TABLE [dbo].[tblCableConstructionReferences] ADD CONSTRAINT [FK_tblCableConstructionReferences_tblDesignTypes] FOREIGN KEY ([DesignTypeID]) REFERENCES [dbo].[tblDesignTypes] ([DesignTypeID]) ON DELETE SET NULL ON UPDATE CASCADE
 GO
 ALTER TABLE [dbo].[tblCableConstructionReferences] ADD CONSTRAINT [FK_tblCableConstructionReferences_tblUnitSeriesTemplateCatalog] FOREIGN KEY ([UnitIDTypeNumber]) REFERENCES [dbo].[tblUnitSeriesTemplateCatalog] ([ID])
+GO
+GRANT UPDATE ([ImageGroupID]) ON [dbo].[tblCableConstructionReferences] TO [NAA\SPB Premise SQL RO]
 GO

@@ -34,6 +34,54 @@ CREATE TABLE [dbo].[Buff#1/#2 Alloc Table]
 GO
 ALTER TABLE [dbo].[Buff#1/#2 Alloc Table] ADD CONSTRAINT [Buff#1/#2 Alloc Table$PrimaryKey] PRIMARY KEY CLUSTERED  ([PrefixID]) ON [PRIMARY]
 GO
+GRANT UPDATE ([Prefix]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([Buffering Factor]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([Special Notes]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([Set-up time level 1]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([Set-up time level 2]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([Buff#11 Line Speed]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([Buff#1 Line Speed]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([Buff#4 Line Speed]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([Buff#6 Line Speed]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([Buff#2 Line Speed]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([Buff#9 Line Speed]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([Buff#10 Line Speed]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([Buff#9 Line Speed (SH)]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([Buff#11 Line Speed (SH)]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([SH#3 Line Speed]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([SH#4 Line Speed]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([C#4 Line Speed]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([Armor Line Speed]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([PlannedLotSize]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([shrinkage limit]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([Sheathing Line]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([Interlock]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([PrimaryBufferingLine]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT UPDATE ([B18_Line_Speed]) ON [dbo].[Buff#1/#2 Alloc Table] TO [NAA\SPB Premise SQL RO]
+GO
 EXEC sp_addextendedproperty N'MS_SSMA_SOURCE', N'SQLMigration.[Buff#1/#2 Alloc Table]', 'SCHEMA', N'dbo', 'TABLE', N'Buff#1/#2 Alloc Table', NULL, NULL
 GO
 EXEC sp_addextendedproperty N'MS_SSMA_SOURCE', N'SQLMigration.[Buff#1/#2 Alloc Table].[Armor Line Speed]', 'SCHEMA', N'dbo', 'TABLE', N'Buff#1/#2 Alloc Table', 'COLUMN', N'Armor Line Speed'

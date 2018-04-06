@@ -2,17 +2,15 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
-
-
 CREATE VIEW [dbo].[vCreateItemBaseFurcation]
 AS
-SELECT        dbo.tblCableConstructionReferences.Base, dbo.tblCableConstructionReferences.ConstructionDescription, dbo.tblCableConstructions.NominalOD AS OD, 
+SELECT    DISTINCT    dbo.tblCableConstructionReferences.Base, dbo.tblCableConstructionReferences.ConstructionDescription, dbo.tblCableConstructions.NominalOD AS OD, 
                          dbo.tblCableConstructionReferences.NumSubPositions AS NumPositions, dbo.tblCableConstructionReferences.NumSubFillers AS NumFillers, 
-                         dbo.tblCableConstructions.JacketMaterial, COUNT(dbo.CableUnion.Base) AS CountOfBase, dbo.tblCableConstructionReferences.Active, 
+                         dbo.tblCableConstructions.JacketMaterial, '' AS CountOfBase, dbo.tblCableConstructionReferences.Active, 
                          dbo.tblCableConstructionReferences.DesignCode, dbo.tblCableConstructions.CablePasses AS Location, dbo.tblCableConstructionReferences.ReleasedDesign, 
                          dbo.tblCableTBType.TBLetter, dbo.tblCableConstructionReferences.TBType, dbo.tblCableConstructionReferences.BaseID, 
                          dbo.tblDesignCodeFurcationTube.FurcationLetter, dbo.tblDesignCodeFurcationTube.Furcation, dbo.tblCableTightBufferReference.TBTypeID, 
-                         dbo.tblCableTightBufferReference.TightBuffered
+                         dbo.tblCableTightBufferReference.TightBuffered, DesignExtension
 FROM            dbo.tblCableConstructions INNER JOIN
                          dbo.tblCableConstructionReferences INNER JOIN
                          dbo.CableRunSpeeds ON dbo.tblCableConstructionReferences.PrefixID = dbo.CableRunSpeeds.PrefixID ON 
@@ -22,13 +20,7 @@ FROM            dbo.tblCableConstructions INNER JOIN
                          dbo.tblCableTBType ON dbo.tblCableTightBufferReference.TBtypeID = dbo.tblCableTBType.TBIndicatorID INNER JOIN
                          dbo.tblFurcationTubeReference ON dbo.tblFurcationTubeReference.BaseID = dbo.tblCableConstructionReferences.BaseID INNER JOIN
                          dbo.tblDesignCodeFurcationTube ON dbo.tblDesignCodeFurcationTube.Furcation = dbo.tblFurcationTubeReference.Furcation
-GROUP BY dbo.tblCableConstructionReferences.Base, dbo.tblCableConstructionReferences.ConstructionDescription, dbo.tblCableConstructions.NominalOD, 
-                         dbo.tblCableConstructionReferences.NumSubPositions, dbo.tblCableConstructionReferences.NumSubFillers, dbo.tblCableConstructions.JacketMaterial, 
-                         dbo.tblCableConstructionReferences.Active, dbo.tblCableConstructionReferences.DesignCode, dbo.tblCableConstructions.CablePasses, 
-                         dbo.tblCableConstructionReferences.ReleasedDesign, dbo.tblCableTBType.TBLetter, dbo.tblCableConstructionReferences.TBType, 
-                         dbo.tblCableConstructionReferences.BaseID, dbo.tblDesignCodeFurcationTube.FurcationLetter, dbo.tblDesignCodeFurcationTube.Furcation, 
-                         dbo.tblCableTightBufferReference.TBTypeID, dbo.tblCableTightBufferReference.TightBuffered
-
+WHERE					tblCableConstructionReferences.Active = 1
 
 
 
