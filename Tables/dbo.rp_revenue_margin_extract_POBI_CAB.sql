@@ -85,7 +85,13 @@ CREATE TABLE [dbo].[rp_revenue_margin_extract_POBI_CAB]
 [Number] [int] NOT NULL IDENTITY(1, 1),
 [FORECAST_DESCRIPTION] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [FORECAST_DESIGNATOR] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-[DateInserted] [datetime] NULL CONSTRAINT [DF_rp_revenue_margin_extract_POBI_CAB_DateInserted] DEFAULT (getdate())
+[DateInserted] [datetime] NULL CONSTRAINT [DF_rp_revenue_margin_extract_POBI_CAB_DateInserted] DEFAULT (getdate()),
+[END_CUSTOMER_NAME] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[APPROVAL_STATUS] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[FORECAST_CONFIDENCE] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[FORECAST_MARKET] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[CUSTOMER_REFERENCE] [varchar] (300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[CUSTOMER_LINE_REFERENCE] [varchar] (300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[rp_revenue_margin_extract_POBI_CAB] ADD CONSTRAINT [PK_rp_revenue_margin_extract_POBI_CAB] PRIMARY KEY CLUSTERED  ([Number]) ON [PRIMARY]

@@ -6,8 +6,8 @@ GO
 -- Author:		Bryan Eddy
 -- ALTER date: 6/12/17
 -- Description:	Send email of missing line speeds to Process Engineers
--- Version:		7
--- Update:		Updated to pull from [SPBAPS-TST01] server while in testing
+-- Version:		8
+-- Update:		Updated to pull from [NAACAB-SCH01] 
 -- =============================================
 CREATE PROC [dbo].[usp_SchedulingMissingLineSpeedEmail]
 
@@ -106,25 +106,25 @@ ORDER BY ScheduleDate
 --FROM #Results
 
 SELECT *
-FROM [SPBAPS-TST01].PlanetTogether_Data_Test.Setup.[vMissingSetupsUnion]
+FROM [NAACAB-SCH01].PlanetTogether_Data_Prod.Setup.[vMissingSetupsUnion]
 
 --Add new missing setups
-INSERT INTO [SPBAPS-TST01].PlanetTogether_Data_Test.setup.MissingSetups(Setup)
+INSERT INTO [NAACAB-SCH01].PlanetTogether_Data_Prod.setup.MissingSetups(Setup)
 SELECT DISTINCT G.Setup
-FROM #Results G LEFT JOIN [SPBAPS-TST01].PlanetTogether_Data_Test.setup.MissingSetups K ON K.Setup = G.Setup
+FROM #Results G LEFT JOIN [NAACAB-SCH01].PlanetTogether_Data_Prod.setup.MissingSetups K ON K.Setup = G.Setup
 WHERE K.Setup IS NULL
 
 --Update existing records with the most recent date of the apperance
 UPDATE K
 SET K.DateMostRecentAppearance = GETDATE()
-FROM [SPBAPS-TST01].PlanetTogether_Data_Test.setup.MissingSetups K INNER JOIN	#Results J ON K.Setup = J.Setup
+FROM [NAACAB-SCH01].PlanetTogether_Data_Prod.setup.MissingSetups K INNER JOIN	#Results J ON K.Setup = J.Setup
 
 --Results to populate the email table
 IF OBJECT_ID(N'tempdb..#FinalResults', N'U') IS NOT NULL
 DROP TABLE #FinalResults;
 SELECT J.*,DATEDIFF(dd,K.DateCreated,K.DateMostRecentAppearance) DaysMissing
 INTO #FinalResults
-FROM [SPBAPS-TST01].PlanetTogether_Data_Test.setup.MissingSetups K INNER JOIN	#Results J ON K.Setup = J.Setup
+FROM [NAACAB-SCH01].PlanetTogether_Data_Prod.setup.MissingSetups K INNER JOIN	#Results J ON K.Setup = J.Setup
 ORDER BY J.ScheduleDate,DaysMissing DESC
 
 --SELECT *

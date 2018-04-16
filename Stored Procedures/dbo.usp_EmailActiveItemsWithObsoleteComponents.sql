@@ -46,15 +46,15 @@ SET @ReceipientList = (STUFF((SELECT ';' + UserEmail
 DECLARE @body1 VARCHAR(MAX)
 DECLARE @subject VARCHAR(MAX)
 DECLARE @query VARCHAR(MAX) = N'SELECT * FROM tempdb..#Results;'
-SET @subject = 'Obsolete Components' 
-SET @body1 = 'There are  ' + CAST(@numRows AS NVARCHAR) + ' active item(s) with obsolete components.  Please review.' +CHAR(13)+CHAR(13)
+SET @subject = 'Obsolete Components ' + CAST(GETDATE() AS NVARCHAR(50)) 
+SET @body1 = 'There are  ' + CAST(@numRows AS NVARCHAR(10)) + ' active item(s) with obsolete components.  Please review.' +CHAR(13)+CHAR(13)
 
 DECLARE @tableHTML  NVARCHAR(MAX) ;
 IF @numRows > 0
 BEGIN
 	
 			SET @tableHTML =
-				N'<H1>Obsolete Componenet Report</H1>' +
+				N'<H1>Obsolete Component Report</H1>' +
 				N'<p>'+@body1+'</p>' +
 				N'<p class=MsoNormal><span style=''font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497D''>'+
 				N'<table border="1">' +

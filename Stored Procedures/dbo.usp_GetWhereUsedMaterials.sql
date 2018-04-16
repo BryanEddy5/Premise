@@ -2,11 +2,13 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
+
 /* =============================================
 -- Author:		Bryan Eddy
 -- ALTER date: 6/22/2017
 -- Description:	MRP function to report Customer purchase history with respect to Raw Materials
--- 
+-- Version:		2
+-- Update:		Update to pull sales history from oracle.MarginRevenueExtractSalesHistory
 -- ============================================= */
 CREATE PROCEDURE [dbo].[usp_GetWhereUsedMaterials]
 
@@ -26,7 +28,7 @@ FROM ##ItemPassToSQL
 
 --select * from #TempFG
 
-SELECT Material, AssemblyItemNumber, sum(ComponentQuantity) as TotalQuantity--, PrimaryUOM,CategoryName
+SELECT Material, AssemblyItemNumber, SUM(ComponentQuantity) AS TotalQuantity--, PrimaryUOM,CategoryName
 FROM #TempFG T-- INNER JOIN AFLPRD_INVItmCatg_CAB G ON G.ItemNumber = T.AssemblyItemNumber
 GROUP BY  Material, AssemblyItemNumber, PrimaryUOM--,CategorySetName,CategoryName
 --HAVING G.CategorySetName = 'PRODUCT CLASS'
@@ -34,14 +36,14 @@ ORDER BY Material
 
 
 IF OBJECT_ID(N'tempdb..##MaterialUsage', N'U') IS NOT NULL
-drop table ##MaterialUsage;
+DROP TABLE ##MaterialUsage;
 
 --Shows orders for all FG contianing materials from the queried list.  Also shows where there have been no orders.
-SELECT DISTINCT Material, AssemblyItemNumber, round(sum(ComponentQuantity),6) MaterialQuantity_PerPrimaryUOM--,CategoryName
-,round(sum(ComponentQuantity),7) *CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN ROUND(S.QUANTITY / 3.281,7) ELSE S.QUANTITY END as MaterialQuanitty_PerOrder, PrimaryUOM,p.Item_Status
+SELECT DISTINCT Material, AssemblyItemNumber, ROUND(SUM(ComponentQuantity),6) MaterialQuantity_PerPrimaryUOM--,CategoryName
+,ROUND(SUM(ComponentQuantity),7) *CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN ROUND(S.QUANTITY / 3.281,7) ELSE S.QUANTITY END AS MaterialQuanitty_PerOrder, PrimaryUOM,p.Item_Status
 --, CASE WHEN CategoryName like '%premise%' THEN 'Premise' ELSE 'ACS' END BU
-, S.BILL_TO_NAME Customer, S.ORDER_NUMBER as OrderNum,S.PROMISE_DATE as Shipped
-,CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN ROUND(S.QUANTITY / 3.281,0) ELSE S.QUANTITY END as Quantity, CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN 'M' ELSE S.UNIT_OF_MEASURE END as QTY_UOM, s.REVENUE
+, S.BILL_TO_NAME Customer, S.ORDER_NUMBER AS OrderNum,S.PROMISE_DATE AS Shipped
+,CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN ROUND(S.QUANTITY / 3.281,0) ELSE S.QUANTITY END AS Quantity, CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN 'M' ELSE S.UNIT_OF_MEASURE END as QTY_UOM, s.REVENUE
 ,p.Description
 INTO ##MaterialUsage
 FROM #TempFG T --INNER JOIN AFLPRD_INVItmCatg_CAB G ON G.ItemNumber = T.AssemblyItemNumber 
