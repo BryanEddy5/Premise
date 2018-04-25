@@ -3,6 +3,7 @@ GO
 SET ANSI_NULLS ON
 GO
 
+
 /* =============================================
 -- Author:		Bryan Eddy
 -- ALTER date: 6/22/2017
@@ -43,8 +44,8 @@ SELECT DISTINCT Material, AssemblyItemNumber, ROUND(SUM(ComponentQuantity),6) Ma
 ,ROUND(SUM(ComponentQuantity),7) *CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN ROUND(S.QUANTITY / 3.281,7) ELSE S.QUANTITY END AS MaterialQuanitty_PerOrder, PrimaryUOM,p.Item_Status
 --, CASE WHEN CategoryName like '%premise%' THEN 'Premise' ELSE 'ACS' END BU
 , S.BILL_TO_NAME Customer, S.ORDER_NUMBER AS OrderNum,S.PROMISE_DATE AS Shipped
-,CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN ROUND(S.QUANTITY / 3.281,0) ELSE S.QUANTITY END AS Quantity, CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN 'M' ELSE S.UNIT_OF_MEASURE END as QTY_UOM, s.REVENUE
-,p.Description
+,CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN ROUND(S.QUANTITY / 3.281,0) ELSE S.QUANTITY END AS Quantity, CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN 'M' ELSE S.UNIT_OF_MEASURE END AS QTY_UOM, s.REVENUE
+,p.Description, S.SO_LINE_NUMBER, S.TRANSACTION_DATE
 INTO ##MaterialUsage
 FROM #TempFG T --INNER JOIN AFLPRD_INVItmCatg_CAB G ON G.ItemNumber = T.AssemblyItemNumber 
 INNER JOIN AFLPRD_INVSysItem_CAB K ON K.ItemNumber = t.AssemblyItemNumber
@@ -52,8 +53,9 @@ INNER JOIN AFLPRD_INVSysItemCost_CAB P ON P.ItemNumber = K.ItemNumber
 LEFT JOIN oracle.MarginRevenueExtractSalesHistory S ON S.ITEM_NUMBER = K.ItemNumber
 GROUP BY  Material, AssemblyItemNumber, PrimaryUOM,--CategorySetName,CategoryName,
 TemplateName,Item_Status, S.BILL_TO_NAME, S.ORDER_NUMBER, S.QUANTITY, s.PROMISE_DATE, S.UNIT_OF_MEASURE,s.REVENUE,p.Description
+,SO_LINE_NUMBER,S.TRANSACTION_DATE
 --HAVING shipped like '201[76]%'
-ORDER BY Shipped desc
+ORDER BY Shipped DESC
 
 
 

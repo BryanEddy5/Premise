@@ -1,0 +1,438 @@
+diff --git a/Stored Procedures/Schedule.usp_EmailInactiveItemsOnSchedule.sql b/Stored Procedures/Schedule.usp_EmailInactiveItemsOnSchedule.sql
+index 5a05fbb..131cf82 100644
+--- a/Stored Procedures/Schedule.usp_EmailInactiveItemsOnSchedule.sql
++++ b/Stored Procedures/Schedule.usp_EmailInactiveItemsOnSchedule.sql
+@@ -4,6 +4,7 @@
+ GO
+ 
+ 
++
+ /*
+ Author:		Bryan Eddy
+ Date:		4/2/2018
+@@ -19,9 +20,12 @@
+  @sqlCommand NVARCHAR(1000),
+  @Table NVARCHAR(1000),
+  @Qry NVARCHAR(1000),
+- @RowCount INT
++ @RowCount INT,
++ @SubjectLine NVARCHAR(100) 
++
+  SET @Table = 'Schedule.vInactiveItems'
+  SET @sqlCommand = 'SELECT @RowCount  = COUNT(*) FROM ' + @Table
++ SET @SubjectLine = 'Inactive Items on Premise Schedule ' + CAST(GETDATE() AS NVARCHAR(50))
+ EXECUTE sp_executesql @sqlCommand, N'@RowCount int OUTPUT', @RowCount=@RowCount OUTPUT
+ PRINT @RowCount
+ 
+diff --git a/Stored Procedures/dbo.usp_CutSheet_Email_Reminder.sql b/Stored Procedures/dbo.usp_CutSheet_Email_Reminder.sql
+index 159f388..d466da2 100644
+--- a/Stored Procedures/dbo.usp_CutSheet_Email_Reminder.sql
++++ b/Stored Procedures/dbo.usp_CutSheet_Email_Reminder.sql
+@@ -8,9 +8,10 @@
+ -- Author:		Bryan Eddy
+ -- ALTER date:	2/15/2017
+ -- Description:	Send out emails to notify approvers of constructions awaiting for approval.
+-	Version:	2
++	Version:	3
+ 	Update:		1. Added in a date differential to give more time before notification
+ 				2. Put results into a table with differential of days the request has been open.
++				3. Created a group for this alert as group 17
+ -- =============================================
+ */
+ CREATE PROCEDURE [dbo].[usp_CutSheet_Email_Reminder]
+@@ -39,7 +40,9 @@
+ 
+ SET @ReceipientList = (STUFF((SELECT ';' + UserEmail FROM tblConfiguratorUser I
+ 						INNER JOIN Users.UserResponsibility K ON K.UserID = I.UserID
+-						 WHERE k.ResponsibilityID IN (2,3) FOR XML PATH('')),1,1,''))
++						 WHERE k.ResponsibilityID = (17) FOR XML PATH('')),1,1,''))
++
++						PRINT @Receipientlist
+ 
+ SELECT @numRows = COUNT(*) FROM #Results
+ 
+diff --git a/Stored Procedures/dbo.usp_GetWhereUsedMaterials.sql b/Stored Procedures/dbo.usp_GetWhereUsedMaterials.sql
+index 5e21527..b744bdd 100644
+--- a/Stored Procedures/dbo.usp_GetWhereUsedMaterials.sql
++++ b/Stored Procedures/dbo.usp_GetWhereUsedMaterials.sql
+@@ -3,6 +3,7 @@
+ SET ANSI_NULLS ON
+ GO
+ 
++
+ /* =============================================
+ -- Author:		Bryan Eddy
+ -- ALTER date: 6/22/2017
+@@ -43,8 +44,8 @@
+ ,ROUND(SUM(ComponentQuantity),7) *CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN ROUND(S.QUANTITY / 3.281,7) ELSE S.QUANTITY END AS MaterialQuanitty_PerOrder, PrimaryUOM,p.Item_Status
+ --, CASE WHEN CategoryName like '%premise%' THEN 'Premise' ELSE 'ACS' END BU
+ , S.BILL_TO_NAME Customer, S.ORDER_NUMBER AS OrderNum,S.PROMISE_DATE AS Shipped
+-,CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN ROUND(S.QUANTITY / 3.281,0) ELSE S.QUANTITY END AS Quantity, CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN 'M' ELSE S.UNIT_OF_MEASURE END as QTY_UOM, s.REVENUE
+-,p.Description
++,CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN ROUND(S.QUANTITY / 3.281,0) ELSE S.QUANTITY END AS Quantity, CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN 'M' ELSE S.UNIT_OF_MEASURE END AS QTY_UOM, s.REVENUE
++,p.Description, S.SO_LINE_NUMBER, S.TRANSACTION_DATE
+ INTO ##MaterialUsage
+ FROM #TempFG T --INNER JOIN AFLPRD_INVItmCatg_CAB G ON G.ItemNumber = T.AssemblyItemNumber 
+ INNER JOIN AFLPRD_INVSysItem_CAB K ON K.ItemNumber = t.AssemblyItemNumber
+@@ -52,8 +53,9 @@
+ LEFT JOIN oracle.MarginRevenueExtractSalesHistory S ON S.ITEM_NUMBER = K.ItemNumber
+ GROUP BY  Material, AssemblyItemNumber, PrimaryUOM,--CategorySetName,CategoryName,
+ TemplateName,Item_Status, S.BILL_TO_NAME, S.ORDER_NUMBER, S.QUANTITY, s.PROMISE_DATE, S.UNIT_OF_MEASURE,s.REVENUE,p.Description
++,SO_LINE_NUMBER,S.TRANSACTION_DATE
+ --HAVING shipped like '201[76]%'
+-ORDER BY Shipped desc
++ORDER BY Shipped DESC
+ 
+ 
+ 
+diff --git a/Stored Procedures/dbo.usp_Order_History_Update_Premise_Cable_Shipments.sql b/Stored Procedures/dbo.usp_Order_History_Update_Premise_Cable_Shipments.sql
+index ccbbe6b..608b2c3 100644
+--- a/Stored Procedures/dbo.usp_Order_History_Update_Premise_Cable_Shipments.sql
++++ b/Stored Procedures/dbo.usp_Order_History_Update_Premise_Cable_Shipments.sql
+@@ -3,12 +3,13 @@
+ SET ANSI_NULLS ON
+ GO
+ 
++
+ /*
+ Author:			Bryan Eddy
+ Date:			1/12/2017
+ Desc:			Update the Sales History table for reporting ( Oracle.MarginRevenueExtractSalesHistory)
+-Version:		2
+-Update:			Updated criteria for deleting and updating information
++Version:		3
++Update:			Added query to remove duplicates
+ */
+ 
+ CREATE PROCEDURE [dbo].[usp_Order_History_Update_Premise_Cable_Shipments]
+@@ -86,7 +87,176 @@
+ 						 rp_revenue_margin_extract_POBI_CAB.INV_LINE_NUMBER IS NOT NULL
+ 						  AND  Premise_Cable_Shipments_1.ORDER_NUMBER IS NULL AND Premise_Cable_Shipments_1.SO_LINE_NUMBER IS NULL 
+ 						  --AND Premise_Cable_Shipments_1.INVOICE_NUMBER IS NULL AND Premise_Cable_Shipments_1.INV_LINE_NUMBER IS NULL
+-						 AND rp_revenue_margin_extract_POBI_CAB.ORDER_NUMBER IS NOT NULL AND rp_revenue_margin_extract_POBI_CAB.SO_LINE_NUMBER IS NOT null
++						 AND rp_revenue_margin_extract_POBI_CAB.ORDER_NUMBER IS NOT NULL AND rp_revenue_margin_extract_POBI_CAB.SO_LINE_NUMBER IS NOT NULL
++
++;WITH cteUnique
++AS(
++SELECT ROW_NUMBER() OVER (PARTITION BY[ORG_CODE]
++      ,[BUSINESS_UNIT]
++      ,[TRANSACTION_TYPE]
++      ,[ORDER_NUMBER]
++      ,[SO_LINE_NUMBER]
++      ,[INVOICE_NUMBER]
++      ,[INV_LINE_NUMBER]
++      ,[TRANSACTION_DATE]
++      ,[TRANSACTION_PERIOD]
++      ,[ITEM_NUMBER]
++      ,[ITEM_DESCRIPTION]
++      ,[BILL_TO_NUMBER]
++      ,[BILL_TO_CLASS]
++      ,[BILL_TO_CATEGORY]
++      ,[BILL_TO_NAME]
++      ,[BILL_TO_STATE]
++      ,[BILL_TO_COUNTRY]
++      ,[BILL_TO_POSTAL_CODE]
++      ,[SHIP_TO_NUMBER]
++      ,[SHIP_TO_CLASS]
++      ,[SHIP_TO_TERRITORY]
++      ,[SHIP_TO_NAME]
++      ,[SHIP_TO_STATE]
++      ,[SHIP_TO_COUNTRY]
++      ,[SHIP_TO_POSTAL_CODE]
++      ,[UNIT_OF_MEASURE]
++      ,[REVENUE]
++      ,[QUANTITY]
++      ,[CATEGORY1]
++      ,[CATEGORY2]
++      ,[CATEGORY3]
++      ,[CATEGORY4]
++      ,[CATEGORY5]
++      ,[ACTUAL_MATERIAL_COST]
++      ,[ACTUAL_RESOURCE_COST]
++      ,[ACTUAL_OVERHEAD_COST]
++      ,[ACTUAL_OUTSIDE_PROCESSING_COST]
++      ,[SCHEDULING_APPROVAL]
++      ,[AGENT]
++      ,[AFL_ACCOUNT]
++      ,[AFL_NATIONAL]
++      ,[INSIDE_SALES]
++      ,[BOOKED_DATE]
++      ,[SCHEDULE_PERIOD]
++      ,[SALES_CHANNEL]
++      ,[REQUEST_DATE]
++      ,[PROMISE_DATE]
++      ,[ORDER_TYPE]
++      ,[PARTIAL_ALLOWED]
++      ,[RESERVATION_FLAG]
++      ,[SHIP_TO_CITY]
++      ,[FOB_CODE]
++      ,[FREIGHT_TERMS_CODE]
++      ,[HOLD_FLAG]
++      ,[MULTI_ORG_SHIP_SET]
++      ,[MAKE_BUY_CODE]
++      ,[SHIP_SET_NUMBER]
++      ,[SO_LINE_FREIGHT_CARRIER]
++      ,[SCHEDULE_APPROVAL_DATE]
++      ,[SO_LINE_CREATE_DATE]
++      ,[QTY_IN_LBS]
++      ,[CUSTOMER_UOM]
++      ,[SPECIFICATION]
++      ,[QUOTE_NUMBER]
++      ,[NEW_PRODUCT]
++      ,[NEW_PRODUCT_CATEGORY]
++      ,[ACTUAL_COST_UPDATE_DATE]
++      ,[PRIMARY_QUANTITY]
++      ,[PRIMARY_UOM_CODE]
++      ,[INVOICE_SOURCE]
++      ,[QUOTE_TYPE]
++      ,[DATA_SOURCE]
++      ,[NEW_PRODUCT_TYPE]
++      ,[COMMENTS]
++      ,[ACTUAL_MATERIAL_OVERHEAD_COST]
++      ,[FORECAST_DESCRIPTION]
++      ,[FORECAST_DESIGNATOR]
++       ORDER BY CURR_MATERIAL_COST desc
++	  ) AS RowNumber
++	  ,[ORG_CODE]
++      ,[BUSINESS_UNIT]
++      ,[TRANSACTION_TYPE]
++      ,[ORDER_NUMBER]
++      ,[SO_LINE_NUMBER]
++      ,[INVOICE_NUMBER]
++      ,[INV_LINE_NUMBER]
++      ,[TRANSACTION_DATE]
++      ,[TRANSACTION_PERIOD]
++      ,[ITEM_NUMBER]
++      ,[ITEM_DESCRIPTION]
++      ,[BILL_TO_NUMBER]
++      ,[BILL_TO_CLASS]
++      ,[BILL_TO_CATEGORY]
++      ,[BILL_TO_NAME]
++      ,[BILL_TO_STATE]
++      ,[BILL_TO_COUNTRY]
++      ,[BILL_TO_POSTAL_CODE]
++      ,[SHIP_TO_NUMBER]
++      ,[SHIP_TO_CLASS]
++      ,[SHIP_TO_TERRITORY]
++      ,[SHIP_TO_NAME]
++      ,[SHIP_TO_STATE]
++      ,[SHIP_TO_COUNTRY]
++      ,[SHIP_TO_POSTAL_CODE]
++      ,[UNIT_OF_MEASURE]
++      ,[REVENUE]
++      ,[QUANTITY]
++      ,[CATEGORY1]
++      ,[CATEGORY2]
++      ,[CATEGORY3]
++      ,[CATEGORY4]
++      ,[CATEGORY5]
++      ,[ACTUAL_MATERIAL_COST]
++      ,[ACTUAL_RESOURCE_COST]
++      ,[ACTUAL_OVERHEAD_COST]
++      ,[ACTUAL_OUTSIDE_PROCESSING_COST]
++      ,[SCHEDULING_APPROVAL]
++      ,[AGENT]
++      ,[AFL_ACCOUNT]
++      ,[AFL_NATIONAL]
++      ,[INSIDE_SALES]
++      ,[BOOKED_DATE]
++      ,[SCHEDULE_PERIOD]
++      ,[SALES_CHANNEL]
++      ,[REQUEST_DATE]
++      ,[PROMISE_DATE]
++      ,[ORDER_TYPE]
++      ,[PARTIAL_ALLOWED]
++      ,[RESERVATION_FLAG]
++      ,[SHIP_TO_CITY]
++      ,[FOB_CODE]
++      ,[FREIGHT_TERMS_CODE]
++      ,[HOLD_FLAG]
++      ,[MULTI_ORG_SHIP_SET]
++      ,[MAKE_BUY_CODE]
++      ,[SHIP_SET_NUMBER]
++      ,[SO_LINE_FREIGHT_CARRIER]
++      ,[SCHEDULE_APPROVAL_DATE]
++      ,[SO_LINE_CREATE_DATE]
++      ,[QTY_IN_LBS]
++      ,[CUSTOMER_UOM]
++      ,[SPECIFICATION]
++      ,[QUOTE_NUMBER]
++      ,[NEW_PRODUCT]
++      ,[NEW_PRODUCT_CATEGORY]
++      ,[ACTUAL_COST_UPDATE_DATE]
++      ,[PRIMARY_QUANTITY]
++      ,[PRIMARY_UOM_CODE]
++      ,[INVOICE_SOURCE]
++      ,[QUOTE_TYPE]
++      ,[DATA_SOURCE]
++      ,[NEW_PRODUCT_TYPE]
++      ,[COMMENTS]
++      ,[CURR_MATERIAL_OVERHEAD_COST]
++      ,[ACTUAL_MATERIAL_OVERHEAD_COST]
++      ,[SalesID]
++      ,[FORECAST_DESCRIPTION]
++      ,[FORECAST_DESIGNATOR]
++      ,[DateInserted]
++  FROM [Premise].[Oracle].[MarginRevenueExtractSalesHistory]
++  )
++DELETE I 
++FROM cteUnique K INNER JOIN ORACLE.[MarginRevenueExtractSalesHistory]  I ON I.SalesID = K.SalesID
++WHERE K.RowNumber > 1--item_number = 'DNO-9246' AND cteUnique.ORDER_NUMBER ='1958265' AND cteUnique.SO_LINE_NUMBER = 1
++
++
+ 
+ 
+ GO
+diff --git a/Tables/dbo.tblColors_Available.sql b/Tables/dbo.tblColors_Available.sql
+index 93c6fd1..9da4e37 100644
+--- a/Tables/dbo.tblColors_Available.sql
++++ b/Tables/dbo.tblColors_Available.sql
+@@ -5,7 +5,8 @@
+ [ID] [int] NOT NULL IDENTITY(1, 1),
+ [TimeStamp] [timestamp] NULL,
+ [CreatedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblColorChips_CreatedBy] DEFAULT (suser_sname()),
+-[DateCreated] [datetime] NULL CONSTRAINT [DF_tblColorChips_DateCreated] DEFAULT (getdate())
++[DateCreated] [datetime] NULL CONSTRAINT [DF_tblColorChips_DateCreated] DEFAULT (getdate()),
++[AccessColorID] [int] NOT NULL
+ ) ON [PRIMARY]
+ GO
+ ALTER TABLE [dbo].[tblColors_Available] ADD CONSTRAINT [PK_tblColorChips] PRIMARY KEY CLUSTERED  ([Color]) ON [PRIMARY]
+diff --git a/Tables/dbo.tblItemBuildDescrepancyLog.sql b/Tables/dbo.tblItemBuildDescrepancyLog.sql
+index aab45aa..65cdf0d 100644
+--- a/Tables/dbo.tblItemBuildDescrepancyLog.sql
++++ b/Tables/dbo.tblItemBuildDescrepancyLog.sql
+@@ -9,7 +9,8 @@
+ [Timestamp] [timestamp] NULL,
+ [NumberRevisions] [int] NOT NULL CONSTRAINT [DF_tblItemBuildDescrepancyLog_NumberRevisions] DEFAULT ((0)),
+ [CheckListVersion] [int] NOT NULL CONSTRAINT [DF_tblItemBuildDescrepancyLog_CheckListVersion] DEFAULT ((2)),
+-[ItemRequest] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
++[ItemRequest] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[CreatedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblItemBuildDescrepancyLog_CreatedBy] DEFAULT (suser_sname())
+ ) ON [PRIMARY]
+ GO
+ SET QUOTED_IDENTIFIER ON
+diff --git a/Tables/dbo.tblItemBuildDescrepancyLogARCHIVE.sql b/Tables/dbo.tblItemBuildDescrepancyLogARCHIVE.sql
+new file mode 100644
+index 0000000..a6be42a
+--- /dev/null
++++ b/Tables/dbo.tblItemBuildDescrepancyLogARCHIVE.sql
+@@ -0,0 +1,21 @@
++CREATE TABLE [dbo].[tblItemBuildDescrepancyLogARCHIVE]
++(
++[ID] [int] NULL,
++[DateCreated] [datetime2] NULL CONSTRAINT [DF_tblItemBuildDescrepancyLogARCHIVE_DateCreated] DEFAULT (getdate()),
++[Item] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[CriticalErrors] [bit] NULL,
++[NonCriticalErrors] [bit] NULL,
++[DescOfError] [nvarchar] (300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Timestamp] [timestamp] NULL,
++[NumberRevisions] [int] NOT NULL CONSTRAINT [DF_tblItemBuildDescrepancyLogARCHIVE_NumberRevisions] DEFAULT ((0)),
++[RecordID] [int] NOT NULL IDENTITY(1, 1),
++[RecordCreationDate] [datetime] NULL CONSTRAINT [DF_tblItemBuildDescrepancyLogARCHIVE_RecordCreationDate] DEFAULT (getdate()),
++[RecordCreatedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblItemBuildDescrepancyLogARCHIVE_RecoredCreatedBy] DEFAULT (suser_sname()),
++[CheckListVersion] [int] NOT NULL CONSTRAINT [DF_tblItemBuildDescrepancyLogARCHIVE_CheckListVersion] DEFAULT ((1)),
++[ItemRequest] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblItemBuildDescrepancyLogARCHIVE] ADD CONSTRAINT [PK_tblItemBuildDescrepancyLogARCHIVE] PRIMARY KEY CLUSTERED  ([RecordID]) ON [PRIMARY]
++GO
++CREATE NONCLUSTERED INDEX [IX_tblItemBuildDescrepancyLogARCHIVE] ON [dbo].[tblItemBuildDescrepancyLogARCHIVE] ([ID], [RecordCreatedBy], [Item]) ON [PRIMARY]
++GO
+diff --git a/Views/dbo.vBurnListingLengthRequirement.sql b/Views/dbo.vBurnListingLengthRequirement.sql
+index fd1704b..0fbed6f 100644
+--- a/Views/dbo.vBurnListingLengthRequirement.sql
++++ b/Views/dbo.vBurnListingLengthRequirement.sql
+@@ -2,6 +2,7 @@
+ GO
+ SET ANSI_NULLS ON
+ GO
++
+ /*
+ Author:		Bryan Eddy
+ Date:		2/28/2018
+@@ -35,15 +36,15 @@
+ 	INNER JOIN tblCableConstructions ON tblCableConstructionReferences.BaseID = tblCableConstructions.BaseID
+ 	INNER JOIN tblBurnListing ON dbo.CableUnion.Base = tblBurnListing.base AND CableUnion.ListingCompany = tblBurnListing.ListingCompany
+ 	INNER JOIN dbo.AFLPRD_INVSysItemCost_CAB B ON dbo.CableUnion.Oracle = B.ItemNumber
+-	WHERE tblBurnListing.ListingCompany IN ('etl', 'ul') AND B.Item_Status <> 'obsolete'
++	WHERE tblBurnListing.ListingCompany IN ('etl', 'ul') --AND B.Item_Status <> 'obsolete'
+ 	AND NominalOD <>0 AND tblCableConstructionReferences.Active = 1 AND ReleasedDesign = 1
+ 	--WHERE -- AND K.AvailQty <> 0 AND K.Locator NOT like 'wop%'
+ )
+ ,cteBurnCalculation
+ AS(
+-SELECT 	 round([NominalOD]*0.03936996,4)AS NomODInches
++SELECT 	 ROUND([NominalOD]*0.03936996,4)AS NomODInches
+ 	, CAST(CEILING((12/(BurnNominalOD*0.03936996))*16.5*1.1/3.281) AS INT) AS BurnLength_M_OFNR
+-	, CAST(CEILING((6990/BurnNominalOD)*1.1/3) AS int) AS BurnLength_M_OFNP
++	, CAST(CEILING((6990/BurnNominalOD)*1.1/3) AS INT) AS BurnLength_M_OFNP
+ 	,E.Length_Meters AS VerticalTrayTestLength_M
+ 	,CEILING(((4/(BurnNominalOD*0.03936996))+0.33)*3.281) AS BurnLength_M_LS
+ 	,g.*
+@@ -57,6 +58,7 @@
+ 		,e.*
+ 		--,g.Locator, g.AvailQty, g.ItemDesc, g.LotNumber
+ FROM cteBurnCalculation  e --INNER JOIN dbo.AFLPRD_acswopattn_CAB_SNF g ON g.Item = e.Oracle
++WHERE e.Oracle ='PS05720-01'
+ 
+ 
+ 
+diff --git a/Views/dbo.vFillersActive.sql b/Views/dbo.vFillersActive.sql
+new file mode 100644
+index 0000000..ac0918b
+--- /dev/null
++++ b/Views/dbo.vFillersActive.sql
+@@ -0,0 +1,20 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++/*
++AUTHOR:		Bryan Eddy
++Date:		4/20/2018
++Desc:		View of all active fillers
++Version:	1
++Update:		n/a
++
++*/
++
++CREATE VIEW [dbo].[vFillersActive]
++AS
++SELECT DISTINCT K.Oracle, K.ItemNo
++FROM dbo.tblCableConstructionReferences J INNER JOIN dbo.[Product Desrcriptions] I ON I.ProductID = J.ProductID
++INNER JOIN dbo.CableUnion K ON K.BASE = I.[Level 1 Product]
++WHERE I.SubFiller = 1 AND K.Active = 1 AND K.[Item No] LIKE '__000@%'
++GO
+diff --git a/Views/dbo.vSalesHistory.sql b/Views/dbo.vSalesHistory.sql
+index 5ffdf0f..a8cf90b 100644
+--- a/Views/dbo.vSalesHistory.sql
++++ b/Views/dbo.vSalesHistory.sql
+@@ -7,10 +7,8 @@
+ Author:		Bryan Eddy
+ Desc:		Show sales history to various applications
+ Date:		1/23/2018
+-Version:	2
+-Update:		1. Updated table to pull data from SalesHistory_BI_Data to Oracle.MarginRevenueExtractSalesHistory (Margin extract from Oracle)
+-			2. Found that MarginRevenueExtractSalesHistory has duplicates due to differing CURR_MATERIAL_COST.  Logic put in to place to remove duplicates
+-				Also updated the to aggregate information by SO_Line_NUMBER
++Version:	3
++Update:		3 Removed the criteria to remove duplicates.  Duplicates are now being deleted from the data.
+ 
+ */
+ 
+@@ -23,15 +21,12 @@
+ 	,PRIMARY_QUANTITY AS QUANTITY
+ 	, PRIMARY_UOM_CODE AS UOM
+ 	,CURR_MATERIAL_COST, CURR_RESOURCE_COST, CURR_OVERHEAD_COST
+-	, ROW_NUMBER() OVER (PARTITION BY TRANSACTION_DATE ,  BILL_TO_NAME, ITEM_NUMBER, ITEM_DESCRIPTION,ORDER_NUMBER ,REVENUE, SO_LINE_NUMBER
+-	,PRIMARY_QUANTITY , PRIMARY_UOM_CODE , CURR_RESOURCE_COST, CURR_OVERHEAD_COST ORDER BY CURR_MATERIAL_COST) AS RowNumber
+ 	FROM Oracle.MarginRevenueExtractSalesHistory
+ ) 
+ --,cteNormalizedSalesHistory
+ --AS(
+ 	SELECT *,  CASE WHEN QUANTITY <> 0 THEN ROUND(REVENUE/QUANTITY,5)  ELSE 0 END PricePerUOM
+ 	FROM cteSales k 
+-	WHERE  k.RowNumber = 1
+ --)
+ --SELECT SUM(S.REVENUE) REVENUE, SUM(S.QUANTITY) QUANTITY, SUM(S.CURR_MATERIAL_COST) CURR_MATERIAL_COST, SUM(S.CURR_RESOURCE_COST) CURR_RESOURCE_COST, SUM(S.CURR_OVERHEAD_COST) CURR_OVERHEAD_COST
+ --,S.DATE, S.CUSTOMER, S.ITEM_NUMBER,S.ITEM_DESCRIPTION,S.SO_NUMBER,S.SO_LINE_NUMBER,S.UOM,S.PricePerUOM

@@ -4,6 +4,7 @@ SET ANSI_NULLS ON
 GO
 
 
+
 /*
 Author:		Bryan Eddy
 Date:		4/2/2018
@@ -19,9 +20,12 @@ DECLARE @html NVARCHAR(MAX),
  @sqlCommand NVARCHAR(1000),
  @Table NVARCHAR(1000),
  @Qry NVARCHAR(1000),
- @RowCount INT
+ @RowCount INT,
+ @SubjectLine NVARCHAR(100) 
+
  SET @Table = 'Schedule.vInactiveItems'
  SET @sqlCommand = 'SELECT @RowCount  = COUNT(*) FROM ' + @Table
+ SET @SubjectLine = 'Inactive Items on Premise Schedule ' + CAST(GETDATE() AS NVARCHAR(50))
 EXECUTE sp_executesql @sqlCommand, N'@RowCount int OUTPUT', @RowCount=@RowCount OUTPUT
 PRINT @RowCount
 

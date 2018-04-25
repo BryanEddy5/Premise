@@ -1,0 +1,51 @@
+{
+  "Id": "d7e4023c-19b9-489b-9917-b44a03458c9e",
+  "Name": "Script created at 2018-04-25 13:35.",
+  "ObjectIds": [
+    {
+      "Name": "tblColors_Available",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblItemBuildDescrepancyLog",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "usp_EmailInactiveItemsOnSchedule",
+      "Owner": "Schedule",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CutSheet_Email_Reminder",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_GetWhereUsedMaterials",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_Order_History_Update_Premise_Cable_Shipments",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "vBurnListingLengthRequirement",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vFillersActive",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vSalesHistory",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    }
+  ]
+}

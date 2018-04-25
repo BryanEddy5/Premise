@@ -8,9 +8,10 @@ GO
 -- Author:		Bryan Eddy
 -- ALTER date:	2/15/2017
 -- Description:	Send out emails to notify approvers of constructions awaiting for approval.
-	Version:	2
+	Version:	3
 	Update:		1. Added in a date differential to give more time before notification
 				2. Put results into a table with differential of days the request has been open.
+				3. Created a group for this alert as group 17
 -- =============================================
 */
 CREATE PROCEDURE [dbo].[usp_CutSheet_Email_Reminder]
@@ -39,7 +40,9 @@ WHERE Requested = 1 AND (Technical_Approval =0 OR Commercial_Approval = 0) and D
 
 SET @ReceipientList = (STUFF((SELECT ';' + UserEmail FROM tblConfiguratorUser I
 						INNER JOIN Users.UserResponsibility K ON K.UserID = I.UserID
-						 WHERE k.ResponsibilityID IN (2,3) FOR XML PATH('')),1,1,''))
+						 WHERE k.ResponsibilityID = (17) FOR XML PATH('')),1,1,''))
+
+						PRINT @Receipientlist
 
 SELECT @numRows = COUNT(*) FROM #Results
 

@@ -9,7 +9,8 @@ CREATE TABLE [dbo].[tblItemBuildDescrepancyLog]
 [Timestamp] [timestamp] NULL,
 [NumberRevisions] [int] NOT NULL CONSTRAINT [DF_tblItemBuildDescrepancyLog_NumberRevisions] DEFAULT ((0)),
 [CheckListVersion] [int] NOT NULL CONSTRAINT [DF_tblItemBuildDescrepancyLog_CheckListVersion] DEFAULT ((2)),
-[ItemRequest] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
+[ItemRequest] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[CreatedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblItemBuildDescrepancyLog_CreatedBy] DEFAULT (suser_sname())
 ) ON [PRIMARY]
 GO
 SET QUOTED_IDENTIFIER ON

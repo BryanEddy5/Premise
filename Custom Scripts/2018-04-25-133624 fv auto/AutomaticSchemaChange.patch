@@ -1,0 +1,366 @@
+diff --git a/Stored Procedures/Schedule.usp_EmailInactiveItemsOnSchedule.sql b/Stored Procedures/Schedule.usp_EmailInactiveItemsOnSchedule.sql
+index 442a5e5..5a05fbb 100644
+--- a/Stored Procedures/Schedule.usp_EmailInactiveItemsOnSchedule.sql
++++ b/Stored Procedures/Schedule.usp_EmailInactiveItemsOnSchedule.sql
+@@ -2,6 +2,8 @@
+ GO
+ SET ANSI_NULLS ON
+ GO
++
++
+ /*
+ Author:		Bryan Eddy
+ Date:		4/2/2018
+@@ -11,29 +13,32 @@
+ */
+ 
+ CREATE PROCEDURE	[Schedule].[usp_EmailInactiveItemsOnSchedule]
+-as
+-DECLARE @html nvarchar(MAX),
++AS
++DECLARE @html NVARCHAR(MAX),
+  @ReceipientList NVARCHAR(1000),
+- @NumRows VARCHAR(1000),
++ @sqlCommand NVARCHAR(1000),
+  @Table NVARCHAR(1000),
+- @Qry NVARCHAR(1000)
++ @Qry NVARCHAR(1000),
++ @RowCount INT
+  SET @Table = 'Schedule.vInactiveItems'
+- SET @NumRows = 'SELECT COUNT(*) FROM ' + @Table
+- EXEC (@NumRows)
++ SET @sqlCommand = 'SELECT @RowCount  = COUNT(*) FROM ' + @Table
++EXECUTE sp_executesql @sqlCommand, N'@RowCount int OUTPUT', @RowCount=@RowCount OUTPUT
++PRINT @RowCount
+ 
+-IF @NumRows > 0
++IF @RowCount > 0
+ 	BEGIN
+     
+-		SET @Qry = 'SELET * FROM ' + @Table
++		SET @Qry = 'SELECT * FROM ' + @Table
+ 
+ 		EXEC dbo.usp_QueryToHtmlTable @html = @html OUTPUT,  @query = @Qry, @orderBy = N'[Promise Date]';
+ 
+ 		SET @ReceipientList = (STUFF((SELECT ';' + UserEmail 
+ 								FROM tblConfiguratorUser G  INNER JOIN users.UserResponsibility  K ON  G.UserID = K.UserID
+-  								WHERE K.ResponsibilityID in (5,15) FOR XML PATH('')),1,1,''))
++  								WHERE K.ResponsibilityID IN (5,15) FOR XML PATH('')),1,1,''))
+ 
+ 						EXEC msdb.dbo.sp_send_dbmail 
+ 						@recipients=@ReceipientList,
++						--@recipients='bryan.eddy@aflglobal.com',
+ 						@blind_copy_recipients = 'bryan.eddy@aflglobal.com',
+ 						@subject = 'Inactive Items on Premise Schedule',
+ 						@body = @html,
+@@ -41,6 +46,6 @@
+ 						@query_no_truncate = 1,
+ 						@attach_query_result_as_file = 0;
+ 
+-end
++END
+ 
+ GO
+diff --git a/Stored Procedures/dbo.usp_CutSheet_Email_Reminder.sql b/Stored Procedures/dbo.usp_CutSheet_Email_Reminder.sql
+index d466da2..159f388 100644
+--- a/Stored Procedures/dbo.usp_CutSheet_Email_Reminder.sql
++++ b/Stored Procedures/dbo.usp_CutSheet_Email_Reminder.sql
+@@ -8,10 +8,9 @@
+ -- Author:		Bryan Eddy
+ -- ALTER date:	2/15/2017
+ -- Description:	Send out emails to notify approvers of constructions awaiting for approval.
+-	Version:	3
++	Version:	2
+ 	Update:		1. Added in a date differential to give more time before notification
+ 				2. Put results into a table with differential of days the request has been open.
+-				3. Created a group for this alert as group 17
+ -- =============================================
+ */
+ CREATE PROCEDURE [dbo].[usp_CutSheet_Email_Reminder]
+@@ -40,9 +39,7 @@
+ 
+ SET @ReceipientList = (STUFF((SELECT ';' + UserEmail FROM tblConfiguratorUser I
+ 						INNER JOIN Users.UserResponsibility K ON K.UserID = I.UserID
+-						 WHERE k.ResponsibilityID = (17) FOR XML PATH('')),1,1,''))
+-
+-						PRINT @Receipientlist
++						 WHERE k.ResponsibilityID IN (2,3) FOR XML PATH('')),1,1,''))
+ 
+ SELECT @numRows = COUNT(*) FROM #Results
+ 
+diff --git a/Stored Procedures/dbo.usp_GetWhereUsedMaterials.sql b/Stored Procedures/dbo.usp_GetWhereUsedMaterials.sql
+index f1aaf7d..5e21527 100644
+--- a/Stored Procedures/dbo.usp_GetWhereUsedMaterials.sql
++++ b/Stored Procedures/dbo.usp_GetWhereUsedMaterials.sql
+@@ -2,11 +2,13 @@
+ GO
+ SET ANSI_NULLS ON
+ GO
++
+ /* =============================================
+ -- Author:		Bryan Eddy
+ -- ALTER date: 6/22/2017
+ -- Description:	MRP function to report Customer purchase history with respect to Raw Materials
+--- 
++-- Version:		2
++-- Update:		Update to pull sales history from oracle.MarginRevenueExtractSalesHistory
+ -- ============================================= */
+ CREATE PROCEDURE [dbo].[usp_GetWhereUsedMaterials]
+ 
+@@ -26,7 +28,7 @@
+ 
+ --select * from #TempFG
+ 
+-SELECT Material, AssemblyItemNumber, sum(ComponentQuantity) as TotalQuantity--, PrimaryUOM,CategoryName
++SELECT Material, AssemblyItemNumber, SUM(ComponentQuantity) AS TotalQuantity--, PrimaryUOM,CategoryName
+ FROM #TempFG T-- INNER JOIN AFLPRD_INVItmCatg_CAB G ON G.ItemNumber = T.AssemblyItemNumber
+ GROUP BY  Material, AssemblyItemNumber, PrimaryUOM--,CategorySetName,CategoryName
+ --HAVING G.CategorySetName = 'PRODUCT CLASS'
+@@ -34,14 +36,14 @@
+ 
+ 
+ IF OBJECT_ID(N'tempdb..##MaterialUsage', N'U') IS NOT NULL
+-drop table ##MaterialUsage;
++DROP TABLE ##MaterialUsage;
+ 
+ --Shows orders for all FG contianing materials from the queried list.  Also shows where there have been no orders.
+-SELECT DISTINCT Material, AssemblyItemNumber, round(sum(ComponentQuantity),6) MaterialQuantity_PerPrimaryUOM--,CategoryName
+-,round(sum(ComponentQuantity),7) *CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN ROUND(S.QUANTITY / 3.281,7) ELSE S.QUANTITY END as MaterialQuanitty_PerOrder, PrimaryUOM,p.Item_Status
++SELECT DISTINCT Material, AssemblyItemNumber, ROUND(SUM(ComponentQuantity),6) MaterialQuantity_PerPrimaryUOM--,CategoryName
++,ROUND(SUM(ComponentQuantity),7) *CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN ROUND(S.QUANTITY / 3.281,7) ELSE S.QUANTITY END AS MaterialQuanitty_PerOrder, PrimaryUOM,p.Item_Status
+ --, CASE WHEN CategoryName like '%premise%' THEN 'Premise' ELSE 'ACS' END BU
+-, S.BILL_TO_NAME Customer, S.ORDER_NUMBER as OrderNum,S.PROMISE_DATE as Shipped
+-,CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN ROUND(S.QUANTITY / 3.281,0) ELSE S.QUANTITY END as Quantity, CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN 'M' ELSE S.UNIT_OF_MEASURE END as QTY_UOM, s.REVENUE
++, S.BILL_TO_NAME Customer, S.ORDER_NUMBER AS OrderNum,S.PROMISE_DATE AS Shipped
++,CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN ROUND(S.QUANTITY / 3.281,0) ELSE S.QUANTITY END AS Quantity, CASE WHEN S.UNIT_OF_MEASURE = 'FT' THEN 'M' ELSE S.UNIT_OF_MEASURE END as QTY_UOM, s.REVENUE
+ ,p.Description
+ INTO ##MaterialUsage
+ FROM #TempFG T --INNER JOIN AFLPRD_INVItmCatg_CAB G ON G.ItemNumber = T.AssemblyItemNumber 
+diff --git a/Tables/dbo.rp_revenue_margin_extract_POBI_CAB.sql b/Tables/dbo.rp_revenue_margin_extract_POBI_CAB.sql
+index 6466789..674ae3d 100644
+--- a/Tables/dbo.rp_revenue_margin_extract_POBI_CAB.sql
++++ b/Tables/dbo.rp_revenue_margin_extract_POBI_CAB.sql
+@@ -85,7 +85,13 @@
+ [Number] [int] NOT NULL IDENTITY(1, 1),
+ [FORECAST_DESCRIPTION] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+ [FORECAST_DESIGNATOR] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+-[DateInserted] [datetime] NULL CONSTRAINT [DF_rp_revenue_margin_extract_POBI_CAB_DateInserted] DEFAULT (getdate())
++[DateInserted] [datetime] NULL CONSTRAINT [DF_rp_revenue_margin_extract_POBI_CAB_DateInserted] DEFAULT (getdate()),
++[END_CUSTOMER_NAME] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[APPROVAL_STATUS] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[FORECAST_CONFIDENCE] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[FORECAST_MARKET] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[CUSTOMER_REFERENCE] [varchar] (300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[CUSTOMER_LINE_REFERENCE] [varchar] (300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
+ ) ON [PRIMARY]
+ GO
+ ALTER TABLE [dbo].[rp_revenue_margin_extract_POBI_CAB] ADD CONSTRAINT [PK_rp_revenue_margin_extract_POBI_CAB] PRIMARY KEY CLUSTERED  ([Number]) ON [PRIMARY]
+diff --git a/Tables/dbo.tblColor_Chip_Concentration.sql b/Tables/dbo.tblColor_Chip_Concentration.sql
+new file mode 100644
+index 0000000..4e87d8f
+--- /dev/null
++++ b/Tables/dbo.tblColor_Chip_Concentration.sql
+@@ -0,0 +1,20 @@
++CREATE TABLE [dbo].[tblColor_Chip_Concentration]
++(
++[Color_Chip_Catalog] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[ColorChip] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Color] [nvarchar] (15) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[Color_Chip_Concentration] [decimal] (6, 5) NULL,
++[TimeStamp] [timestamp] NULL,
++[CreatedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblColor_Chip_Concentration_CreatedBy] DEFAULT (suser_sname()),
++[DateCreated] [datetime] NULL CONSTRAINT [DF_tblColor_Chip_Concentration_DateCreated] DEFAULT (getdate()),
++[ID] [int] NOT NULL IDENTITY(1, 1)
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblColor_Chip_Concentration] ADD CONSTRAINT [PK_tblColor_Chip_Concentration] PRIMARY KEY CLUSTERED  ([Color_Chip_Catalog], [Color]) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblColor_Chip_Concentration] ADD CONSTRAINT [FK_tblColor_Chip_Concentration_tblColor_Chips] FOREIGN KEY ([ColorChip]) REFERENCES [dbo].[tblColor_Chips] ([ColorChip]) ON DELETE CASCADE ON UPDATE CASCADE
++GO
++ALTER TABLE [dbo].[tblColor_Chip_Concentration] ADD CONSTRAINT [FK_tblColor_Chip_Concentration_tblColor_Jacket_Catalog] FOREIGN KEY ([Color_Chip_Catalog]) REFERENCES [dbo].[tblColor_Jacket_Catalog] ([Color_Chip_Catalog]) ON DELETE CASCADE ON UPDATE CASCADE
++GO
++ALTER TABLE [dbo].[tblColor_Chip_Concentration] ADD CONSTRAINT [FK_tblColor_Chip_Concentration_tblColors_Available] FOREIGN KEY ([Color]) REFERENCES [dbo].[tblColors_Available] ([Color]) ON DELETE CASCADE ON UPDATE CASCADE
++GO
+diff --git a/Tables/dbo.tblColor_Chips.sql b/Tables/dbo.tblColor_Chips.sql
+new file mode 100644
+index 0000000..e76c4ae
+--- /dev/null
++++ b/Tables/dbo.tblColor_Chips.sql
+@@ -0,0 +1,13 @@
++CREATE TABLE [dbo].[tblColor_Chips]
++(
++[ColorChip] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[ColorChipType] [nvarchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[ColorChip_Description] [nvarchar] (300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[TimeStamp] [timestamp] NULL,
++[CreatedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblColorChips_CreatedBy_1] DEFAULT (suser_sname()),
++[DateCreated] [datetime] NULL CONSTRAINT [DF_tblColorChips_DateCreated_1] DEFAULT (getdate()),
++[ID] [int] NOT NULL IDENTITY(1, 1)
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblColor_Chips] ADD CONSTRAINT [PK_tblColorChips_1] PRIMARY KEY CLUSTERED  ([ColorChip]) ON [PRIMARY]
++GO
+diff --git a/Tables/dbo.tblItemBuildDescrepancyLog.sql b/Tables/dbo.tblItemBuildDescrepancyLog.sql
+new file mode 100644
+index 0000000..aab45aa
+--- /dev/null
++++ b/Tables/dbo.tblItemBuildDescrepancyLog.sql
+@@ -0,0 +1,70 @@
++CREATE TABLE [dbo].[tblItemBuildDescrepancyLog]
++(
++[ID] [int] NOT NULL IDENTITY(1, 1),
++[DateCreated] [datetime] NOT NULL CONSTRAINT [DF_tblItemBuildDescrepancyLog_DateCreated] DEFAULT (getdate()),
++[Item] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[CriticalErrors] [bit] NULL CONSTRAINT [DF_tblItemBuildDescrepancyLog_CriticalErrors] DEFAULT ((0)),
++[NonCriticalErrors] [bit] NULL CONSTRAINT [DF_tblItemBuildDescrepancyLog_NonCriticalErrors] DEFAULT ((0)),
++[DescOfError] [nvarchar] (300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Timestamp] [timestamp] NULL,
++[NumberRevisions] [int] NOT NULL CONSTRAINT [DF_tblItemBuildDescrepancyLog_NumberRevisions] DEFAULT ((0)),
++[CheckListVersion] [int] NOT NULL CONSTRAINT [DF_tblItemBuildDescrepancyLog_CheckListVersion] DEFAULT ((2)),
++[ItemRequest] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
++) ON [PRIMARY]
++GO
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++
++
++
++
++
++
++
++
++CREATE TRIGGER [dbo].[tblItemBuildDescrepancyLogUpdatetrgr2] ON [dbo].[tblItemBuildDescrepancyLog]
++AFTER DELETE, UPDATE
++AS
++	BEGIN 
++
++		DECLARE @INS int, @DEL int
++
++		SELECT @INS = COUNT(*) FROM INSERTED
++		SELECT @DEL = COUNT(*) FROM DELETED
++
++		IF @INS > 0 OR @DEL > 0 
++
++		  INSERT INTO [dbo].tblItemBuildDescrepancyLogARCHIVE
++           ([DateCreated]
++           ,[Item]
++           ,[CriticalErrors]
++           ,[NonCriticalErrors]
++           ,[DescOfError]
++           ,[NumberRevisions]
++		   ,CheckListVersion
++		   ,ItemRequest)
++	  
++			SELECT
++			[DateCreated]
++           ,[Item]
++           ,[CriticalErrors]
++           ,[NonCriticalErrors]
++           ,[DescOfError]
++           ,[NumberRevisions]
++		   ,CheckListVersion
++		   ,ItemRequest
++			FROM DELETED --the DELETED table contains the OLD values
++
++	
++
++
++	END
++			
++
++
++
++GO
++ALTER TABLE [dbo].[tblItemBuildDescrepancyLog] ADD CONSTRAINT [PK_tblItemBuildDescrepancyLog] PRIMARY KEY CLUSTERED  ([Item]) ON [PRIMARY]
++GO
+diff --git a/Views/dbo.vBurnListingLengthRequirement.sql b/Views/dbo.vBurnListingLengthRequirement.sql
+index 0fbed6f..fd1704b 100644
+--- a/Views/dbo.vBurnListingLengthRequirement.sql
++++ b/Views/dbo.vBurnListingLengthRequirement.sql
+@@ -2,7 +2,6 @@
+ GO
+ SET ANSI_NULLS ON
+ GO
+-
+ /*
+ Author:		Bryan Eddy
+ Date:		2/28/2018
+@@ -36,15 +35,15 @@
+ 	INNER JOIN tblCableConstructions ON tblCableConstructionReferences.BaseID = tblCableConstructions.BaseID
+ 	INNER JOIN tblBurnListing ON dbo.CableUnion.Base = tblBurnListing.base AND CableUnion.ListingCompany = tblBurnListing.ListingCompany
+ 	INNER JOIN dbo.AFLPRD_INVSysItemCost_CAB B ON dbo.CableUnion.Oracle = B.ItemNumber
+-	WHERE tblBurnListing.ListingCompany IN ('etl', 'ul') --AND B.Item_Status <> 'obsolete'
++	WHERE tblBurnListing.ListingCompany IN ('etl', 'ul') AND B.Item_Status <> 'obsolete'
+ 	AND NominalOD <>0 AND tblCableConstructionReferences.Active = 1 AND ReleasedDesign = 1
+ 	--WHERE -- AND K.AvailQty <> 0 AND K.Locator NOT like 'wop%'
+ )
+ ,cteBurnCalculation
+ AS(
+-SELECT 	 ROUND([NominalOD]*0.03936996,4)AS NomODInches
++SELECT 	 round([NominalOD]*0.03936996,4)AS NomODInches
+ 	, CAST(CEILING((12/(BurnNominalOD*0.03936996))*16.5*1.1/3.281) AS INT) AS BurnLength_M_OFNR
+-	, CAST(CEILING((6990/BurnNominalOD)*1.1/3) AS INT) AS BurnLength_M_OFNP
++	, CAST(CEILING((6990/BurnNominalOD)*1.1/3) AS int) AS BurnLength_M_OFNP
+ 	,E.Length_Meters AS VerticalTrayTestLength_M
+ 	,CEILING(((4/(BurnNominalOD*0.03936996))+0.33)*3.281) AS BurnLength_M_LS
+ 	,g.*
+@@ -58,7 +57,6 @@
+ 		,e.*
+ 		--,g.Locator, g.AvailQty, g.ItemDesc, g.LotNumber
+ FROM cteBurnCalculation  e --INNER JOIN dbo.AFLPRD_acswopattn_CAB_SNF g ON g.Item = e.Oracle
+-WHERE e.Oracle ='PS05720-01'
+ 
+ 
+ 
+diff --git a/Views/dbo.vSalesHistory.sql b/Views/dbo.vSalesHistory.sql
+index 455c1a7..5ffdf0f 100644
+--- a/Views/dbo.vSalesHistory.sql
++++ b/Views/dbo.vSalesHistory.sql
+@@ -9,23 +9,34 @@
+ Date:		1/23/2018
+ Version:	2
+ Update:		1. Updated table to pull data from SalesHistory_BI_Data to Oracle.MarginRevenueExtractSalesHistory (Margin extract from Oracle)
+-			2. 
++			2. Found that MarginRevenueExtractSalesHistory has duplicates due to differing CURR_MATERIAL_COST.  Logic put in to place to remove duplicates
++				Also updated the to aggregate information by SO_Line_NUMBER
+ 
+ */
+ 
+-
++/* TO DO : Aggregate by So Line*/
+ CREATE VIEW [dbo].[vSalesHistory]
+ AS
+ WITH cteSales
+ AS(
+-SELECT BOOKED_DATE AS DATE, BILL_TO_NAME AS CUSTOMER, ITEM_NUMBER, ITEM_DESCRIPTION,ORDER_NUMBER AS SO_NUMBER,REVENUE, SO_LINE_NUMBER
+-,CASE WHEN UNIT_OF_MEASURE = 'FT' THEN ROUND(QUANTITY/3.281,2) ELSE QUANTITY END AS QUANTITY
+-, CASE WHEN UNIT_OF_MEASURE = 'FT' THEN 'M' ELSE UNIT_OF_MEASURE END AS UOM
+-,CURR_MATERIAL_COST, CURR_RESOURCE_COST, CURR_OVERHEAD_COST
+-FROM Oracle.MarginRevenueExtractSalesHistory
+-)
+-SELECT *,  CASE WHEN QUANTITY <> 0 THEN ROUND(REVENUE/QUANTITY,5)  ELSE 0 END PricePerUOM
+-FROM cteSales
++	SELECT DISTINCT TRANSACTION_DATE AS DATE, BILL_TO_NAME AS CUSTOMER, ITEM_NUMBER, ITEM_DESCRIPTION,ORDER_NUMBER AS SO_NUMBER,REVENUE, SO_LINE_NUMBER
++	,PRIMARY_QUANTITY AS QUANTITY
++	, PRIMARY_UOM_CODE AS UOM
++	,CURR_MATERIAL_COST, CURR_RESOURCE_COST, CURR_OVERHEAD_COST
++	, ROW_NUMBER() OVER (PARTITION BY TRANSACTION_DATE ,  BILL_TO_NAME, ITEM_NUMBER, ITEM_DESCRIPTION,ORDER_NUMBER ,REVENUE, SO_LINE_NUMBER
++	,PRIMARY_QUANTITY , PRIMARY_UOM_CODE , CURR_RESOURCE_COST, CURR_OVERHEAD_COST ORDER BY CURR_MATERIAL_COST) AS RowNumber
++	FROM Oracle.MarginRevenueExtractSalesHistory
++) 
++--,cteNormalizedSalesHistory
++--AS(
++	SELECT *,  CASE WHEN QUANTITY <> 0 THEN ROUND(REVENUE/QUANTITY,5)  ELSE 0 END PricePerUOM
++	FROM cteSales k 
++	WHERE  k.RowNumber = 1
++--)
++--SELECT SUM(S.REVENUE) REVENUE, SUM(S.QUANTITY) QUANTITY, SUM(S.CURR_MATERIAL_COST) CURR_MATERIAL_COST, SUM(S.CURR_RESOURCE_COST) CURR_RESOURCE_COST, SUM(S.CURR_OVERHEAD_COST) CURR_OVERHEAD_COST
++--,S.DATE, S.CUSTOMER, S.ITEM_NUMBER,S.ITEM_DESCRIPTION,S.SO_NUMBER,S.SO_LINE_NUMBER,S.UOM,S.PricePerUOM
++--FROM cteNormalizedSalesHistory S
++--GROUP BY S.DATE, S.CUSTOMER, S.ITEM_NUMBER,S.ITEM_DESCRIPTION,S.SO_NUMBER,S.SO_LINE_NUMBER,S.UOM,S.PricePerUOM
+ 
+ 
+ GO
