@@ -9,6 +9,8 @@
     {"Description":"Migration script 'Covers changes to: Premise_Cable_Shipments, usp_Order_History_Update_Premise_Cable_Shipments. Script created at 2018-01-22 08:20.'","Type":"Migration","Id":"2018-02-14-132649 b3 user"},
     {"Description":"Changes before migration script 'Script created at 2018-04-06 08:10.'","Type":"Compare","Id":"2018-04-06-081127 co auto"},
     {"Description":"Migration script 'Script created at 2018-04-06 08:10.'","Type":"Migration","Id":"2018-04-06-081127 cp user"},
+    {"Description":"Changes before migration script 'Covers changes to: Buff#1/#2 Alloc Table, vCutSheet_Constructions_DELETE. Script created at 2018-04-25 13:26.'","Type":"Compare","Id":"2018-04-25-132918 ft auto"},
+    {"Description":"Migration script 'Covers changes to: Buff#1/#2 Alloc Table, vCutSheet_Constructions_DELETE. Script created at 2018-04-25 13:26.'","Type":"Migration","Id":"2018-04-25-132918 fu user"},
   ],
   "Conflict in this file?": "If there’s a conflict in this file, you probably want to keep both changes. Learn more: http://www.red-gate.com/SOC4/order-file-more-info"
 }

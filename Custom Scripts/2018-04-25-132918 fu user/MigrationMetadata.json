@@ -1,0 +1,16 @@
+{
+  "Id": "a537b817-ebf7-4af5-8765-f04b257c13aa",
+  "Name": "Covers changes to: Buff#1/#2 Alloc Table, vCutSheet_Constructions_DELETE. Script created at 2018-04-25 13:26.",
+  "ObjectIds": [
+    {
+      "Name": "Buff#1/#2 Alloc Table",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "vCutSheet_Constructions_DELETE",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    }
+  ]
+}
