@@ -7,7 +7,8 @@ CREATE TABLE [dbo].[tblStockItems]
 [Min_Order_Quantity] [int] NULL,
 [Price_feet] [decimal] (18, 6) NULL,
 [RevisedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblStockItems_RevisedBy] DEFAULT (suser_sname()),
-[RevisionDate] [datetime] NULL CONSTRAINT [DF_tblStockItems_RevisionDate] DEFAULT (getdate())
+[RevisionDate] [datetime] NULL CONSTRAINT [DF_tblStockItems_RevisionDate] DEFAULT (getdate()),
+[LeadTime_ID] [int] NULL
 ) ON [PRIMARY]
 GO
 SET QUOTED_IDENTIFIER ON

@@ -1,0 +1,1228 @@
+diff --git a/RedGateDatabaseInfo.xml b/RedGateDatabaseInfo.xml
+index d1e3a18..e7a25e4 100644
+--- a/RedGateDatabaseInfo.xml
++++ b/RedGateDatabaseInfo.xml
+@@ -57,6 +57,7 @@
+     <DataWriteAllFilesInOneDirectory>True</DataWriteAllFilesInOneDirectory>
+   </WriteToFileOptions>
+   <DataFileSet>
+-    <Count>0</Count>
++    <Count>1</Count>
++    <DataFile>dbo.tblColors_Available_Data.sql</DataFile>
+   </DataFileSet>
+ </DatabaseInformation>
+\ No newline at end of file
+diff --git a/Security/Users/Oracle.sql b/Security/Users/Oracle.sql
+new file mode 100644
+index 0000000..b332db0
+--- /dev/null
++++ b/Security/Users/Oracle.sql
+@@ -0,0 +1,5 @@
++IF NOT EXISTS (SELECT * FROM master.dbo.syslogins WHERE loginname = N'Oracle')
++CREATE LOGIN [Oracle] WITH PASSWORD = 'p@ssw0rd'
++GO
++CREATE USER [Oracle] FOR LOGIN [Oracle]
++GO
+diff --git a/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Armor_Cost_Weight.sql b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Armor_Cost_Weight.sql
+new file mode 100644
+index 0000000..50c04aa
+--- /dev/null
++++ b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Armor_Cost_Weight.sql
+@@ -0,0 +1,75 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++
++
++CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_Armor_Cost_Weight]
++as
++BEGIN 
++
++
++
++IF OBJECT_ID(N'tempdb..#BaseArmor', N'U') IS NOT NULL
++DROP TABLE #BaseArmor
++
++	SELECT JacketLetter, B.NominalOD CoreOD, G.MaxCoreOD, Base, ArmorExtension, G.NominalOD ArmorOD, AmorMaterialCost
++	, ArmorWeight, SalesForceDescription, K.BaseID, G.Armor, JacketRating, ArmorCostAdder, P.ArmorSize
++	INTO #BaseArmor
++	FROM dbo.tblCableConstructionReferences K INNER JOIN dbo.tblCableConstructions B ON K.BaseID = B.BaseID INNER JOIN dbo.tblArmor_Costing_Weight G ON G.JacketLetter = K.CableLevel1
++		INNER JOIN dbo.tblDesignTypes E ON E.DesignTypeID = K.DesignTypeID INNER JOIN tblDesignArmor P ON P.Armor = G.Armor
++	WHERE B.NominalOD <= G.MaxCoreOD AND E.Armor = 1
++	order by base
++
++
++IF OBJECT_ID(N'tempdb..#BaseMaxArmor', N'U') IS NOT NULL
++DROP TABLE #BaseMaxArmor
++
++SELECT MIN(MaxCoreOD) MaxCoreOD, Base, JacketLetter
++INTO #BaseMaxArmor
++FROM #BaseArmor
++GROUP BY Base, JacketLetter
++
++
++--IF OBJECT_ID(N'ArmorConstructionBase', N'U') IS NOT NULL
++--DROP TABLE #ArmorCost
++
++DELETE FROM ArmorConstructionBase_TEMP;
++
++INSERT INTO ArmorConstructionBase_TEMP
++SELECT Base, Resources + OverHead + AmorMaterialCost as ArmorLoadedCost, ArmorExtension, AmorMaterialCost, ArmorWeight, ArmorOD, Armor, JacketRating, ArmorCostAdder
++,ArmorSize
++--INTO ArmorConstructionBase
++FROM 
++(
++	SELECT G.*, 0.02482 + 0.001667 as Resources, 0.12836 as OverHead
++	FROM #BaseArmor G INNER JOIN #BaseMaxArmor K ON G.MaxCoreOD = K.MaxCoreOD AND G.Base = K.Base AND K.JacketLetter = G.JacketLetter
++
++	--ORDER BY g.Base 
++) Armor
++
++--SELECT K.*, G.Active,G.ApprovedForQuoting
++--FROM ArmorConstructionBase_TEMP K INNER JOIN tblCableConstructionReferences G ON G.Base = K.Base
++--WHERE ApprovedForQuoting = 1 AND Active = 1
++
++INSERT INTO tblSalesForce_Catalog
++                         (CatalogCode, Base, Weight_kg_per_m, 
++                         DesignTypeDesc, Jacket, TBType, TBDescription, NominalOD, NumSubFillers, NumSubPositions,FinishedCableColor,TBLetter,
++						 CablePasses,FiberCount,UnitOD, BaseID,DesignTypeId, LoadedBaseCost, Armored, 
++						 BaseCost, Boxed, OracleItem,Fiber_Type__c,Armor_Type__c,Print_Type__c, Min_Order_Quantity__c, ArmorJacket,FiberID,
++						 FurcationTube, SetupID, Non_Standard, Active, ProdLevel3)
++
++SELECT		CatalogCode  + ArmorExtension, c. Base, Weight_kg_per_m+ArmorWeight, 
++                         C.DesignTypeDesc, Jacket, TBType, TBDescription, ArmorOD, NumSubFillers, NumSubPositions,FinishedCableColor,TBLetter,
++						 CablePasses,FiberCount,UnitOD, BaseID,C.DesignTypeId, LoadedBaseCost ,1, 
++						 BaseCost ,0 as Boxed, OracleItem,Fiber_Type__c, 'Armored' as Armor_Type__c,Print_Type__c,C.Min_Order_Quantity__c, JacketRating,FiberID
++						 ,FurcationTube, SetupID, Non_Standard, C.Active,ProdLevel3
++FROM		ArmorConstructionBase_TEMP A INNER JOIN tblSalesForce_Catalog C ON A.BASE = C.BASE INNER JOIN dbo.tblDesignTypes K ON K.DesignTypeID = C.DesignTypeID
++WHERE		K.Armor = 1 AND C.NominalOD > 2.9
++
++
++
++
++END
++
++GO
+diff --git a/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Boxed_Items.sql b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Boxed_Items.sql
+new file mode 100644
+index 0000000..8a31f87
+--- /dev/null
++++ b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Boxed_Items.sql
+@@ -0,0 +1,36 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++-- =============================================
++-- Author:		Bryan Eddy
++-- ALTER date: 10/19/2016
++-- Description:	Sales Force catalog code procedure to update eligigle items to have box indicators
++-- =============================================
++CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_Boxed_Items]
++
++AS
++BEGIN
++
++INSERT INTO tblSalesForce_Catalog
++                         (CatalogCode, Base, Weight_kg_per_m, 
++                         DesignTypeDesc, Jacket, TBType, TBDescription, NominalOD, NumSubFillers, NumSubPositions,FinishedCableColor,TBLetter
++						 ,CablePasses,FiberCount,UnitOD, BaseID,DesignTypeId, Armored,Boxed, 
++						 BoxedLength_FT,LoadedBaseCost,BaseCost,OracleItem,Fiber_Type__c,Packaging__c,UOM__c,Print_Type__c,Min_Order_Quantity__c,FiberID
++						 ,FurcationTube,SetupID, Non_Standard, Active,ProdLevel3,Minimum_Order_Multiple__c)
++
++SELECT				CatalogCode+BoxExtension, Base, Weight_kg_per_m, 
++                         DesignTypeDesc, Jacket, TBType, TBDescription, NominalOD, NumSubFillers, NumSubPositions,FinishedCableColor,TBLetter
++						 ,CablePasses,FiberCount,UnitOD, BaseID,A.DesignTypeId, 0,1, 
++						 FeetCablePerBox,LoadedBaseCost, BaseCost ,OracleItem,Fiber_Type__c,'Box' as Packaging__c, 'Each' as UOM__c,Print_Type__c,Minimum_Order_Multiple,FiberID
++						 ,FurcationTube, SetupID, Non_Standard, Active,ProdLevel3,Minimum_Order_Multiple
++  FROM [Premise].[dbo].[tblDesignCode_BoxedFiber] A INNER JOIN tblSalesForce_Catalog K ON k.DesignTypeID = A.DesignTypeID
++WHERE NominalOD <= MaxOD AND K.Armored <> 1 and tbtype <>'furcation' --AND Base LIKE 'C%'
++--ORDER BY NominalOD desc
++
++
++
++END
++
++
++GO
+diff --git a/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Cables.sql b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Cables.sql
+new file mode 100644
+index 0000000..3741fbb
+--- /dev/null
++++ b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Cables.sql
+@@ -0,0 +1,109 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++
++
++-- =============================================
++-- Author:		Bryan Eddy
++-- ALTER date: 10/5/2016
++-- Description:	Generate the catalog code and attributes for Sales Force Quoting - Appends All base cables to the table
++-- =============================================
++CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_Cables] 
++
++AS
++BEGIN
++
++
++
++	--EXEC [OracleExtracts].[dbo].[usp_BOMCalculator_AllCables]
++
++
++DELETE FROM tblSalesForce_Catalog
++
++	-- SET NOCOUNT ON added to prevent extra result sets from
++	-- interfering with SELECT statements.
++	SET NOCOUNT ON;
++
++    -- Insert statements for procedure here
++
++	--IF OBJECT_ID (N'dbo.tblSalesForce_Catalog_Generator', N'U') IS NOT NULL
++	--DROP TABLE dbo.tblSalesForce_Catalog_Generator;
++
++
++	--Code appends all non-furcation cables to tblSalesForce_Catalog
++
++INSERT  INTO tblSalesForce_Catalog
++                         (CatalogCode, Base,Weight_kg_per_m, 
++                         DesignTypeDesc, Jacket, TBType, TBDescription, NominalOD, NumSubFillers, NumSubPositions
++						 ,CablePasses,FiberCount,UnitOD, BaseID,DesignTypeId, Armored,Boxed, Fiber_Type__c,Print_Type__c, Min_Order_Quantity__c,FiberID,FinishedCableColor,TBLetter,SetupID
++						 , Active,Non_Standard, ProdLevel3)
++SELECT DISTINCT 
++                         LEFT(tblCableConstructionReferences.DesignCode, 5) + tblDesignCodeFiberElementValue.FiberLetter + SUBSTRING(tblCableConstructionReferences.DesignCode, 6, 2) 
++						 + tblDesignCodeFiberElementValue.CablePrintType
++                         + COALESCE(tblDesignTypeS.DefaultFamilyColor,tblDesignCodeFiberElementValue.PreferedCableColor)
++						 --+ FinishedColor.ColorLetter
++						 + CASE WHEN tblCableConstructions.CablePasses = 1 AND tblCableConstructionReferences.TBType <> 'Ribbon' THEN '0' 
++								WHEN tblCableTightBufferReference.TBTypeID = 20 THEN 'X'
++							    WHEN tblCableConstructionReferences.TBType = 'Ribbon' THEN '1'
++							    ELSE 
++									--FinishedColor.ColorLetter
++									COALESCE(tblDesignTypeS.DefaultFamilyColor,tblDesignCodeFiberElementValue.PreferedCableColor )
++							END
++                          + tblCableTBType.TBLetter + CASE WHEN [DesignExtension] IS NULL 
++                         THEN '' ELSE [DesignExtension] END + + COALESCE(tblDesignCodeFiberElementValue.FiberExt,'') AS CatalogCode, tblCableConstructionReferences.Base, 
++                          tblBOM_Base_Weight.Weight AS Weight_kg_per_m, tblDesignTypes.SalesForceDescription, 
++                         JacketDescription_SalesForce, tblCableConstructionReferences.TBType, tblCableTBType.TightBufferDescription_SalesForce, 
++                         tblCableConstructions.NominalOD, tblCableConstructionReferences.NumSubFillers, tblCableConstructionReferences.NumSubPositions,
++                         tblCableConstructions.CablePasses, FiberCount--cast(substring(tblCableConstructionReferences.DesignCode, 3,3) as int) FiberCount
++						 ,CASE WHEN tblCableConstructionReferences.TBType = 'Ribbon' THEN SUBSTRING(tblCableConstructionReferences.DesignCode, 6,2) 
++						 ELSE (SUBSTRING(tblCableConstructionReferences.DesignCode, 6,1) + '.' + SUBSTRING(tblCableConstructionReferences.DesignCode, 7,1))+' mm'  END UnitOD
++						 , tblCableConstructionReferences.BaseID, dbo.tblCableConstructionReferences.DesignTypeID
++						 ,0 AS Armored
++						 ,0 AS Boxed
++						 ,Fiber_Type__c
++						 ,CASE WHEN tblDesignCodeFiberElementValue.CablePrintType = 1 THEN 'AFL Standard'
++							WHEN tblDesignCodeFiberElementValue.CablePrintType = 2 THEN 'Generic'
++							END  AS Print_Type__c
++						,tblDesignTypes.Min_Order_Quantity__c
++						,tblDesignCodeFiberElementValue.FiberID
++						,CASE WHEN tblDesignTypeS.DefaultFamilyColor IS NOT NULL THEN tblDesignTypeS.DefaultFamilyColor ELSE tblDesignCodeFiberElementValue.PreferedCableColor END
++						,tblCableTBType.TBLetter
++						,tblCableConstructionReferences.SetupID
++						, tblCableConstructionReferences.ReleasedDesign
++						, tblCableTBType.Non_Standard_Product
++						, tblDesignTypeGroups.DesignTypeGroupDesc
++FROM            tbl_Fibers INNER JOIN
++                         tblDesignCodeFiberElementValue ON tbl_Fibers.FiberID = tblDesignCodeFiberElementValue.FiberID INNER JOIN
++                         tblFiberTBCatalog ON tbl_Fibers.TBCatalogType = tblFiberTBCatalog.TBCatalogType INNER JOIN
++                         tblFiberTBIndicators ON tblFiberTBCatalog.TBCatalogType = tblFiberTBIndicators.TBCatalogType INNER JOIN
++                         tblBOM_Base_Weight INNER JOIN
++                         tblCableTBType INNER JOIN
++                         tblCableConstructionReferences INNER JOIN
++                         tblCableTightBufferReference ON tblCableConstructionReferences.TBType = tblCableTightBufferReference.TBType INNER JOIN
++                         tblCableConstructions ON tblCableConstructionReferences.BaseID = tblCableConstructions.BaseID ON 
++                         tblCableTBType.TBIndicatorID = tblCableTightBufferReference.TBTypeID ON tblBOM_Base_Weight.BASE = tblCableConstructionReferences.Base INNER JOIN
++                         tblDesignTypes ON tblCableConstructionReferences.DesignTypeID = tblDesignTypes.DesignTypeID INNER JOIN
++                         tblDesignTypeGroups ON tblDesignTypes.DesignTypeGroupID = tblDesignTypeGroups.DesignTypeGroupID INNER JOIN
++                         tblDesignCodeJacket ON tblCableConstructionReferences.CableFamily = tblDesignCodeJacket.CableLetter AND 
++                         tblCableConstructionReferences.CableLevel1 = tblDesignCodeJacket.JacketLetter ON tblFiberTBIndicators.TBLetter = tblCableTBType.TBLetter 
++						 --INNER JOIN
++						 --tblDesignCodeJacketColor FinishedColor ON FinishedColor.CablePasses = tblCableConstructions.CablePasses --
++						 --INNER JOIN tblDesignCodeJacketColor SubColor ON SubColor.CablePasses = tblCableConstructions.CablePasses
++WHERE          (tblDesignCodeFiberElementValue.Active = 1) AND tblCableConstructionReferences.ApprovedForQuoting = 1 AND
++                         (tblDesignCodeFiberElementValue.FiberLetter NOT LIKE '%@%') AND (tblCableConstructionReferences.DesignTypeID IS NOT NULL) AND (tblDesignTypes.Active = 1) 
++                        AND (tblDesignTypeGroups.Active = 1) 
++						 AND (tblCableConstructionReferences.TBType <> 'Furcation' ) AND (tblCableConstructionReferences.ApprovedForQuoting = 1) 
++                         AND (tbl_Fibers.Active = 1) AND dbo.tblCableTBType.Active = 1
++						 --and tblCableConstructionReferences.Base like 'GQ144-2.0%'
++
++
++
++
++
++END
++
++
++
++
++GO
+diff --git a/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Descriptions.sql b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Descriptions.sql
+new file mode 100644
+index 0000000..18ac998
+--- /dev/null
++++ b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Descriptions.sql
+@@ -0,0 +1,63 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++-- =============================================
++-- Author:		Bryan Eddy
++-- ALTER date: 11/1/2016
++-- Description:	ALTER item description for armored items, cables, and furcation tubes for the sales force quoting system
++-- Update: 12/31/2017 Removed jacket color from description
++-- =============================================
++CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_Descriptions] 
++	-- Add the parameters for the stored procedure here
++
++AS
++BEGIN
++
++
++
++
++
++--ALTERs description for all basic cables (non-armored, non-furcation)
++Update dbo.tblSalesForce_Catalog 
++SET Product_Quote_Description__c = K.DesignTypeDesc + ', ' + 
++	Case WHEN K.Jacket = 'Riser' or K.Jacket = 'Plenum' THEN k.jacket + ' Rated'
++		 ELSE k.jacket 
++		 END
++	+ ', ' --+ K.COLOR__c +' jacket color, ' 
++	+ cast(k.FiberCount as nvarchar ) + ' ' + G.FiberDescription_SalesForce 
++		+ ' fibers, ' + CAST(k.UnitOD AS NVARCHAR) + ', RoHS, ' + k.TBDescription
++FROM [dbo].[tblSalesForce_Catalog] K INNER JOIN dbo.tblDesignCodeFiberElementValue G ON K.FiberID = G.FiberID
++WHERE k.TBType <> 'FURCATION'
++
++--Descriptin for furcation cables
++Update dbo.tblSalesForce_Catalog 
++SET Product_Quote_Description__c = K.DesignTypeDesc +  ', ' --+ K.COLOR__c +' jacket color, ' 
+++ (CASE WHEN  k.FurcationTube IS NOT NULL THEN K.FurcationTube ELSE 'Furcation' END)
++FROM [dbo].[tblSalesForce_Catalog] K
++WHERE k.TBType = 'FURCATION'
++
++--Update armor description for armored cables
++Update dbo.tblSalesForce_Catalog 
++SET Product_Quote_Description__c = Product_Quote_Description__c + ', Aluminum Interlocking armor'-- with a ' + K.ArmorJacket + ' Jacket '
++FROM [dbo].[tblSalesForce_Catalog] K 
++WHERE k.Armored = 1
++
++--Update ribbon description
++Update dbo.tblSalesForce_Catalog 
++SET Product_Quote_Description__c = K.DesignTypeDesc + ', ' + 
++	Case WHEN K.Jacket = 'Riser' or K.Jacket = 'Plenum' THEN k.jacket + ' Rated'
++		 ELSE k.jacket 
++		 END
++	+ ', ' --+ K.COLOR__c +' jacket color, ' 
++	+ cast(k.FiberCount as nvarchar ) + ' ' + G.FiberDescription_SalesForce 
++		+ ' fibers, ' + CAST(k.UnitOD AS NVARCHAR) + ', RoHS, ' + k.TBDescription + ', No skew testing required'
++FROM [dbo].[tblSalesForce_Catalog] K INNER JOIN dbo.tblDesignCodeFiberElementValue G ON K.FiberID = G.FiberID
++WHERE k.TBType = 'RIBBON'
++
++
++
++END
++
++
++GO
+diff --git a/Stored Procedures/dbo.usp_CatalogCode_SalesForce_FlateFile_Export.sql b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_FlateFile_Export.sql
+new file mode 100644
+index 0000000..2ae0605
+--- /dev/null
++++ b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_FlateFile_Export.sql
+@@ -0,0 +1,15 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_FlateFile_Export]
++as
++
++
++BEGIN
++EXEC msdb.dbo.sp_start_job  
++    @job_name = N'SalesForce_Catalog_Export'
++END
++
++
++GO
+diff --git a/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Furcation.sql b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Furcation.sql
+new file mode 100644
+index 0000000..1684eac
+--- /dev/null
++++ b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Furcation.sql
+@@ -0,0 +1,106 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++
++-- =============================================
++-- Author:		Bryan Eddy
++-- ALTER date: 10/5/2016
++-- Description:	Generate the catalog code and attributes for Sales Force Quoting - Furcation Cables
++-- =============================================
++CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_Furcation] 
++
++AS
++BEGIN
++
++
++
++INSERT INTO tblSalesForce_Catalog
++                         (CatalogCode
++						 , Base
++						 , Weight_kg_per_m
++                         ,DesignTypeDesc
++						 , Jacket
++						 , TBType
++						 , TBDescription
++						 , NominalOD
++						 , NumSubFillers
++						 , NumSubPositions
++						 ,CablePasses
++						 ,FiberCount
++						 ,UnitOD
++						 ,baseid
++						 ,DesignTypeID
++						 ,Armored
++						 ,Boxed
++						 ,Fiber_Type__c
++						 ,Min_Order_Quantity__c
++						 ,FiberID
++						 , FinishedCableColor,TBLetter
++						 ,FurcationTube
++						 ,SetupID
++						 ,Active
++						 ,Non_Standard
++						 ,ProdLevel3)
++SELECT DISTINCT 
++                         LEFT(tblCableConstructionReferences.DesignCode, 5) + '@' + SUBSTRING(tblCableConstructionReferences.DesignCode, 6, 2) 
++                         + tblDesignCodeFiberElementValue.CablePrintType +  tblDesignCodeJacketColor.ColorLetter + CASE WHEN dbo.tblFurcationTubeReference.BaseID IS NULL 
++                         THEN '0' ELSE dbo.tblDesignCodeFurcationTube.FurcationLetter END + tblCableTBType.TBLetter + CASE WHEN [DesignExtension] IS NULL 
++                         THEN '' ELSE [DesignExtension] END + tblDesignCodeFiberElementValue.FiberExt AS CatalogCode
++						 , tblCableConstructionReferences.Base
++						 , tblBOM_Base_Weight.Weight AS Weight_kg_per_m
++						 , tblDesignTypes.SalesForceDescription
++						 , JacketDescription_SalesForce
++						 , tblCableConstructionReferences.TBType
++						 , tblCableTBType.TightBufferDescription_SalesForce
++                         ,tblCableConstructions.NominalOD
++						 , tblCableConstructionReferences.NumSubFillers
++						 , tblCableConstructionReferences.NumSubPositions 
++						 , tblCableConstructions.CablePasses
++						 ,NumSubPositions FiberCount
++						 ,CASE WHEN tblDesignTypes.DesignTypeID = 21 THEN substring(tblCableConstructionReferences.DesignCode, 6,2) 
++						 ELSE (substring(tblCableConstructionReferences.DesignCode, 6,1) + '.' + substring(tblCableConstructionReferences.DesignCode, 7,1))+' mm'  END UnitOD
++						 ,tblCableConstructionReferences.BaseID
++						 , dbo.tblCableConstructionReferences.DesignTypeID
++						 ,0 Armored
++						 ,0 Boxed
++						 ,Fiber_Type__c
++						 ,tblDesignTypes.Min_Order_Quantity__c
++						 ,FiberID
++						 ,tblDesignCodeFiberElementValue.PreferedCableColor
++						,tblCableTBType.TBLetter
++						,tblDesignCodeFurcationTube.FurcationTube
++						,tblCableConstructionReferences.SetupID
++						,tblCableConstructionReferences.Active
++						,tblCableTBType.Non_Standard_Product
++						,tblDesignTypeGroups.DesignTypeGroupDesc
++FROM            tblDesignCodeFiberElementValue INNER JOIN
++                         tblCableTBType INNER JOIN
++                         tblDesignCodeJacketColor AS tblDesignCodeJacketColor_1 INNER JOIN
++                         tblDesignCodeJacketColor INNER JOIN
++                         tblCableConstructionReferences INNER JOIN
++                         tblCableTightBufferReference ON tblCableConstructionReferences.TBType = tblCableTightBufferReference.TBType INNER JOIN
++                         tblCableConstructions ON tblCableConstructionReferences.BaseID = tblCableConstructions.BaseID ON 
++                         tblDesignCodeJacketColor.CablePasses = tblCableConstructions.CablePasses ON 
++                         tblDesignCodeJacketColor_1.CablePasses = tblCableConstructions.CablePasses ON tblCableTBType.TBIndicatorID = tblCableTightBufferReference.TBTypeID ON 
++                         tblDesignCodeFiberElementValue.PreferedCableColor = tblDesignCodeJacketColor.ColorLetter INNER JOIN
++                         tblDesignTypes ON tblCableConstructionReferences.DesignTypeID = tblDesignTypes.DesignTypeID INNER JOIN
++                         tblDesignTypeGroups ON tblDesignTypes.DesignTypeGroupID = tblDesignTypeGroups.DesignTypeGroupID INNER JOIN
++                         tblDesignCodeJacket ON tblCableConstructionReferences.CableFamily = tblDesignCodeJacket.CableLetter AND 
++                         tblCableConstructionReferences.CableLevel1 = tblDesignCodeJacket.JacketLetter LEFT OUTER JOIN
++                         tblFurcationTubeReference ON tblCableConstructions.BaseID = tblFurcationTubeReference.BaseID LEFT OUTER JOIN
++                         tblDesignCodeFurcationTube ON tblFurcationTubeReference.Furcation = tblDesignCodeFurcationTube.Furcation LEFT OUTER JOIN
++                         tblBOM_Base_Weight ON tblCableConstructionReferences.Base = tblBOM_Base_Weight.BASE
++WHERE         (tblDesignCodeFiberElementValue.Active = 1) AND tblCableConstructionReferences.ApprovedForQuoting = 1 AND
++                         (tblDesignCodeJacketColor.FinsishedCableColorPosition = 1) AND (tblDesignCodeJacketColor_1.SubunitCableColorPostion = 1) AND 
++                         (tblDesignCodeFiberElementValue.FiberLetter = '@') AND (tblCableConstructionReferences.DesignTypeID IS NOT NULL) AND (tblDesignTypes.Active = 1) AND 
++                         (tblDesignTypeGroups.Active = 1) AND (tblCableConstructionReferences.TBType = 'Furcation') AND (tblCableConstructionReferences.ApprovedForQuoting = 1)
++
++
++
++
++END
++
++
++
++GO
+diff --git a/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Generator.sql b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Generator.sql
+new file mode 100644
+index 0000000..8455b7d
+--- /dev/null
++++ b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Generator.sql
+@@ -0,0 +1,145 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++
++-- =============================================
++-- Author:		Bryan Eddy
++-- ALTER date: 10/5/2016
++-- Description:	Generate the catalog code and attributes for Sales Force Quoting
++-- =============================================
++CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_Generator] 
++
++AS
++BEGIN
++SET NOCOUNT ON;
++
++--ALTERs table of BOM weights
++--EXEC [OracleExtracts].[dbo].[usp_BOMCalculator_AllCables]
++
++
++DELETE FROM tblSalesForce_Catalog;
++
++--Appends all base cables to tblSalesForce_Catalog
++EXEC dbo.usp_CatalogCode_SalesForce_Cables;
++
++
++--Appends all furcation cables to tblSalesForce_Catalog
++EXEC dbo.usp_CatalogCode_SalesForce_Furcation;
++
++
++DELETE FROM dbo.tblSalesForce_Catalog 
++WHERE (FiberCount > 4 or DesignTypeDesc LIKE '%BREAKOUT%') AND TBType = 'TightBuffer' AND tbletter <>'1'
++
++--Delete OM4+ Spdier web ribbons from catalog code table
++DELETE FROM dbo.tblSalesForce_Catalog
++WHERE (TBLetter ='r' or TBLetter ='s')  AND CatalogCode like '%+'
++
++--Delete Mixed fiber option for cables with 1 fiber
++DELETE  FROM dbo.tblSalesForce_Catalog
++where FiberCount = 1 and Fiber_Type__c like '%MIXED%'
++
++
++--Update Unit OD for ribbon cables 
++UPDATE       tblSalesForce_Catalog
++SET                UnitOD = tblCableRibbonUnitType.Ribbon_Description
++FROM            tblSalesForce_Catalog INNER JOIN
++                         tblCableRibbonUnitType ON tblSalesForce_Catalog.FiberCount = tblCableRibbonUnitType.FiberCount AND 
++                         tblSalesForce_Catalog.UnitOD = tblCableRibbonUnitType.RibbonUnitType
++
++
++--Updates all special items in tblSalesForce_Catalog to have X and Z subunits
++EXEC [dbo].[usp_CatalogCode_SalesForce_Special_Subunit] 
++
++--Updates costing for all non-armored cable in tblSalesForce_Catalog
++EXEC dbo.usp_CatalogCode_SalesForce_NonArmored_Costing
++
++--Calculates weights and cost for armoring of cables and appends armored versions of the cables into tblSalesForce_Catalog
++EXEC [dbo].[usp_CatalogCode_SalesForce_Armor_Cost_Weight]
++
++--Identifies which cables can be boxed and appends those cables with the box suffix to tblSalesForce_Catalog
++EXEC dbo.usp_CatalogCode_SalesForce_Boxed_Items
++
++UPDATE tblSalesForce_Catalog
++SET COLOR__c = G.ColorDescription_SalesForce
++FROM tblSalesForce_Catalog K INNER JOIN [dbo].[tblDesignCodeJacketColor] G ON  G.ColorLetter = K.FinishedCableColor
++
++--Add spec and image links to each row (non-boxed)
++UPDATE tblSalesForce_Catalog
++SET [ImageURL__c] = G.[ImageURL__c], Product_Spec_link__c = g.Product_Spec_link__c
++FROM tblSalesForce_Catalog K INNER JOIN [dbo].[tblDesignCode_CableImages] G ON k.DesignTypeID = G.DesignTypeID AND K.Armor_Type__c = G.Armor_Type__c  
++WHERE K.Packaging__c = 'REEL'
++
++--Add spec and image links to Boxed items
++UPDATE tblSalesForce_Catalog
++SET [ImageURL__c] = G.[ImageURL__c], Product_Spec_link__c = g.Product_Spec_link__c
++FROM tblSalesForce_Catalog K CROSS JOIN [dbo].[tblDesignCode_CableImages] G
++WHERE K.Boxed = 1 AND G.Packaging__c = 'box'
++
++--Update descriptions of each cable
++EXEC dbo.usp_CatalogCode_SalesForce_Descriptions
++
++
++--Update lead time ID's for each item
++UPDATE dbo.tblSalesForce_Catalog
++Set Lead_Time_ID__c = 
++	CASE WHEN Armor_Type__c = 'Armored' THEN K.LeadTime_ID_Armored
++	ELSE K.LeadTime_ID
++	END 
++FROM dbo.tblCableConstructionReferences K INNER JOIN DBO.tblSalesForce_Catalog G ON  K.base = g.base	
++
++--Update the price of all cables
++EXEC usp_CatalogCode_SalesForce_PricingUpdate
++
++
++--Identify stock items and set Stock__c to 1
++UPDATE DBO.tblSalesForce_Catalog
++SET Stock__b = 1,Stock__c='Yes', Min_Order_Quantity__c = G.Min_Order_Quantity, UOM__c = 'Feet'
++, LoadedBaseCost = LoadedBaseCost /3.281, BaseCost = BaseCost /3.281--, Weight_kg_per_m = Weight_kg_per_m * 0.671969
++,price = G.Price_feet
++FROM dbo.tblstockitems G INNER JOIN dbo.tblSalesForce_Catalog K ON G.itemno = k.CatalogCode
++
++--Update pricing for eABF items from a static list
++UPDATE DBO.tblSalesForce_Catalog
++SET   UOM__c = 'Feet'
++, LoadedBaseCost = LoadedBaseCost /3.281, BaseCost = BaseCost /3.281,Loaded_Base_Cost_Fiber_Included__c =Loaded_Base_Cost_Fiber_Included__c/3.281 --, Weight_kg_per_m = Weight_kg_per_m * 0.671969
++,price = G.Price_feet
++FROM dbo.tbleABF_Pricing G INNER JOIN dbo.tblSalesForce_Catalog K ON G.itemno = k.CatalogCode
++
++UPDATE dbo.tblSalesForce_Catalog
++  SET Non_Standard_Design__c = (CASE WHEN Non_Standard = 1 THEN 'TRUE' ELSE 'FALSE' END),
++   Distributor_Price_List__c = (CASE WHEN Stock__b = 1 THEN 'Yes' ELSE 'No' END),
++   Override__c = (CASE WHEN Stock__b = 1 THEN 'TRUE' ELSE 'FALSE' END),
++   Fiber_Count_Config__c = FiberCount,
++   Fiber_Type_Config__c = Fiber_Type__c,
++   Status__c = (CASE WHEN Active = 1 THEN 'Active' ELSE 'Inactive' END ),
++   Premise_Design_Program_Synch_ID = CatalogCode, 
++   Subunit_Color__c = (CASE WHEN CablePasses = 2 THEN COLOR__c ELSE Subunit_Color__c END),
++   Jacket_Print__c = Print_Type__c;
++
++
++--Remove the Subunit_Color_Position__c indicator for single pass cables
++UPDATE tblSalesForce_Catalog
++SET Subunit_Color_Position__c = NULL
++WHERE CablePasses = 1 ;
++
++DELETE FROM tblSalesForce_Catalog
++WHERE TBType LIKE '%SPIDER%' AND SUBSTRING(CatalogCode,12,1) = 'S'
++
++--DELETE any duplicates that may be housed in the table.
++EXEC dbo.usp_CatalogCode_SalesForce_RemoveDuplicates
++
++
++EXEC usp_CatalogCode_SalesForce_FlateFile_Export;
++
++--If the count of SalesForce_Catalog table is < 30k then send Bryan an email and don't run SF update
++
++exec usp_CatalogCode_SalesForce_InvokeURL_SalesForce_Update ;
++
++
++
++END
++
++
++
++GO
+diff --git a/Stored Procedures/dbo.usp_CatalogCode_SalesForce_InvokeURL_SalesForce_Update.sql b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_InvokeURL_SalesForce_Update.sql
+new file mode 100644
+index 0000000..fb11cf6
+--- /dev/null
++++ b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_InvokeURL_SalesForce_Update.sql
+@@ -0,0 +1,37 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++/*
++-- =============================================
++	Author:			Bryan Eddy
++	Create date:	12/11/2017
++	Description:	Invoke URL to push data to Sales Force
++	Version:		2
++	Update:			Added header.
++-- =============================================
++
++*/
++CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_InvokeURL_SalesForce_Update] 
++
++
++AS
++BEGIN
++Declare @Object as Int;
++Declare @ResponseText as Varchar(8000);
++
++
++Exec sp_OACreate 'MSXML2.XMLHTTP', @Object OUT;
++Exec sp_OAMethod @Object, 'open', NULL, 'get',
++                 'http://ci-data.aflglobal.com/PRE_SF_Products', --Your Web Service Url (invoked)
++                 'false'
++Exec sp_OAMethod @Object, 'send'
++Exec sp_OAMethod @Object, 'responseText', @ResponseText OUTPUT
++
++Select @ResponseText
++
++Exec sp_OADestroy @Object
++
++
++END
++GO
+diff --git a/Stored Procedures/dbo.usp_CatalogCode_SalesForce_NonArmored_Costing.sql b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_NonArmored_Costing.sql
+new file mode 100644
+index 0000000..1df9147
+--- /dev/null
++++ b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_NonArmored_Costing.sql
+@@ -0,0 +1,26 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++-- =============================================
++-- Author:		Bryan Eddy
++-- ALTER date: 10/19/2016
++-- Description:	Costing Update for Sales Force Catalogs
++-- =============================================
++CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_NonArmored_Costing]
++AS
++BEGIN
++
++
++-- Updates Base item's material cost (minus the fiber)
++
++UPDATE dbo.tblSalesForce_Catalog
++SET BaseCost = BaseSkeletalCost, OracleItem = AssemblyItemNumber, LoadedBaseCost = x.LoadedBaseCost
++FROM dbo.tblBase_Skeletal_Cost X INNER JOIN dbo.tblSalesForce_Catalog G ON G.SetupID = X.SetupID
++
++
++
++END
++
++
++GO
+diff --git a/Stored Procedures/dbo.usp_CatalogCode_SalesForce_PricingUpdate.sql b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_PricingUpdate.sql
+new file mode 100644
+index 0000000..72a3a30
+--- /dev/null
++++ b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_PricingUpdate.sql
+@@ -0,0 +1,159 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++-- =============================================
++-- Author:		Bryan Eddy
++-- ALTER date: 12/1/2016
++-- Description:	Pricing Update for Sales Force Catalogs
++-- =============================================
++
++CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_PricingUpdate]
++
++AS
++-- Update the cost of all cables
++BEGIN
++
++
++--******************************
++--Pricing for all typical cables.
++--********************************
++UPDATE tblSalesForce_Catalog
++SET Price =								(CASE 
++												WHEN A.Contribution <> 0 THEN ROUND((K.LoadedBaseCost + K.FiberCount * E.CPQ_Fiber_Cost + A.Contribution) / (1 - T.Multiplier), 3)
++												ELSE ROUND((K.BaseCost + K.FiberCount * E.CPQ_Fiber_Cost + A.Contribution) / (1 - T.Multiplier), 3) 
++										END ),
++	--Price = ROUND((K.LoadedBaseCost + K.FiberCount * E.CPQ_Fiber_Cost + A.Contribution) / (1 - T.Multiplier), 3),
++Loaded_Base_Cost_Fiber_Included__c =    ROUND((K.LoadedBaseCost + K.FiberCount * E.CPQ_Fiber_Cost),3)
++FROM            tblSalesForce_Pricing AS A INNER JOIN
++                         tblDesignTypes AS G ON A.Product_Category = G.Product_Pricing_Group INNER JOIN
++                         tblSalesForce_Pricing_Multiplier AS T ON A.Product_Category = T.Product_Category INNER JOIN
++                         tblSalesForce_Catalog AS K ON T.FiberID = K.FiberID INNER JOIN
++                         tblDesignCodeFiberElementValue AS E ON E.FiberID = K.FiberID INNER JOIN
++                         tblCableConstructionReferences AS CR ON CR.Base = K.Base AND G.DesignTypeID = CR.DesignTypeID
++WHERE        CR.TBType <> 'furcation' OR CablePasses = 2
++
++
++--******************************
++--Pricing for furcation cables
++--********************************
++
++UPDATE       tblSalesForce_Catalog
++SET    
++--SELECT            catalogcode,k.base,k.BaseCost,k.loadedbasecost, e.item_cost,t.Multiplier,a.Contribution,P.FiberCount,
++				Price = (CASE WHEN A.Contribution <> 0 THEN ROUND((K.LoadedBaseCost + P.FiberCount * E.Item_Cost + A.Contribution) / (1 - T .Multiplier), 3) 
++                         ELSE ROUND((K.BaseCost + P.FiberCount * E.Item_Cost + A.Contribution) / (1 - T .Multiplier), 3) END)
++FROM            tblSalesForce_Pricing AS A INNER JOIN
++                         tblDesignTypes AS G ON A.Product_Category = G.Product_Pricing_Group INNER JOIN
++                         tblSalesForce_Pricing_Multiplier AS T ON A.Product_Category = T.Product_Category INNER JOIN
++                         tblSalesForce_Catalog k ON T.FiberID = k.FiberID INNER JOIN
++                         tblDesignCodeFurcationTube AS B ON B.FurcationTube = k.FurcationTube INNER JOIN
++                         AFLPRD_INVSysItemCost_CAB AS E ON E.ItemNumber = B.Furcation INNER JOIN
++                         tblCableConstructionReferences P ON k.Base = P.Base AND 
++                         G.DesignTypeID = P.DesignTypeID
++WHERE        (k.TBType = 'furcation') AND (k.CablePasses = 1)
++--ORDER BY price
++
++
++--******************************
++--Pricing for boxed cables
++--********************************
++
++
++-- Update the cost of boxed cables
++UPDATE tblSalesForce_Catalog
++SET	Price = (Price * BoxedLength_FT /3.281) + 45
++FROM tblSalesForce_Catalog
++WHERE boxed = 1
++
++
++
++--******************************
++--Pricing for ribbon cables
++--********************************
++
++
++
++-- Update the cost of Ribbon cables
++UPDATE tblSalesForce_Catalog
++SET 
++	Price =								
++										 (CASE 
++												WHEN A.Contribution <> 0 THEN ROUND((K.LoadedBaseCost + K.FiberCount * E.CPQ_Fiber_Cost + A.Contribution + K.FiberCount*(.207 / 12) ) / (1 - T.Multiplier), 3)
++												ELSE ROUND((K.BaseCost + K.FiberCount * E.CPQ_Fiber_Cost + A.Contribution + K.FiberCount*(.207 / 12)*1.02) / (1 - T.Multiplier), 3) 
++										END ),
++	--Price =ROUND((K.LoadedBaseCost + K.FiberCount * E.CPQ_Fiber_Cost + A.Contribution + (.207 / 12) ) / (1 - T.Multiplier), 3),
++	Loaded_Base_Cost_Fiber_Included__c =    ROUND((K.LoadedBaseCost + K.FiberCount * E.CPQ_Fiber_Cost +  K.FiberCount*(.207 / 12)*1.02),3)
++FROM            tblSalesForce_Pricing AS A INNER JOIN
++                         tblDesignTypes AS G ON A.Product_Category = G.Product_Pricing_Group INNER JOIN
++                         tblSalesForce_Pricing_Multiplier AS T ON A.Product_Category = T.Product_Category INNER JOIN
++                         tblSalesForce_Catalog AS K ON T.FiberID = K.FiberID INNER JOIN
++                         tblDesignCodeFiberElementValue AS E ON E.FiberID = K.FiberID INNER JOIN
++                         tblCableConstructionReferences AS CR ON CR.Base = K.Base AND G.DesignTypeID = CR.DesignTypeID
++WHERE cr.TBType = 'Ribbon' 
++
++
++
++--******************************
++--Pricing for SWR Cables
++--********************************
++
++UPDATE tblSalesForce_Catalog
++SET 
++	Price =				
++										(CASE 
++												WHEN A.Contribution <> 0 THEN ROUND((K.LoadedBaseCost + K.FiberCount * E.CPQ_Fiber_Cost + A.Contribution +  K.FiberCount*(.10800 / 12) ) / (1 - T.Multiplier), 3)
++												ELSE ROUND((K.BaseCost + K.FiberCount * E.CPQ_Fiber_Cost + A.Contribution + K.FiberCount*(.10800 / 12)) / (1 - T.Multiplier), 3) 
++										END ),
++	--Price = ROUND((K.LoadedBaseCost + K.FiberCount * E.CPQ_Fiber_Cost + A.Contribution + (.10800 / 12) ) / (1 - T.Multiplier), 3),
++	Loaded_Base_Cost_Fiber_Included__c =    ROUND((K.LoadedBaseCost + K.FiberCount * E.CPQ_Fiber_Cost + K.FiberCount *(.10800 / 12)),3)
++FROM            tblSalesForce_Pricing AS A INNER JOIN
++                         tblDesignTypes AS G ON A.Product_Category = G.Product_Pricing_Group INNER JOIN
++                         tblSalesForce_Pricing_Multiplier AS T ON A.Product_Category = T.Product_Category INNER JOIN
++                         tblSalesForce_Catalog AS K ON T.FiberID = K.FiberID INNER JOIN
++                         tblDesignCodeFiberElementValue AS E ON E.FiberID = K.FiberID INNER JOIN
++                         tblCableConstructionReferences AS CR ON CR.Base = K.Base AND G.DesignTypeID = CR.DesignTypeID
++WHERE TBLetter IN( 'r', 's' )
++
++
++
++
++--UPDATE tblSalesForce_Catalog
++--SET Price =						   (CASE 
++--										WHEN tbtype ='furcation' and cablepasses = 1 THEN	ROUND((K.LoadedBaseCost + K.FiberCount * E.Item_Cost + A.Contribution) / (1 - T.Multiplier), 3)
++--										WHEN TBLetter = 'r' or TBLetter = 's' THEN ROUND((K.LoadedBaseCost + K.FiberCount * D.CPQ_Fiber_Cost + (0.10800 / 12) + A.Contribution) / (1 - T.Multiplier), 3)
++--										WHEN  TBType = 'Ribbon' THEN ROUND((K.LoadedBaseCost + K.FiberCount * D.CPQ_Fiber_Cost + (.207 / 12) + A.Contribution) / (1 - T.Multiplier), 3)
++--										ELSE ROUND((K.LoadedBaseCost + K.FiberCount * D.CPQ_Fiber_Cost + A.Contribution) / (1 - T.Multiplier), 3)
++--									END )
++--FROM            tblSalesForce_Catalog AS K INNER JOIN
++--                         tblDesignTypes AS G ON G.SalesForceDescription = K.DesignTypeDesc INNER JOIN
++--                         tblSalesForce_Pricing AS A ON A.Product_Category = G.Product_Pricing_Group INNER JOIN
++--                         tblSalesForce_Pricing_Multiplier AS T ON A.Product_Category = T.Product_Category AND K.FiberID = T.FiberID LEFT JOIN
++--						 tblDesignCodeFurcationTube B ON B.FurcationTube = k.FurcationTube LEFT JOIN
++--                         dbo.AFLPRD_INVSysItemCost_CAB E ON E.ItemNumber = b.furcation INNER JOIN
++--						 tblDesignCodeFiberElementValue AS D ON D.FiberID = K.FiberID
++
++--******************************
++--Pricing for armored cables
++--********************************
++
++UPDATE tblSalesForce_Catalog
++SET Price =	Price + G.ArmorCostAdder, LoadedBaseCost = LoadedBaseCost + ArmorLoadedCost, BaseCost = AmorMaterialCost + BaseCost
++FROM            tblSalesForce_Catalog AS K INNER JOIN ArmorConstructionBase_TEMP G ON K.Base = G.Base
++WHERE armored = 1
++			
++
++--******************************
++--Pricing for mixed fiber cables
++--********************************
++
++UPDATE dbo.tblSalesForce_Catalog 
++SET Loaded_Base_Cost_Fiber_Included__c   = NULL
++WHERE Fiber_Type_Config__c like '%mixed%'
++
++
++end
++
++
++
++GO
+diff --git a/Stored Procedures/dbo.usp_CatalogCode_SalesForce_RemoveDuplicates.sql b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_RemoveDuplicates.sql
+new file mode 100644
+index 0000000..b2f4c62
+--- /dev/null
++++ b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_RemoveDuplicates.sql
+@@ -0,0 +1,25 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++-- =============================================
++-- Author:      Bryan Eddy
++-- Create date: 7/20/2017
++-- Description: Delete duplicate records to prevent the Quoting item creation procedure from erroring out.
++-- =============================================
++
++CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_RemoveDuplicates]
++as
++
++
++WITH cte AS (
++	SELECT *, ROW_NUMBER() OVER (PARTITION BY CatalogCode ORDER BY CatalogCode,Base Desc ) AS RowNumber
++	FROM 
++	(
++		SELECT CatalogCode, F.Base,COUNT(F.CatalogCode) OVER (PARTITION BY CatalogCode) Countof--, MAX(G.DateCreated) OVER (PARTITION BY CatalogCode) MaxDateCreated_Construction, G.DateCreated--, MAX(F.DateCreated) OVER (PARTITION BY CatalogCode) MaxDateCreated_Item, f.DateCreated DateCreated_Item
++		FROM tblSalesForce_Catalog F --INNER JOIN tblCableConstructionReferences G ON G.Base = F.Base
++	)X 
++	WHERE Countof > 1
++)
++DELETE cte WHERE RowNumber > 1
++GO
+diff --git a/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Special_Subunit.sql b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Special_Subunit.sql
+new file mode 100644
+index 0000000..91f2e67
+--- /dev/null
++++ b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Special_Subunit.sql
+@@ -0,0 +1,42 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++-- Author:		Bryan Eddy
++-- ALTER date: 10/5/2016
++-- Description:	Generate the catalog code and attributes for Sales Force Quoting - Update certain items with the special subunit coloring indicator
++-- =============================================
++CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_Special_Subunit] 
++AS
++BEGIN
++
++--UPDATE tblSalesForce_Catalog
++--SET Non_Standard = 1 
++--FROM tblSalesForce_Catalog
++--WHERE ProdLevel3 = 'Tactical' and tbtype = 'microtactical'
++
++
++
++INSERT INTO tblSalesForce_Catalog
++                         (CatalogCode, Base, Weight_kg_per_m, 
++                         K.DesignTypeDesc, Jacket, TBType, TBDescription, NominalOD, NumSubFillers, NumSubPositions,FinishedCableColor,TBLetter,
++						 CablePasses,FiberCount,UnitOD, BaseID,K.DesignTypeId, Armored,Boxed, Print_Type__c, Min_Order_Quantity__c, Fiber_Type__c,FiberID,SetupID
++						 ,Non_Standard,Active,ProdLevel3)
++
++SELECT LEFT(CatalogCode,10) + Special_Subunit_Indicator + SUBSTRING(CatalogCode,12,LEN(CatalogCode)-11), Base, Weight_kg_per_m, 
++                         K.DesignTypeDesc, Jacket, TBType, TBDescription, NominalOD, NumSubFillers, NumSubPositions,FinishedCableColor,TBLetter,
++						 CablePasses,FiberCount,UnitOD, BaseID,K.DesignTypeId, Armored,Boxed,Print_Type__c,k.Min_Order_Quantity__c,Fiber_Type__c,FiberID,SetupID
++						 ,1,k.Active,ProdLevel3
++FROM [dbo].[tblDesignSpecialSubunitColor] CROSS JOIN dbo.tblDesignTypes A  INNER JOIN dbo.tblSalesForce_Catalog K ON A.DesignTypeID = K.DesignTypeID
++WHERE Special_Subunit_Color_X = 1 and CablePasses = 2
++
++
++--UPDATE tblSalesForce_Catalog
++--SET Non_Standard = 0
++--FROM tblSalesForce_Catalog
++--WHERE ProdLevel3 = 'Tactical' and tbtype = 'microtactical' AND substring(catalogcode,11,1) = 'x'
++
++
++END
++
++GO
+diff --git a/Tables/dbo.ArmorConstructionBase_TEMP.sql b/Tables/dbo.ArmorConstructionBase_TEMP.sql
+new file mode 100644
+index 0000000..d3d1b60
+--- /dev/null
++++ b/Tables/dbo.ArmorConstructionBase_TEMP.sql
+@@ -0,0 +1,16 @@
++CREATE TABLE [dbo].[ArmorConstructionBase_TEMP]
++(
++[Base] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[ArmorLoadedCost] [float] NULL,
++[ArmorExtension] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[AmorMaterialCost] [float] NULL,
++[ArmorWeight] [float] NULL,
++[ArmorOD] [decimal] (9, 4) NULL,
++[Armor] [nvarchar] (4) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[JacketRating] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[ArmorCostAdder] [decimal] (6, 4) NULL,
++[ArmorSize] [smallint] NULL
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[ArmorConstructionBase_TEMP] ADD CONSTRAINT [PK_ArmorConstructionBase] PRIMARY KEY CLUSTERED  ([Base]) ON [PRIMARY]
++GO
+diff --git a/Tables/dbo.tblArmor_Costing_Weight.sql b/Tables/dbo.tblArmor_Costing_Weight.sql
+new file mode 100644
+index 0000000..13bbe06
+--- /dev/null
++++ b/Tables/dbo.tblArmor_Costing_Weight.sql
+@@ -0,0 +1,22 @@
++CREATE TABLE [dbo].[tblArmor_Costing_Weight]
++(
++[AmorMaterialCost] [float] NULL,
++[ArmorWeight] [float] NULL,
++[MaxArmorOD] [decimal] (6, 4) NULL,
++[ArmorExtension] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[JacketLetter] [nvarchar] (1) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[Armor] [nvarchar] (4) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[MaxCoreOD] [decimal] (6, 4) NULL,
++[NominalOD] [decimal] (9, 4) NULL,
++[Compound] [nchar] (15) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[ArmorSize] [smallint] NULL,
++[JacketRating] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[ArmorLoadedCost] [float] NULL
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblArmor_Costing_Weight] ADD CONSTRAINT [PK_tblArmor_Costing_Weight] PRIMARY KEY CLUSTERED  ([JacketLetter], [Armor]) ON [PRIMARY]
++GO
++CREATE NONCLUSTERED INDEX [IX_tblArmor_Costing_Weight] ON [dbo].[tblArmor_Costing_Weight] ([AmorMaterialCost]) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblArmor_Costing_Weight] ADD CONSTRAINT [FK_tblArmor_Costing_Weight_tblDesignArmor] FOREIGN KEY ([Armor]) REFERENCES [dbo].[tblDesignArmor] ([Armor]) ON DELETE CASCADE ON UPDATE CASCADE
++GO
+diff --git a/Tables/dbo.tblBase_Skeletal_Cost.sql b/Tables/dbo.tblBase_Skeletal_Cost.sql
+new file mode 100644
+index 0000000..64141cd
+--- /dev/null
++++ b/Tables/dbo.tblBase_Skeletal_Cost.sql
+@@ -0,0 +1,17 @@
++CREATE TABLE [dbo].[tblBase_Skeletal_Cost]
++(
++[Base] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[BaseSkeletalCost] [decimal] (38, 10) NULL,
++[AssemblyItemNumber] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[LoadedBaseCost] [decimal] (38, 10) NULL,
++[SetupID] [int] NOT NULL,
++[TimeStamp] [timestamp] NULL,
++[CreatedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblBase_Skeletal_Cost_CreatedBy] DEFAULT (suser_sname()),
++[DateCreated] [datetime] NULL CONSTRAINT [DF_tblBase_Skeletal_Cost_DateCreated] DEFAULT (getdate()),
++[ID] [int] NOT NULL IDENTITY(1, 1)
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblBase_Skeletal_Cost] ADD CONSTRAINT [PK_tblBase_Skeletal_Cost] PRIMARY KEY CLUSTERED  ([SetupID]) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblBase_Skeletal_Cost] ADD CONSTRAINT [FK_tblBase_Skeletal_Cost_tblCableConstructionReferences] FOREIGN KEY ([Base]) REFERENCES [dbo].[tblCableConstructionReferences] ([Base]) ON DELETE CASCADE ON UPDATE CASCADE
++GO
+diff --git a/Tables/dbo.tblCableRibbonUnitType.sql b/Tables/dbo.tblCableRibbonUnitType.sql
+new file mode 100644
+index 0000000..408fdf4
+--- /dev/null
++++ b/Tables/dbo.tblCableRibbonUnitType.sql
+@@ -0,0 +1,10 @@
++CREATE TABLE [dbo].[tblCableRibbonUnitType]
++(
++[FiberCount] [smallint] NOT NULL,
++[RibbonUnitType] [nvarchar] (2) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[Ribbon_Description] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[TimeStamp] [timestamp] NOT NULL
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblCableRibbonUnitType] ADD CONSTRAINT [PK_tblCableRibbonUnitType] PRIMARY KEY CLUSTERED  ([FiberCount], [RibbonUnitType]) ON [PRIMARY]
++GO
+diff --git a/Tables/dbo.tblDesignArmor.sql b/Tables/dbo.tblDesignArmor.sql
+new file mode 100644
+index 0000000..235a968
+--- /dev/null
++++ b/Tables/dbo.tblDesignArmor.sql
+@@ -0,0 +1,15 @@
++CREATE TABLE [dbo].[tblDesignArmor]
++(
++[Armor] [nvarchar] (4) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[ArmorUsage] [decimal] (7, 6) NULL,
++[MaxArmorOD] [decimal] (6, 4) NULL,
++[MaxCoreOD] [decimal] (6, 4) NULL,
++[OracleArmor] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[ArmorSize] [smallint] NULL,
++[ArmorCostAdder] [decimal] (6, 4) NULL
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblDesignArmor] ADD CONSTRAINT [PK_tblDesignArmor] PRIMARY KEY CLUSTERED  ([Armor]) ON [PRIMARY]
++GO
++CREATE NONCLUSTERED INDEX [IX_tblDesignArmor] ON [dbo].[tblDesignArmor] ([MaxCoreOD], [ArmorSize]) ON [PRIMARY]
++GO
+diff --git a/Tables/dbo.tblDesignCodeJacketColor.sql b/Tables/dbo.tblDesignCodeJacketColor.sql
+new file mode 100644
+index 0000000..15ffd61
+--- /dev/null
++++ b/Tables/dbo.tblDesignCodeJacketColor.sql
+@@ -0,0 +1,14 @@
++CREATE TABLE [dbo].[tblDesignCodeJacketColor]
++(
++[ColorLetter] [nvarchar] (1) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[Color] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[CablePasses] [smallint] NOT NULL,
++[FinsishedCableColorPosition] [bit] NULL,
++[SubunitCableColorPostion] [bit] NULL,
++[TimeStamp] [timestamp] NULL,
++[SalesForce_Include] [bit] NULL CONSTRAINT [DF_tblDesignCodeJacketColor_SalesForce_Include] DEFAULT ((0)),
++[ColorDescription_SalesForce] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblDesignCodeJacketColor] ADD CONSTRAINT [PK_tblDesignCodeJacketColor] PRIMARY KEY CLUSTERED  ([ColorLetter], [CablePasses]) ON [PRIMARY]
++GO
+diff --git a/Tables/dbo.tblDesignCode_CableImages.sql b/Tables/dbo.tblDesignCode_CableImages.sql
+new file mode 100644
+index 0000000..89ff23c
+--- /dev/null
++++ b/Tables/dbo.tblDesignCode_CableImages.sql
+@@ -0,0 +1,13 @@
++CREATE TABLE [dbo].[tblDesignCode_CableImages]
++(
++[DesignTypeID] [int] NOT NULL,
++[Armor_Type__c] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[ImageURL__c] [varchar] (2083) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Packaging__c] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[Product_Spec_link__c] [varchar] (2083) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblDesignCode_CableImages] ADD CONSTRAINT [PK_tblDesignCode_CableImages] PRIMARY KEY CLUSTERED  ([DesignTypeID], [Armor_Type__c], [Packaging__c]) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblDesignCode_CableImages] ADD CONSTRAINT [FK_tblDesignCode_CableImages_tblDesignTypes] FOREIGN KEY ([DesignTypeID]) REFERENCES [dbo].[tblDesignTypes] ([DesignTypeID]) ON DELETE CASCADE ON UPDATE CASCADE
++GO
+diff --git a/Tables/dbo.tblDesignSpecialSubunitColor.sql b/Tables/dbo.tblDesignSpecialSubunitColor.sql
+new file mode 100644
+index 0000000..245665a
+--- /dev/null
++++ b/Tables/dbo.tblDesignSpecialSubunitColor.sql
+@@ -0,0 +1,6 @@
++CREATE TABLE [dbo].[tblDesignSpecialSubunitColor]
++(
++[Special_Subunit_Indicator] [nvarchar] (1) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[timestamp] [timestamp] NULL
++) ON [PRIMARY]
++GO
+diff --git a/Tables/dbo.tblSalesForce_Catalog.sql b/Tables/dbo.tblSalesForce_Catalog.sql
+new file mode 100644
+index 0000000..eaab757
+--- /dev/null
++++ b/Tables/dbo.tblSalesForce_Catalog.sql
+@@ -0,0 +1,82 @@
++CREATE TABLE [dbo].[tblSalesForce_Catalog]
++(
++[CatalogCode] [nvarchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[Base] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[Weight_kg_per_m] [decimal] (10, 5) NULL,
++[DesignTypeDesc] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Jacket] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[TBType] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[TBDescription] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[NominalOD] [decimal] (6, 3) NULL,
++[NumSubFillers] [int] NULL,
++[NumSubPositions] [int] NULL,
++[CablePasses] [tinyint] NULL,
++[BaseID] [int] NULL,
++[BaseCost] [decimal] (10, 5) NULL,
++[FiberCount] [smallint] NULL,
++[UnitOD] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[OracleItem] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[COLOR__c] [nvarchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[LoadedBaseCost] [decimal] (10, 5) NULL,
++[Armored] [bit] NULL,
++[Boxed] [bit] NULL,
++[BoxedLength_FT] [smallint] NULL,
++[DesignTypeID] [smallint] NULL,
++[DateCreated] [datetime] NULL CONSTRAINT [DF_tblSalesForce_Catalog_DateCreated] DEFAULT (getdate()),
++[Fiber_Type__c] [nvarchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Armor_Type__c] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblSalesForce_Catalog_Armor_Type__c] DEFAULT (N'Non-Armored'),
++[Packaging__c] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblSalesForce_Catalog_Packaging__c] DEFAULT (N'Reel'),
++[UOM__c] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblSalesForce_Catalog_UOM__c] DEFAULT (N'Meters'),
++[Stock__c] [nvarchar] (3) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblSalesForce_Catalog_Stock__c] DEFAULT ('No'),
++[Lead_Time_ID__c] [int] NULL,
++[ImageURL__c] [nvarchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Product_Spec_Link__c] [nvarchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Min_Order_Quantity__c] [int] NULL,
++[Print_Type__c] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblSalesForce_Catalog_Print_Type__c] DEFAULT (N'Unprinted'),
++[Product_Quote_Description__c] [nvarchar] (315) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[ArmorJacket] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[FiberID] [int] NULL,
++[TBLetter] [nvarchar] (1) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[FinishedCableColor] [nvarchar] (1) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[FurcationTube] [nvarchar] (150) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[SetupID] [int] NULL,
++[Non_Standard] [bit] NULL,
++[Active] [bit] NULL,
++[Price] [decimal] (18, 6) NULL,
++[ProdLevel1] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblSalesForce_Catalog_ProdLevel1] DEFAULT ('Fiber Optic Cable'),
++[ProdLevel2] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblSalesForce_Catalog_ProdLevel2] DEFAULT ('Premise'),
++[ProdLevel3] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[ID] [uniqueidentifier] NOT NULL CONSTRAINT [DF_tblSalesForce_Catalog_ID] DEFAULT (newid()),
++[Subunit_Color_Position__c] [tinyint] NULL CONSTRAINT [DF_tblSalesForce_Catalog_Postion_Inner_Jacket_Color] DEFAULT ((11)),
++[Jacket_Color_Position__c] [tinyint] NULL CONSTRAINT [DF_tblSalesForce_Catalog_Postion_Outer_Jacket_Color] DEFAULT ((10)),
++[Print_Position__c] [tinyint] NULL CONSTRAINT [DF_tblSalesForce_Catalog_Poistion_Print] DEFAULT ((9)),
++[Quoted_Product__c] [nvarchar] (5) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblSalesForce_Catalog_Quoted_Product__c] DEFAULT ('TRUE'),
++[Non_Standard_Design__c] [nvarchar] (5) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Distributor_Price_List__c] [nvarchar] (3) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblSalesForce_Catalog_Distributor_Price_List__c] DEFAULT ('No'),
++[Minimum_Order_Multiple__c] [int] NULL CONSTRAINT [DF_tblSalesForce_Catalog_Minimum_Order_Multiple__c] DEFAULT ((1)),
++[Override__c] [nvarchar] (5) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblSalesForce_Catalog_Override__c] DEFAULT ('TRUE'),
++[Fiber_Type_Config__c] [nvarchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Fiber_Count_Config__c] [smallint] NULL,
++[Status__c] [nvarchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblSalesForce_Catalog_Status__c] DEFAULT ('Inactive'),
++[Jacket_Print__c] [nvarchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Loaded_Base_Cost_Fiber_Included__c] [decimal] (10, 5) NULL,
++[Premise_Design_Program_Synch_ID] [nvarchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Configuration__c] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblSalesForce_Catalog_Configuration__c] DEFAULT ('Premise'),
++[Replacement_Part__c] [nvarchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Replacement_Part_ref__c] [nvarchar] (150) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Subunit_Color__c] [nvarchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Stock__b] [bit] NULL CONSTRAINT [DF_tblSalesForce_Catalog_Stock__b] DEFAULT ((0))
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblSalesForce_Catalog] ADD CONSTRAINT [PK_tblSalesForce_Catalog] PRIMARY KEY CLUSTERED  ([ID]) ON [PRIMARY]
++GO
++CREATE NONCLUSTERED INDEX [IX_tblSalesForce_Catalog_2] ON [dbo].[tblSalesForce_Catalog] ([DesignTypeDesc]) INCLUDE ([BaseCost], [FiberCount], [FiberID], [LoadedBaseCost], [TBType]) ON [PRIMARY]
++GO
++CREATE NONCLUSTERED INDEX [IX_tblSalesForce_Catalog] ON [dbo].[tblSalesForce_Catalog] ([TBLetter], [DesignTypeDesc], [BaseCost], [FiberCount], [LoadedBaseCost], [FiberID]) ON [PRIMARY]
++GO
++CREATE NONCLUSTERED INDEX [IX_tblSalesForce_Catalog_1] ON [dbo].[tblSalesForce_Catalog] ([TBType], [DesignTypeDesc], [BaseCost], [FiberCount], [LoadedBaseCost], [FiberID]) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblSalesForce_Catalog] ADD CONSTRAINT [FK_tblSalesForce_Catalog_tblCableConstructionReferences] FOREIGN KEY ([Base]) REFERENCES [dbo].[tblCableConstructionReferences] ([Base]) ON DELETE CASCADE ON UPDATE CASCADE
++GO
++GRANT SELECT ON  [dbo].[tblSalesForce_Catalog] TO [Oracle]
++GO
+diff --git a/Tables/dbo.tblSalesForce_Pricing_Multiplier.sql b/Tables/dbo.tblSalesForce_Pricing_Multiplier.sql
+new file mode 100644
+index 0000000..280f9e0
+--- /dev/null
++++ b/Tables/dbo.tblSalesForce_Pricing_Multiplier.sql
+@@ -0,0 +1,23 @@
++CREATE TABLE [dbo].[tblSalesForce_Pricing_Multiplier]
++(
++[Product_Category] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[FiberID] [int] NOT NULL,
++[CreatedBy] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblSalesForce_Pricing_Margin_CreatedBy] DEFAULT (suser_sname()),
++[CreationDate] [datetime] NULL CONSTRAINT [DF_tblSalesForce_Pricing_Margin_CreationDate] DEFAULT (getdate()),
++[timestamp] [timestamp] NULL,
++[ID] [int] NOT NULL IDENTITY(1, 1),
++[Multiplier] [decimal] (6, 4) NULL
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblSalesForce_Pricing_Multiplier] ADD CONSTRAINT [PK_tblSalesForce_Pricing_Margin] PRIMARY KEY CLUSTERED  ([Product_Category], [FiberID]) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblSalesForce_Pricing_Multiplier] ADD CONSTRAINT [FK_tblSalesForce_Pricing_Multiplier_tblDesignCodeFiberElementValue] FOREIGN KEY ([FiberID]) REFERENCES [dbo].[tblDesignCodeFiberElementValue] ([FiberID])
++GO
++ALTER TABLE [dbo].[tblSalesForce_Pricing_Multiplier] ADD CONSTRAINT [FK_tblSalesForce_Pricing_Multiplier_tblSalesForce_Pricing] FOREIGN KEY ([Product_Category]) REFERENCES [dbo].[tblSalesForce_Pricing] ([Product_Category]) ON DELETE CASCADE ON UPDATE CASCADE
++GO
++GRANT UPDATE ([Multiplier]) ON [dbo].[tblSalesForce_Pricing_Multiplier] TO [NAA\houckmi]
++GO
++DENY UPDATE ON  [dbo].[tblSalesForce_Pricing_Multiplier] TO [SPB Premise SQL RW]
++GO
++DENY DELETE ON  [dbo].[tblSalesForce_Pricing_Multiplier] TO [SPB Premise SQL RW]
++GO
+diff --git a/Tables/dbo.tbleABF_Pricing.sql b/Tables/dbo.tbleABF_Pricing.sql
+new file mode 100644
+index 0000000..2f00024
+--- /dev/null
++++ b/Tables/dbo.tbleABF_Pricing.sql
+@@ -0,0 +1,9 @@
++CREATE TABLE [dbo].[tbleABF_Pricing]
++(
++[ItemNo] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[Price_feet] [decimal] (18, 6) NULL,
++[CreatedBy] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tbleABF_Pricing_CreatedBy] DEFAULT (suser_sname()),
++[CreationDate] [datetime] NULL CONSTRAINT [DF_tbleABF_Pricing_CreationDate] DEFAULT (getdate()),
++[timestamp] [timestamp] NULL
++) ON [PRIMARY]
++GO
