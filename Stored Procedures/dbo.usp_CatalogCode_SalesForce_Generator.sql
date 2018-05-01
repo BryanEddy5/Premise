@@ -7,6 +7,8 @@ GO
 -- Author:		Bryan Eddy
 -- ALTER date: 10/5/2016
 -- Description:	Generate the catalog code and attributes for Sales Force Quoting
+-- Version:		2
+-- Update:		Added logic for Tactical quoting
 -- =============================================
 CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_Generator] 
 
@@ -18,7 +20,7 @@ SET NOCOUNT ON;
 --EXEC [OracleExtracts].[dbo].[usp_BOMCalculator_AllCables]
 
 
-DELETE FROM tblSalesForce_Catalog;
+TRUNCATE TABLE tblSalesForce_Catalog;
 
 --Appends all base cables to tblSalesForce_Catalog
 EXEC dbo.usp_CatalogCode_SalesForce_Cables;
@@ -96,15 +98,43 @@ EXEC usp_CatalogCode_SalesForce_PricingUpdate
 UPDATE DBO.tblSalesForce_Catalog
 SET Stock__b = 1,Stock__c='Yes', Min_Order_Quantity__c = G.Min_Order_Quantity, UOM__c = 'Feet'
 , LoadedBaseCost = LoadedBaseCost /3.281, BaseCost = BaseCost /3.281--, Weight_kg_per_m = Weight_kg_per_m * 0.671969
-,price = G.Price_feet
+,price = G.Price_feet, Lead_Time_ID__c = G.LeadTime_ID
 FROM dbo.tblstockitems G INNER JOIN dbo.tblSalesForce_Catalog K ON G.itemno = k.CatalogCode
 
---Update pricing for eABF items from a static list
+--Remove -BIF for all Tactical cable products
+UPDATE dbo.tblSalesForce_Catalog
+SET CatalogCode = REPLACE(CatalogCode,'-BIF','')
+WHERE DesignTypeID IN (19,18)
+
+--Update pricing static priced list
+/* eABF and Tactical don't want a calculated version.  They have supplied a list they would like the price to reflect*/
+--Static price list in Feet
 UPDATE DBO.tblSalesForce_Catalog
-SET   UOM__c = 'Feet'
-, LoadedBaseCost = LoadedBaseCost /3.281, BaseCost = BaseCost /3.281,Loaded_Base_Cost_Fiber_Included__c =Loaded_Base_Cost_Fiber_Included__c/3.281 --, Weight_kg_per_m = Weight_kg_per_m * 0.671969
-,price = G.Price_feet
-FROM dbo.tbleABF_Pricing G INNER JOIN dbo.tblSalesForce_Catalog K ON G.itemno = k.CatalogCode
+SET   UOM__c = I.UnitOfMeasure
+, LoadedBaseCost = LoadedBaseCost /3.281
+, BaseCost = BaseCost /3.281
+,Loaded_Base_Cost_Fiber_Included__c =Loaded_Base_Cost_Fiber_Included__c/3.281 --, Weight_kg_per_m = Weight_kg_per_m * 0.671969
+,price = G.Price
+FROM SalesForce.ItemPriceOverride G INNER JOIN dbo.tblSalesForce_Catalog K ON G.itemno = k.CatalogCode
+INNER JOIN SalesForce.UnitOfMeasure I ON I.UnitOfMeasureID = G.UnitOfMeasureID
+WHERE G.UnitOfMeasureID = 2
+
+--Static Price List in Meters
+UPDATE DBO.tblSalesForce_Catalog
+SET   UOM__c = I.UnitOfMeasure
+, LoadedBaseCost = LoadedBaseCost 
+, BaseCost = BaseCost
+,Loaded_Base_Cost_Fiber_Included__c =Loaded_Base_Cost_Fiber_Included__c --, Weight_kg_per_m = Weight_kg_per_m * 0.671969
+,price = G.Price
+FROM SalesForce.ItemPriceOverride G INNER JOIN dbo.tblSalesForce_Catalog K ON G.itemno = k.CatalogCode
+INNER JOIN SalesForce.UnitOfMeasure I ON I.UnitOfMeasureID = G.UnitOfMeasureID
+WHERE G.UnitOfMeasureID = 1
+
+--Remove all tactical cables that are not in the override table
+DELETE dbo.tblSalesForce_Catalog 
+FROM dbo.tblSalesForce_Catalog C LEFT JOIN SalesForce.ItemPriceOverride X ON X.ItemNo = C.CatalogCode
+WHERE DesignTypeID IN (19,18) AND X.ItemNo IS NULL
+
 
 UPDATE dbo.tblSalesForce_Catalog
   SET Non_Standard_Design__c = (CASE WHEN Non_Standard = 1 THEN 'TRUE' ELSE 'FALSE' END),

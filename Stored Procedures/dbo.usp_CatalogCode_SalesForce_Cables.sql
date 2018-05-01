@@ -8,6 +8,8 @@ GO
 -- Author:		Bryan Eddy
 -- ALTER date: 10/5/2016
 -- Description:	Generate the catalog code and attributes for Sales Force Quoting - Appends All base cables to the table
+-- Update:		Added table SalesForce.FiberToFiberDescriptionQuoting to allow for fibers to have multiple Sales Force Descriptions
+-- Version:		2
 -- =============================================
 CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_Cables] 
 
@@ -73,9 +75,9 @@ SELECT DISTINCT
 						, tblCableConstructionReferences.ReleasedDesign
 						, tblCableTBType.Non_Standard_Product
 						, tblDesignTypeGroups.DesignTypeGroupDesc
-FROM            tbl_Fibers INNER JOIN
-                         tblDesignCodeFiberElementValue ON tbl_Fibers.FiberID = tblDesignCodeFiberElementValue.FiberID INNER JOIN
-                         tblFiberTBCatalog ON tbl_Fibers.TBCatalogType = tblFiberTBCatalog.TBCatalogType INNER JOIN
+FROM            tbl_Fibers INNER JOIN SalesForce.FiberToFiberDescriptionQuoting FiberLink ON FiberLink.FiberItemID = tbl_Fibers.FiberItemID
+                         INNER JOIN tblDesignCodeFiberElementValue ON tblDesignCodeFiberElementValue.FiberID = FiberLink.FiberID
+                         INNER JOIN tblFiberTBCatalog ON tbl_Fibers.TBCatalogType = tblFiberTBCatalog.TBCatalogType INNER JOIN
                          tblFiberTBIndicators ON tblFiberTBCatalog.TBCatalogType = tblFiberTBIndicators.TBCatalogType INNER JOIN
                          tblBOM_Base_Weight INNER JOIN
                          tblCableTBType INNER JOIN

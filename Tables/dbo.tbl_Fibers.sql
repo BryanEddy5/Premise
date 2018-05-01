@@ -22,7 +22,7 @@ CREATE TABLE [dbo].[tbl_Fibers]
 [OD] [decimal] (6, 4) NULL,
 [Timestamp] [timestamp] NULL,
 [OpticalID] [int] NULL,
-[FiberID] [int] NULL
+[FiberItemID] [int] NOT NULL IDENTITY(1, 1)
 ) ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[tbl_Fibers] ADD CONSTRAINT [DF_tbl_Fibers_BIF_YesNo] CHECK (([BIF]='No' OR [BIF]='Yes'))
@@ -33,11 +33,11 @@ ALTER TABLE [dbo].[tbl_Fibers] ADD CONSTRAINT [tbl_Fibers$PrimaryKey] PRIMARY KE
 GO
 CREATE NONCLUSTERED INDEX [IX_tbl_Fibers] ON [dbo].[tbl_Fibers] ([Fiber], [Extension], [Fiber_Type], [TBCatalogType], [Alt1_Fiber_Type], [OM#], [Alt2_Fiber_Type], [Alt3_Fiber_Type], [Alt4_Fiber_Type], [Active], [OpticalID]) ON [PRIMARY]
 GO
+ALTER TABLE [dbo].[tbl_Fibers] ADD CONSTRAINT [UQ__tbl_Fibe__1DC26D2880EA2678] UNIQUE NONCLUSTERED  ([FiberItemID]) ON [PRIMARY]
+GO
 CREATE NONCLUSTERED INDEX [IX_tbl_Fibers_1] ON [dbo].[tbl_Fibers] ([TBCatalogType], [Fiber_Type]) ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[tbl_Fibers] ADD CONSTRAINT [FK_tbl_Fibers_tblCutSheetOpticalFiberChart] FOREIGN KEY ([OpticalID]) REFERENCES [dbo].[tblCutSheetOpticalFiberChart] ([OpticalID]) ON DELETE SET NULL ON UPDATE CASCADE
-GO
-ALTER TABLE [dbo].[tbl_Fibers] ADD CONSTRAINT [FK_tbl_Fibers_tblDesignCodeFiberElementValue] FOREIGN KEY ([FiberID]) REFERENCES [dbo].[tblDesignCodeFiberElementValue] ([FiberID]) ON DELETE SET NULL ON UPDATE CASCADE
 GO
 ALTER TABLE [dbo].[tbl_Fibers] ADD CONSTRAINT [FK_tbl_Fibers_tblFiberTBCatalog] FOREIGN KEY ([TBCatalogType]) REFERENCES [dbo].[tblFiberTBCatalog] ([TBCatalogType]) ON DELETE SET NULL ON UPDATE CASCADE
 GO

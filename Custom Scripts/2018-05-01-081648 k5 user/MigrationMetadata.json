@@ -1,0 +1,46 @@
+{
+  "Id": "7a7c8734-b30a-488c-9bde-4d8e250ab63b",
+  "Name": "Script created at 2018-05-01 08:13.",
+  "ObjectIds": [
+    {
+      "Name": "FiberToFiberDescriptionQuoting",
+      "Owner": "SalesForce",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "ItemPriceOverride",
+      "Owner": "SalesForce",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "UnitOfMeasure",
+      "Owner": "SalesForce",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblStockItems",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tbl_Fibers",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tbleABF_Pricing",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "usp_CatalogCode_SalesForce_Cables",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_SalesForce_Generator",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    }
+  ]
+}
