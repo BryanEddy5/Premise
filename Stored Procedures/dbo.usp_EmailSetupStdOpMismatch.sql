@@ -3,12 +3,14 @@ GO
 SET ANSI_NULLS ON
 GO
 
+
 -- =============================================
 -- Author:		Bryan Eddy
 -- ALTER date: 10/31/2017
--- automated email to notify product engineering of open orders with Standard Ops
--- that do not match the Premise Configurator program's Standard Op.
-
+--Desc:					automated email to notify product engineering of open orders with Standard Ops
+--						that do not match the Premise Configurator program's Standard Op.
+-- Version:		2
+-- Update:		added logic to explode the BOM and look at all components for mismatch setups
 -- =============================================
 CREATE PROCEDURE [dbo].[usp_EmailSetupStdOpMismatch]
 
@@ -27,6 +29,11 @@ DECLARE @Receipientlist varchar(1000)
 --Check if any open item requests need commercial approval
 IF OBJECT_ID(N'tempdb..#Results', N'U') IS NOT NULL
 DROP TABLE #Results;
+WITH cteOpenOrderItems
+AS(
+	SELECT DISTINCT K.AssemblyItemNumber, E.[Sales Order]
+	FROM dbo.AFLPRD_ORDDTLREPT_UPLOAD_CAB E CROSS APPLY dbo.fn_ExplodeBOM([Item Number]) K
+	)
 SELECT [ItemRouting]
 	  ,[DateCreated]
       ,[StdOpBOM]
@@ -36,10 +43,9 @@ SELECT [ItemRouting]
 	  ,g.[Sales Order]
 	INTO	#Results
   FROM [Premise].[Setup].[vSetupStandardOperationMismatch] K INNER JOIN
-  dbo.AFLPRD_ORDDTLREPT_UPLOAD_CAB G ON G.[Item Number] = K.ItemRouting
-  --WHERE StdOpBOM <> 'R204' AND StdOpConfigurator <> 'R446'
+   cteOpenOrderItems G ON g.AssemblyItemNumber = K.ItemRouting
   ORDER BY DateCreated DESC, StdOpBOM
-SELECT * FROM #Results
+
 
 SELECT @numRows = count(*) FROM #Results
 

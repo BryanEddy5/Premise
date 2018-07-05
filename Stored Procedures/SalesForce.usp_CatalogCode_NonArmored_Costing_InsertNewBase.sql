@@ -11,7 +11,7 @@ GO
 -- Update:		refactored into a merge statement
 --				added error handling
 -- =============================================
-CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_NonArmored_Costing_InsertNewBase]
+CREATE PROCEDURE [SalesForce].[usp_CatalogCode_NonArmored_Costing_InsertNewBase]
 AS
 
 BEGIN

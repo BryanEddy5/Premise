@@ -12,7 +12,7 @@ GO
 -- =============================================
 
 */
-CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_InvokeURL_SalesForce_Update] 
+CREATE PROCEDURE [SalesForce].[usp_CatalogCode_InvokeUrl_Update] 
 
 
 AS

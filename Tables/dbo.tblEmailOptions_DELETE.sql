@@ -1,4 +1,4 @@
-CREATE TABLE [dbo].[tblEmailOptions]
+CREATE TABLE [dbo].[tblEmailOptions_DELETE]
 (
 [EmailSubject] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [EmailTo] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
@@ -10,5 +10,5 @@ CREATE TABLE [dbo].[tblEmailOptions]
 [Path] [nvarchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
 ) ON [PRIMARY]
 GO
-ALTER TABLE [dbo].[tblEmailOptions] ADD CONSTRAINT [PK_tblEmailOptions] PRIMARY KEY CLUSTERED  ([EmailOption]) ON [PRIMARY]
+ALTER TABLE [dbo].[tblEmailOptions_DELETE] ADD CONSTRAINT [PK_tblEmailOptions] PRIMARY KEY CLUSTERED  ([EmailOption]) ON [PRIMARY]
 GO

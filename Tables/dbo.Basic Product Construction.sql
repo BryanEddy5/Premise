@@ -104,7 +104,8 @@ CREATE TABLE [dbo].[Basic Product Construction]
 [ActiveStatusChangedDate] [datetime] NULL,
 [ActiveStatusChangedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [SafetyRatingUS] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-[SafetyRatingCanadian] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
+[SafetyRatingCanadian] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[VendorSpecificFiber] [bit] NULL CONSTRAINT [DF_Basic Product Construction_VendorSpecificFiber] DEFAULT ((0))
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 SET QUOTED_IDENTIFIER ON
@@ -244,8 +245,6 @@ GO
 GRANT UPDATE ([Active]) ON [dbo].[Basic Product Construction] TO [NAA\SPB Premise SQL RO]
 GO
 GRANT UPDATE ([Reason]) ON [dbo].[Basic Product Construction] TO [NAA\SPB Premise SQL RO]
-GO
-DENY DELETE ON  [dbo].[Basic Product Construction] TO [SPB Premise SQL RW]
 GO
 EXEC sp_addextendedproperty N'MS_SSMA_SOURCE', N'SQLMigration.[Basic Product Construction]', 'SCHEMA', N'dbo', 'TABLE', N'Basic Product Construction', NULL, NULL
 GO

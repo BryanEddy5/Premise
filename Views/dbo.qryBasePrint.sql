@@ -2,13 +2,12 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
-
 /*
 Author:		Bryan Eddy
 Date:		1/25/2018
 Desc:		View to show print for items
-Version:	1
-Update:		Addd concatenated print field
+Version:	2
+Update:		New logic for converting print line 4 to the new diamond jet syntax
 */
 
 CREATE VIEW [dbo].[qryBasePrint]
@@ -18,7 +17,16 @@ SELECT        [Print Line 1] AS PrintLine1, RTRIM([Customer]) AS Cust, [Print Li
 						 , COALESCE([Print Line 1],'') + ' ' + COALESCE([print line 2],'') + ' ' + CASE WHEN [Print Item No] <> 0 THEN [Item No] + ' ' ELSE ' ' END 
 						+ COALESCE([Print Line 3],'') + ' ' 
 						+ CASE WHEN [Print Reel No] <> 0 THEN 'LOT ###### ' ELSE ' ' END + COALESCE([Print Line 4],'') AS ConcatPrintLine
-FROM            [Basic Product Construction]
+
+						 , COALESCE([Print Line 1],'') + ' ' + COALESCE([print line 2],'') + ' ' + CASE WHEN [Print Item No] <> 0 THEN [Item No] + ' ' ELSE ' ' END 
+						+ COALESCE([Print Line 3],'') + ' ' 
+						+ CASE WHEN [Print Reel No] <> 0 THEN 'LOT ###### ' ELSE ' ' END + COALESCE(DiamondJetPrintLine4Code,'') AS ConcatPrintLineDiamondJet
+						,p.DiamondJetPrintLine4Code, K.[Print Spacing] AS Spacing, c.NominalOD
+
+FROM            [Basic Product Construction] k left JOIN dbo.PrintLine4 i ON i.Line4PrintCode = k.NewPrintLine4 AND i.Line4Print = k.[Print Line 4]
+				left JOIN dbo.PrintLine4Codes p ON p.Line4PrintCode = i.Line4PrintCode
+				left JOIN dbo.tblCableConstructionReferences l ON l.Base = k.Base
+				left JOIN dbo.tblCableConstructions c ON c.BaseID = l.BaseID
 --UNION ALL
 --SELECT        [Print Line 1] AS PrintLine1, RTRIM([Customer]) AS Cust, [Print Line 2] AS PrintLine2, [Print Line 3] AS PrintLine3, LEFT([Item No], 2) AS CabFam, 
 --                         [New Oracle Part Number] AS Oracle, [Print Line 4] AS PrintLine4, [Print Item No], [Print Type (base)], [Print Reel No], [Item No], OracleStatus,[NewPrintLine4]

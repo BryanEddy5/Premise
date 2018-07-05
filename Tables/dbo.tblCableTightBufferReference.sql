@@ -2,7 +2,7 @@ CREATE TABLE [dbo].[tblCableTightBufferReference]
 (
 [TBTypeID] [int] NOT NULL IDENTITY(1, 1),
 [TBType] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-[TBIndicatorID] [int] NOT NULL,
+[TBIndicatorID] [int] NULL,
 [TimeStamp] [timestamp] NOT NULL,
 [DateCreated] [datetime2] NULL CONSTRAINT [DF_tblCableTightBufferReference_DateCreated] DEFAULT (getdate()),
 [CreatedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblCableTightBufferReference_CreatedBy] DEFAULT (suser_sname()),

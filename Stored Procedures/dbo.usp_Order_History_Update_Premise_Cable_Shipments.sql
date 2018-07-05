@@ -8,8 +8,8 @@ GO
 Author:			Bryan Eddy
 Date:			1/12/2017
 Desc:			Update the Sales History table for reporting ( Oracle.MarginRevenueExtractSalesHistory)
-Version:		3
-Update:			Added query to remove duplicates
+Version:		4
+Update:			Added another query to remove duplicates
 */
 
 CREATE PROCEDURE [dbo].[usp_Order_History_Update_Premise_Cable_Shipments]
@@ -255,6 +255,18 @@ SELECT ROW_NUMBER() OVER (PARTITION BY[ORG_CODE]
 DELETE I 
 FROM cteUnique K INNER JOIN ORACLE.[MarginRevenueExtractSalesHistory]  I ON I.SalesID = K.SalesID
 WHERE K.RowNumber > 1--item_number = 'DNO-9246' AND cteUnique.ORDER_NUMBER ='1958265' AND cteUnique.SO_LINE_NUMBER = 1
+
+--Remove more duplicates.  Find SO's and SO Lines that are Rev and CAB and delete the REV transaction type
+BEGIN TRAN
+;WITH cteDuplicates
+AS(
+	SELECT R.SalesID
+	FROM oracle.MarginRevenueExtractSalesHistory  R INNER JOIN  oracle.MarginRevenueExtractSalesHistory O ON O.ORDER_NUMBER = R.ORDER_NUMBER AND O.SO_LINE_NUMBER = R.SO_LINE_NUMBER
+	WHERE R.SCHEDULING_APPROVAL IS NULL AND R.ORG_CODE = 'cab' AND R.TRANSACTION_TYPE = 'rev' AND O.TRANSACTION_TYPE = 'ORD' AND O.ORG_CODE = 'CAB'
+)
+DELETE ORACLE.MarginRevenueExtractSalesHistory 
+FROM cteDuplicates E INNER JOIN ORACLE.MarginRevenueExtractSalesHistory K ON K.SalesID = E.SalesID
+COMMIT
 
 
 

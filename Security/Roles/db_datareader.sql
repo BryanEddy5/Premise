@@ -1,3 +1,5 @@
+
+EXEC sp_addrolemember N'db_datareader', N'NAA\SPB spb_PREMISE_RO'
 EXEC sp_addrolemember N'db_datareader', N'NAA\eddybc'
 GO
 EXEC sp_addrolemember N'db_datareader', N'NAA\houckmi'

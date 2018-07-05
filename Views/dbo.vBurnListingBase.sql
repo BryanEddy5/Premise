@@ -6,7 +6,7 @@ CREATE VIEW [dbo].[vBurnListingBase]
 AS
 SELECT        dbo.tblBurnListing.ListingCompany, dbo.tblBurnListing.Base, dbo.tblBurnListing.ListingTab, dbo.tblBurnListing.ListingSection, 
                          dbo.tblBurnListing.ListingConstruction, dbo.tblBurnListingConstruction.ConstructionID, dbo.tblBurnListingRating.Rating, dbo.tblBurnListingRatingReference.US, 
-                         dbo.tblBurnListingRatingReference.Canada
+                         dbo.tblBurnListingRatingReference.Canada, Priority
 FROM            dbo.tblBurnListing INNER JOIN
                          dbo.tblBurnListingConstruction ON dbo.tblBurnListing.ListingConstruction = dbo.tblBurnListingConstruction.ListingConstruction AND 
                          dbo.tblBurnListing.ListingSection = dbo.tblBurnListingConstruction.ListingSection AND 

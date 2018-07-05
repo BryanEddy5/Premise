@@ -2,7 +2,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
-CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_FlateFile_Export]
+CREATE PROCEDURE [SalesForce].[usp_CatalogCode_FlateFile_Export]
 as
 
 

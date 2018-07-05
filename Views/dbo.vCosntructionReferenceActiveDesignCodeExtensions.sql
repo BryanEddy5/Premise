@@ -15,6 +15,6 @@ CREATE VIEW [dbo].[vCosntructionReferenceActiveDesignCodeExtensions]
 AS
 SELECT  DISTINCT DesignExtension
 FROM dbo.tblCableConstructionReferences
-WHERE DesignExtension IS NOT NULL AND Active = 1
+WHERE DesignExtension IS NOT NULL AND Active = 1 AND ReleasedDesign = 1
 
 GO

@@ -1,0 +1,461 @@
+{
+  "Id": "4f531a40-9b4f-4617-8fec-97ad2d5f9787",
+  "Name": "Script created at 2018-07-05 15:50.",
+  "ObjectIds": [
+    {
+      "Name": "ImageGroup",
+      "Owner": "CutSheet",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "JobPrint",
+      "Owner": "DiamondJet",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "JobPrint_Archive",
+      "Owner": "DiamondJet",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "MarkingIntervals",
+      "Owner": "DiamondJet",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "Templates",
+      "Owner": "DiamondJet",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "LeadTimes",
+      "Owner": "SalesForce",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "AFL_SHP_Shipments_Value_Report_260418",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "Basic Product Construction",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "Buff#1/#2 Alloc Table",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "PorductionAndProcessData_Archive",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "PrintLine4Codes",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "Printed Labels (Data Products)",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "PrintedLabelsArchive",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "Unit Series",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "Vendors",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "XXAFL_CAB_DESIGN_ITEMS_ATTR_DELETE",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblBurnListingDocument",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblCableConstructionReferences",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblCableConstructionsOLD",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblCableConstructions",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblCableFamilyDocs",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblCableTBType",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblCableTightBufferReference",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblCorningPrint",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblDesignCodeFurcationTube",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblEmailOptions",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblEmailOptions_DELETE",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblItemBuildDescrepancyLog",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblJacketMaterials",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblLeadTime",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblMasterSchedule",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblMaterialDensity",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblMaterialWeightsMetersUOM",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblSalesForce_Pricing",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblSalesForce_Pricing_Multiplier",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblStockItems",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "tblTightBufferStripType",
+      "Owner": "dbo",
+      "ObjectType": "Table"
+    },
+    {
+      "Name": "usp_SetJobPrint",
+      "Owner": "DiamondJet",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_Armor_Cost_Weight",
+      "Owner": "SalesForce",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_Armor_Cost_Weight_Create_Table",
+      "Owner": "SalesForce",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_Boxed_Items",
+      "Owner": "SalesForce",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_Cables",
+      "Owner": "SalesForce",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_Descriptions",
+      "Owner": "SalesForce",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_FlateFile_Export",
+      "Owner": "SalesForce",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_Furcation",
+      "Owner": "SalesForce",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_Generator",
+      "Owner": "SalesForce",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_InvokeUrl_Update",
+      "Owner": "SalesForce",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_InvokeUrl_Update_DEV",
+      "Owner": "SalesForce",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_NonArmored_Costing",
+      "Owner": "SalesForce",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_NonArmored_Costing_InsertNewBase",
+      "Owner": "SalesForce",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_PricingUpdate",
+      "Owner": "SalesForce",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_RemoveDuplicates",
+      "Owner": "SalesForce",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_Special_Subunit",
+      "Owner": "SalesForce",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_UpdateStage",
+      "Owner": "SalesForce",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_GetFurcationTube",
+      "Owner": "Schedule",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_SalesForce_Armor_Cost_Weight",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_SalesForce_Armor_Cost_Weight_Create_Table",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_SalesForce_Boxed_Items",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_SalesForce_Cables",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_SalesForce_Descriptions",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_SalesForce_FlateFile_Export",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_SalesForce_Furcation",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_SalesForce_Generator",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_SalesForce_InvokeURL_SalesForce_Update",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_SalesForce_InvokeURL_SalesForce_Update_DEV",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_SalesForce_NonArmored_Costing",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_SalesForce_NonArmored_Costing_InsertNewBase",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_SalesForce_PricingUpdate",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_SalesForce_RemoveDuplicates",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_SalesForce_Special_Subunit",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_CatalogCode_SalesForce_UpdateStage",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_EmailSetupStdOpMismatch",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_MTY_ObsoleteComponentNotification",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_Order_History_Update_Premise_Cable_Shipments",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_SalesHistoryUpdate_BI_DELETE",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "usp_Scheduling_Construction_CenterMember",
+      "Owner": "dbo",
+      "ObjectType": "StoredProcedure"
+    },
+    {
+      "Name": "vJobPrintInterface",
+      "Owner": "DiamondJet",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vLeadTimes",
+      "Owner": "SalesForce",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vFBR00466Selection",
+      "Owner": "Schedule",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vInactiveItems",
+      "Owner": "Schedule",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "TightBufferSetupRecipe",
+      "Owner": "Setup",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "qryBasePrint",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vBasic_Prod_plus_Basic_Sheath",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vBurnListingBase",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vCosntructionReferenceActiveDesignCodeExtensions",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vFiber",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "vVendorSpecificPrint",
+      "Owner": "dbo",
+      "ObjectType": "View"
+    },
+    {
+      "Name": "db_datareader",
+      "Owner": null,
+      "ObjectType": "Role_Role"
+    },
+    {
+      "Name": "db_ddladmin",
+      "Owner": null,
+      "ObjectType": "Role_Role"
+    },
+    {
+      "Name": "NAA\\SPB spb_PREMISE_RO",
+      "Owner": null,
+      "ObjectType": "User"
+    },
+    {
+      "Name": "DiamondJet",
+      "Owner": null,
+      "ObjectType": "Schema"
+    }
+  ]
+}

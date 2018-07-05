@@ -69,7 +69,8 @@ CREATE TABLE [dbo].[tblCableConstructions]
 [TensileRatingLongTerm_N] [smallint] NULL,
 [EngineeringAssistReason] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [CableShapeID] [int] NULL,
-[FiberApplicationID] [int] NULL
+[FiberApplicationID] [int] NULL,
+[JacketStripID] [int] NULL
 ) ON [PRIMARY]
 GO
 SET QUOTED_IDENTIFIER ON
@@ -154,4 +155,6 @@ GO
 ALTER TABLE [dbo].[tblCableConstructions] ADD CONSTRAINT [FK_tblCableConstructions_tblCableTensileRating] FOREIGN KEY ([TensileApplication]) REFERENCES [dbo].[tblCableTensileRating] ([TensileApplication])
 GO
 ALTER TABLE [dbo].[tblCableConstructions] ADD CONSTRAINT [FK_tblCableConstructions_tblJacketMaterials] FOREIGN KEY ([JacketMaterial]) REFERENCES [dbo].[tblJacketMaterials] ([JacketMaterial]) ON DELETE SET NULL ON UPDATE CASCADE
+GO
+ALTER TABLE [dbo].[tblCableConstructions] ADD CONSTRAINT [FK_tblCableConstructions_tblTightBufferStripType] FOREIGN KEY ([JacketStripID]) REFERENCES [dbo].[tblTightBufferStripType] ([ID])
 GO

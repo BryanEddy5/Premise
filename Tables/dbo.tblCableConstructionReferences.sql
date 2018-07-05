@@ -147,6 +147,8 @@ ALTER TABLE [dbo].[tblCableConstructionReferences] ADD CONSTRAINT [FK_tblCableCo
 GO
 ALTER TABLE [dbo].[tblCableConstructionReferences] ADD CONSTRAINT [FK_tblCableConstructionReferences_tblCableFamily] FOREIGN KEY ([FamilyID]) REFERENCES [dbo].[tblCableFamily] ([FamilyID]) ON DELETE SET NULL ON UPDATE CASCADE
 GO
+ALTER TABLE [dbo].[tblCableConstructionReferences] ADD CONSTRAINT [FK_tblCableConstructionReferences_tblCableTightBufferReference] FOREIGN KEY ([TBType]) REFERENCES [dbo].[tblCableTightBufferReference] ([TBType]) ON DELETE SET NULL ON UPDATE CASCADE
+GO
 ALTER TABLE [dbo].[tblCableConstructionReferences] ADD CONSTRAINT [FK_tblCableConstructionReferences_tblCableType] FOREIGN KEY ([CableType]) REFERENCES [dbo].[tblCableType] ([CableType]) ON DELETE SET NULL ON UPDATE CASCADE
 GO
 ALTER TABLE [dbo].[tblCableConstructionReferences] ADD CONSTRAINT [FK_tblCableConstructionReferences_tblDesignTypes] FOREIGN KEY ([DesignTypeID]) REFERENCES [dbo].[tblDesignTypes] ([DesignTypeID]) ON DELETE SET NULL ON UPDATE CASCADE

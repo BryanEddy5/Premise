@@ -13,9 +13,11 @@ CREATE TABLE [dbo].[tblCableTBType]
 [ColoredFiber] [bit] NULL
 ) ON [PRIMARY]
 GO
-ALTER TABLE [dbo].[tblCableTBType] ADD CONSTRAINT [PK_tblCableTBType] PRIMARY KEY CLUSTERED  ([TBLetterIndicator], [TBLetter]) ON [PRIMARY]
+ALTER TABLE [dbo].[tblCableTBType] ADD CONSTRAINT [PK_tblCableTBType] PRIMARY KEY CLUSTERED  ([TBLetterIndicator]) ON [PRIMARY]
 GO
 CREATE NONCLUSTERED INDEX [IX_tblCableTBType] ON [dbo].[tblCableTBType] ([TBIndicatorID]) ON [PRIMARY]
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [IX_tblCableTBType_1] ON [dbo].[tblCableTBType] ([TBIndicatorID], [TBLetter]) ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[tblCableTBType] ADD CONSTRAINT [FK_tblCableTBType_tblCableTightBufferReference] FOREIGN KEY ([TBIndicatorID]) REFERENCES [dbo].[tblCableTightBufferReference] ([TBTypeID]) ON DELETE SET NULL ON UPDATE CASCADE
 GO

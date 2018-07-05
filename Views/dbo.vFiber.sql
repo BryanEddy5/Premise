@@ -5,7 +5,7 @@ GO
 CREATE VIEW [dbo].[vFiber]
 AS
 SELECT        Fiber, [SM/MM], BIF, OM#, SpecialNotes, Fiber_Type, Alt1_Fiber_Type, Alt2_Fiber_Type, Alt3_Fiber_Type, Alt4_Fiber_Type, Description_Oracle, Active, Mode, 
-                         Vendor, TBCatalogType, OpticalID, FiberID, ITU
+                         Vendor, TBCatalogType, OpticalID,  ITU
 FROM            dbo.tbl_Fibers
 GO
 EXEC sp_addextendedproperty N'MS_DiagramPane1', N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]

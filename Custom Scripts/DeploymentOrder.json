@@ -15,6 +15,8 @@
     {"Description":"Migration script 'Script created at 2018-04-25 13:35.'","Type":"Migration","Id":"2018-04-25-133624 fw user"},
     {"Description":"Changes before migration script 'Script created at 2018-05-01 08:13.'","Type":"Compare","Id":"2018-05-01-081648 k4 auto"},
     {"Description":"Migration script 'Script created at 2018-05-01 08:13.'","Type":"Migration","Id":"2018-05-01-081648 k5 user"},
+    {"Description":"Changes before migration script 'Script created at 2018-07-05 15:50.'","Type":"Compare","Id":"2018-07-05-155452 1n auto"},
+    {"Description":"Migration script 'Script created at 2018-07-05 15:50.'","Type":"Migration","Id":"2018-07-05-155452 1o user"},
   ],
   "Conflict in this file?": "If there’s a conflict in this file, you probably want to keep both changes. Learn more: http://www.red-gate.com/SOC4/order-file-more-info"
 }

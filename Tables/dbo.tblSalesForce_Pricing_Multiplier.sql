@@ -17,7 +17,3 @@ ALTER TABLE [dbo].[tblSalesForce_Pricing_Multiplier] ADD CONSTRAINT [FK_tblSales
 GO
 GRANT UPDATE ([Multiplier]) ON [dbo].[tblSalesForce_Pricing_Multiplier] TO [NAA\houckmi]
 GO
-DENY DELETE ON  [dbo].[tblSalesForce_Pricing_Multiplier] TO [SPB Premise SQL RW]
-GO
-DENY UPDATE ON  [dbo].[tblSalesForce_Pricing_Multiplier] TO [SPB Premise SQL RW]
-GO

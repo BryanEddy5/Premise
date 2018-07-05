@@ -23,8 +23,117 @@ CREATE TABLE [dbo].[Printed Labels (Data Products)]
 [IASeq] [smallint] NULL CONSTRAINT [DF__Printed L__IASeq__6CCE0729] DEFAULT ((9999)),
 [CabSeq] [int] NULL CONSTRAINT [DF__Printed L__CabSe__6DC22B62] DEFAULT ((9999)),
 [Sh3Seq] [smallint] NULL CONSTRAINT [DF__Printed L__Sh3Se__6EB64F9B] DEFAULT ((9999)),
-[SSMA_TimeStamp] [timestamp] NOT NULL
+[SSMA_TimeStamp] [timestamp] NOT NULL,
+[DateCreated] [datetime] NULL CONSTRAINT [DF_Printed Labels (Data Products)_DateCreatedArchiveRecord] DEFAULT (getdate()),
+[CreatedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_Printed Labels (Data Products)_CreatedByArchiveRecord] DEFAULT (suser_sname()),
+[RevisedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_Printed Labels (Data Products)_RevisedBy] DEFAULT (suser_sname()),
+[DateRevised] [datetime] NULL CONSTRAINT [DF_Printed Labels (Data Products)_DateRevised] DEFAULT (getdate())
 ) ON [PRIMARY]
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+-- =============================================
+-- Author:		Bryan Eddy
+-- Create date: 6/8/2018
+-- Description:	Track changes in Printed Labels table
+-- =============================================
+CREATE TRIGGER [dbo].[PrintedLabelsArchivetrgr]
+   ON  [dbo].[Printed Labels (Data Products)] 
+   AFTER DELETE,UPDATE
+AS 
+BEGIN
+
+			  UPDATE t
+			  SET t.DateRevised = GETDATE(),
+			  t.RevisedBy = (SUSER_SNAME())
+			  FROM dbo.[Printed Labels (Data Products)] as t
+			  JOIN inserted i
+			  ON i.[Reel No] = t.[Reel No] AND i.[Order Qty] = t.[Order Qty]
+			
+
+	
+	SET NOCOUNT ON;
+		IF UPDATE ([Close Date])
+		BEGIN	
+			DECLARE @INS int, @DEL int
+
+			SELECT @INS = COUNT(*) FROM INSERTED
+			SELECT @DEL = COUNT(*) FROM DELETED
+
+			IF @INS > 0 OR @DEL > 0 
+		
+
+				INSERT INTO DBO.PrintedLabelsArchive
+				(
+				    [Reel No],
+				    [Order Qty],
+				    [Previously Printed],
+				    [Print Now],
+				    [Completed Buffering],
+				    [Buff Line #],
+				    [TB PRIORITY],
+				    [Setup Buff],
+				    [Setup SZ/SH],
+				    [Completed Cabling],
+				    [Make/Ship orders],
+				    [Sheathing Line #],
+				    Shipped,
+				    [Close Date],
+				    BOM,
+				    [BOM Comments],
+				    [CM Required],
+				    [Run Order],
+				    [Early Star Date],
+				    [Completed TightBuffer],
+				    IASeq,
+				    CabSeq,
+				    Sh3Seq,
+					DateCreated,
+					DateRevised,
+					RevisedBy,
+					CreatedBy
+
+				)
+
+					SELECT d.[Reel No],
+                           d.[Order Qty],
+                           d.[Previously Printed],
+                           d.[Print Now],
+                           d.[Completed Buffering],
+                           d.[Buff Line #],
+                           d.[TB PRIORITY],
+                           d.[Setup Buff],
+                           d.[Setup SZ/SH],
+                           d.[Completed Cabling],
+                           d.[Make/Ship orders],
+                           d.[Sheathing Line #],
+                           d.Shipped,
+                           d.[Close Date],
+                           d.BOM,
+                           d.[BOM Comments],
+                           d.[CM Required],
+                           d.[Run Order],
+                           d.[Early Star Date],
+                           d.[Completed TightBuffer],
+                           d.IASeq,
+                           d.CabSeq,
+                           d.Sh3Seq,
+						   d.DateCreated,
+					d.DateRevised,
+					d.RevisedBy,
+					d.CreatedBy
+
+				FROM DELETED d
+
+				
+
+			END
+
+
+
+END
 GO
 ALTER TABLE [dbo].[Printed Labels (Data Products)] ADD CONSTRAINT [SSMA_CC$Printed Labels (Data Products)$BOM Comments$disallow_zero_length] CHECK ((len([BOM Comments])>(0)))
 GO
@@ -36,9 +145,9 @@ ALTER TABLE [dbo].[Printed Labels (Data Products)] ADD CONSTRAINT [PK_Printed La
 GO
 CREATE NONCLUSTERED INDEX [IX_Printed Labels (Data Products)] ON [dbo].[Printed Labels (Data Products)] ([Shipped], [Completed TightBuffer], [Reel No], [Order Qty]) ON [PRIMARY]
 GO
-GRANT INSERT ON  [dbo].[Printed Labels (Data Products)] TO [NAA\SPB Premise SQL RO]
-GO
 GRANT DELETE ON  [dbo].[Printed Labels (Data Products)] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT INSERT ON  [dbo].[Printed Labels (Data Products)] TO [NAA\SPB Premise SQL RO]
 GO
 GRANT UPDATE ON  [dbo].[Printed Labels (Data Products)] TO [NAA\SPB Premise SQL RO]
 GO

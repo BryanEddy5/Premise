@@ -25,13 +25,38 @@ CREATE TABLE [dbo].[Buff#1/#2 Alloc Table]
 [shrinkage limit] [decimal] (18, 3) NULL,
 [Sheathing Line] [int] NULL,
 [Interlock] [int] NULL,
-[PrefixID] [int] NOT NULL,
-[ID] [int] NOT NULL IDENTITY(1, 1),
+[ID] [int] NULL,
+[PrefixID] [int] NOT NULL IDENTITY(1, 1),
 [TimeStamp] [timestamp] NULL,
 [PrimaryBufferingLine] [int] NULL,
 [B18_Line_Speed] [decimal] (18, 3) NULL,
 [B2_Second_Pass] [decimal] (18, 3) NULL
 ) ON [PRIMARY]
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+-- =============================================
+-- Author:		Bryan Eddy
+-- Create date: 5/3/2018
+-- Description:	Keep ID synced with PrefixID
+-- =============================================
+CREATE TRIGGER [dbo].[trgr_CableRunSpeeds] ON [dbo].[Buff#1/#2 Alloc Table]
+AFTER INSERT, UPDATE 
+AS
+	BEGIN 
+			BEGIN
+			  UPDATE t
+			  SET t.ID = t.PrefixID
+			  FROM dbo.[Buff#1/#2 Alloc Table] as t
+			  JOIN inserted i
+			  ON i.PrefixID = t.PrefixID
+			END
+            
+    -- Insert statements for trigger here
+
+END
 GO
 ALTER TABLE [dbo].[Buff#1/#2 Alloc Table] ADD CONSTRAINT [Buff#1/#2 Alloc Table$PrimaryKey] PRIMARY KEY CLUSTERED  ([PrefixID]) ON [PRIMARY]
 GO

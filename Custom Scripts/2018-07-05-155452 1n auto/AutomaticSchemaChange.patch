@@ -1,0 +1,1930 @@
+diff --git a/Security/Roles/db_datareader.sql b/Security/Roles/db_datareader.sql
+new file mode 100644
+index 0000000..70bd875
+--- /dev/null
++++ b/Security/Roles/db_datareader.sql
+@@ -0,0 +1,20 @@
++EXEC sp_addrolemember N'db_datareader', N'NAA\eddybc'
++GO
++EXEC sp_addrolemember N'db_datareader', N'NAA\houckmi'
++GO
++EXEC sp_addrolemember N'db_datareader', N'NAA\kimjo'
++GO
++EXEC sp_addrolemember N'db_datareader', N'NAA\service_spbcable'
++GO
++EXEC sp_addrolemember N'db_datareader', N'NAA\SPB Premise SQL RO'
++GO
++EXEC sp_addrolemember N'db_datareader', N'NAA\SPB Users'
++GO
++EXEC sp_addrolemember N'db_datareader', N'Oracle'
++GO
++EXEC sp_addrolemember N'db_datareader', N'prLinkUser'
++GO
++EXEC sp_addrolemember N'db_datareader', N'SPB Premise SQL RW'
++GO
++EXEC sp_addrolemember N'db_datareader', N'SPB spb_PREMISE'
++GO
+diff --git a/Security/Roles/db_ddladmin.sql b/Security/Roles/db_ddladmin.sql
+new file mode 100644
+index 0000000..204ebf7
+--- /dev/null
++++ b/Security/Roles/db_ddladmin.sql
+@@ -0,0 +1,2 @@
++EXEC sp_addrolemember N'db_ddladmin', N'NAA\eddybc'
++GO
+diff --git a/Security/Schemas/db_datareader.sql b/Security/Schemas/db_datareader.sql
+new file mode 100644
+index 0000000..4b951fb
+--- /dev/null
++++ b/Security/Schemas/db_datareader.sql
+@@ -0,0 +1,2 @@
++ALTER AUTHORIZATION ON SCHEMA::[db_datareader] TO [NAA\eddybc]
++GO
+diff --git a/Security/Users/NAA_SPB Users.sql b/Security/Users/NAA_SPB Users.sql
+new file mode 100644
+index 0000000..3a0e3e4
+--- /dev/null
++++ b/Security/Users/NAA_SPB Users.sql
+@@ -0,0 +1,6 @@
++IF NOT EXISTS (SELECT * FROM master.dbo.syslogins WHERE loginname = N'NAA\SPB Users')
++CREATE LOGIN [NAA\SPB Users] FROM WINDOWS
++GO
++CREATE USER [NAA\SPB Users] FOR LOGIN [NAA\SPB Users]
++GO
++GRANT EXECUTE TO [NAA\SPB Users]
+diff --git a/Security/Users/NAA_eddybc.sql b/Security/Users/NAA_eddybc.sql
+new file mode 100644
+index 0000000..2867c75
+--- /dev/null
++++ b/Security/Users/NAA_eddybc.sql
+@@ -0,0 +1,5 @@
++IF NOT EXISTS (SELECT * FROM master.dbo.syslogins WHERE loginname = N'NAA\eddybc')
++CREATE LOGIN [NAA\eddybc] FROM WINDOWS
++GO
++CREATE USER [NAA\eddybc] FOR LOGIN [NAA\eddybc]
++GO
+diff --git a/Security/Users/NAA_kimjo.sql b/Security/Users/NAA_kimjo.sql
+new file mode 100644
+index 0000000..d0a511b
+--- /dev/null
++++ b/Security/Users/NAA_kimjo.sql
+@@ -0,0 +1,5 @@
++IF NOT EXISTS (SELECT * FROM master.dbo.syslogins WHERE loginname = N'NAA\kimjo')
++CREATE LOGIN [NAA\kimjo] FROM WINDOWS
++GO
++CREATE USER [NAA\kimjo] FOR LOGIN [NAA\kimjo]
++GO
+diff --git a/Security/Users/NAA_service_spbcable.sql b/Security/Users/NAA_service_spbcable.sql
+new file mode 100644
+index 0000000..2a93e59
+--- /dev/null
++++ b/Security/Users/NAA_service_spbcable.sql
+@@ -0,0 +1,5 @@
++IF NOT EXISTS (SELECT * FROM master.dbo.syslogins WHERE loginname = N'NAA\service_spbcable')
++CREATE LOGIN [NAA\service_spbcable] FROM WINDOWS
++GO
++CREATE USER [NAA\service_spbcable] FOR LOGIN [NAA\service_spbcable]
++GO
+diff --git a/Security/Users/prLinkUser.sql b/Security/Users/prLinkUser.sql
+new file mode 100644
+index 0000000..c23c8e9
+--- /dev/null
++++ b/Security/Users/prLinkUser.sql
+@@ -0,0 +1,5 @@
++IF NOT EXISTS (SELECT * FROM master.dbo.syslogins WHERE loginname = N'prLinkUser')
++CREATE LOGIN [prLinkUser] WITH PASSWORD = 'p@ssw0rd'
++GO
++CREATE USER [prLinkUser] FOR LOGIN [prLinkUser]
++GO
+diff --git a/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Armor_Cost_Weight_Create_Table.sql b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Armor_Cost_Weight_Create_Table.sql
+new file mode 100644
+index 0000000..8be0495
+--- /dev/null
++++ b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_Armor_Cost_Weight_Create_Table.sql
+@@ -0,0 +1,46 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++
++
++CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_Armor_Cost_Weight_Create_Table]
++as
++BEGIN 
++
++--IF OBJECT_ID(N'tblArmor_Costing_Weight', N'U') IS NOT NULL
++--DROP TABLE tblArmor_Costing_Weight;
++
++DELETE FROM tblArmor_Costing_Weight;
++
++INSERT INTO tblArmor_Costing_Weight (AmorMaterialCost, ArmorWeight, MaxArmorOD,ArmorExtension, JacketLetter, Armor, MaxCoreOD, NominalOD, Compound, ArmorSize, JacketRating)
++SELECT        ROUND((ColorCost.Item_Cost * 0.03 * tblMaterialDensity.SpecificGravity) * (PI() * (SQUARE((AmorMaterialCost.MaxArmorOD + A.WallThickness * 2) / 2) 
++                         - SQUARE(AmorMaterialCost.MaxArmorOD / 2))) / 1000 + (K.Item_Cost * 0.97 * tblMaterialDensity.SpecificGravity) * (PI() 
++                         * (SQUARE((AmorMaterialCost.MaxArmorOD + A.WallThickness * 2) / 2) - SQUARE(AmorMaterialCost.MaxArmorOD / 2))) / 1000 + AmorMaterialCost.AmorMaterialCost,6) AS AmorMaterialCost, 
++
++
++			ROUND(( tblMaterialDensity.SpecificGravity) * (PI()* (SQUARE((AmorMaterialCost.MaxArmorOD + A.WallThickness * 2) / 2) - SQUARE(AmorMaterialCost.MaxArmorOD / 2)))
++			 / 1000 + AmorMaterialCost.ArmorUsage,6) AS ArmorWeight, 
++
++                         AmorMaterialCost.MaxArmorOD, A.ArmorExtension, A.JacketLetter, AmorMaterialCost.Armor, AmorMaterialCost.MaxCoreOD, ROUND(A.WallThickness * 2 + AmorMaterialCost.MaxArmorOD, 2) 
++                         AS NominalOD, tblMaterialDensity.Compound, ArmorSize, JacketRating
++--INTO	tblArmor_Costing_Weight
++FROM            tblDesignArmorJacket AS A INNER JOIN
++                         dbo.AFLPRD_INVSysItemCost_CAB AS K ON A.JacketMaterial = K.ItemNumber INNER JOIN
++                         dbo.AFLPRD_INVSysItemCost_CAB AS ColorCost ON ColorCost.ItemNumber = A.ColorChip INNER JOIN
++                         tblMaterialDensity ON A.JacketMaterial = tblMaterialDensity.Compound CROSS JOIN
++                             (SELECT        tblDesignArmor.MaxCoreOD, tblDesignArmor.MaxArmorOD, armorsize,ArmorUsage,
++                                                         tblDesignArmor.ArmorUsage * dbo.AFLPRD_INVSysItemCost_CAB.Item_Cost AS AmorMaterialCost, tblDesignArmor.Armor
++                               FROM            tblDesignArmor INNER JOIN
++                                                         dbo.AFLPRD_INVSysItemCost_CAB ON tblDesignArmor.OracleArmor = dbo.AFLPRD_INVSysItemCost_CAB.ItemNumber) 
++                         AS AmorMaterialCost
++--ORDER BY		ArmorSize
++
++UPDATE tblArmor_Costing_Weight
++SET ArmorLoadedCost = 0.02482 + 0.001667 + 0.12836 + AmorMaterialCost
++
++
++
++END
++
++GO
+diff --git a/Stored Procedures/dbo.usp_CatalogCode_SalesForce_InvokeURL_SalesForce_Update_DEV.sql b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_InvokeURL_SalesForce_Update_DEV.sql
+new file mode 100644
+index 0000000..9204e5e
+--- /dev/null
++++ b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_InvokeURL_SalesForce_Update_DEV.sql
+@@ -0,0 +1,32 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++-- =============================================
++-- Author:		<Author,,Name>
++-- Create date: <Create Date,,>
++-- Description:	<Description,,>
++-- =============================================
++CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_InvokeURL_SalesForce_Update_DEV] 
++
++
++AS
++BEGIN
++Declare @Object as Int;
++Declare @ResponseText as Varchar(8000);
++
++
++Exec sp_OACreate 'MSXML2.XMLHTTP', @Object OUT;
++Exec sp_OAMethod @Object, 'open', NULL, 'get',
++                 'http://ci-data-dev.aflglobal.com/PRE_SF_Products', --Your Web Service Url (invoked)
++                 'false'
++Exec sp_OAMethod @Object, 'send'
++Exec sp_OAMethod @Object, 'responseText', @ResponseText OUTPUT
++
++Select @ResponseText
++
++Exec sp_OADestroy @Object
++
++
++END
++GO
+diff --git a/Stored Procedures/dbo.usp_CatalogCode_SalesForce_NonArmored_Costing_InsertNewBase.sql b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_NonArmored_Costing_InsertNewBase.sql
+new file mode 100644
+index 0000000..7477c49
+--- /dev/null
++++ b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_NonArmored_Costing_InsertNewBase.sql
+@@ -0,0 +1,80 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++
++-- =============================================
++-- Author:		Bryan Eddy
++-- ALTER date: 12/2/2016
++-- Description:	Insert new base costs into tblBase_Skeletal_Cost
++-- Version:		1 
++-- Update:		refactored into a merge statement
++--				added error handling
++-- =============================================
++CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_NonArmored_Costing_InsertNewBase]
++AS
++
++BEGIN
++
++SET NOCOUNT ON;
++
++DECLARE @ErrorNumber INT = ERROR_NUMBER();
++DECLARE @ErrorLine INT = ERROR_LINE();
++	BEGIN TRY
++		BEGIN tran
++
++			INSERT INTO  dbo.tblBase_Skeletal_Cost( Base, BaseSkeletalCost, AssemblyItemNumber, LoadedBaseCost, SetupID)
++
++			SELECT Base, SUM(MaterialCost) AS BaseSkeletalCost, AssemblyItemNumber, SUM(MaterialCost) AS LoadedBaseCost, SetupID
++
++			FROM
++			(
++				SELECT d.AssemblyItemNumber,e.ComponentItemNumber,SUM(e.ExtendedQuantityPer*S.Material_Cost) AS MaterialCost,e.[PrimaryUOM],s.Make_Buy , SUM(e.UnitCost) AS UnitCost,  d.base, D.SetupID
++				FROM  [dbo].vOracleBaseItems AS d CROSS APPLY [dbo].[fn_ExplodeBOM](D.AssemblyItemNumber) AS e 
++				INNER JOIN [dbo].[AFLPRD_INVSysItemCost_CAB] AS S ON e.ComponentItemNumber = s.ItemNumber LEFT JOIN dbo.tblBase_Skeletal_Cost G ON G.SetupID = D.SetupID
++				GROUP BY  e.ComponentItemNumber,d.AssemblyItemNumber,e.[PrimaryUOM],s.Make_Buy , e.UnitCost, d.base, D.SetupID,G.SetupID
++				HAVING s.Make_Buy = 'buy' AND NOT (e.ComponentItemNumber LIKE 'fbr%' OR e.ComponentItemNumber LIKE 'rbn%' OR e.ComponentItemNumber LIKE 'swr%' OR e.ComponentItemNumber LIKE 'frc%') 
++				--AND d.Base = 'GQ072-2.0A' 
++						AND G.SetupID IS NULL
++						--(e.ComponentItemNumber  like 'rbn%' AND e.ComponentItemNumber  like '%osp%' and e.ComponentItemNumber  like '%rbn%f%')))
++						--OR  (e.ComponentItemNumber like 'swr%' AND e.ComponentItemNumber  LIKE  '%osp%'))
++				--having s.make_buy = 'buy' and base = 'GQ048-3.0-SW'
++			)X 
++			GROUP BY X.BASE, x.AssemblyItemNumber, X.SetupID 
++
++		COMMIT TRAN
++	END TRY
++	BEGIN CATCH
++		IF @@TRANCOUNT > 0
++		ROLLBACK TRANSACTION;
++ 
++		PRINT 'Actual error number: ' + CAST(@ErrorNumber AS VARCHAR(10));
++		PRINT 'Actual line number: ' + CAST(@ErrorLine AS VARCHAR(10));
++ 
++		THROW;
++	END CATCH;
++
++	BEGIN TRY
++		BEGIN tran
++
++			UPDATE dbo.tblBase_Skeletal_Cost
++			SET LoadedBaseCost = g.Resource_Cost + g.Overhead_Cost + BaseSkeletalCost
++			FROM dbo.tblBase_Skeletal_Cost X INNER JOIN  dbo.AFLPRD_INVSysItemCost_CAB G ON G.ItemNumber = X.AssemblyItemNumber
++
++		COMMIT TRAN
++	END TRY
++	BEGIN CATCH
++		IF @@TRANCOUNT > 0
++		ROLLBACK TRANSACTION;
++ 
++		PRINT 'Actual error number: ' + CAST(@ErrorNumber AS VARCHAR(10));
++		PRINT 'Actual line number: ' + CAST(@ErrorLine AS VARCHAR(10));
++ 
++		THROW;
++	END CATCH;
++
++
++END
++
++
++GO
+diff --git a/Stored Procedures/dbo.usp_CatalogCode_SalesForce_UpdateStage.sql b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_UpdateStage.sql
+new file mode 100644
+index 0000000..5f9ce16
+--- /dev/null
++++ b/Stored Procedures/dbo.usp_CatalogCode_SalesForce_UpdateStage.sql
+@@ -0,0 +1,26 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++/****** Script for SelectTopNRows command from SSMS  ******/
++
++CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_UpdateStage]
++as
++DELETE 
++FROM tblSalesForce_Catalog_Stage
++
++INSERT INTO tblSalesForce_Catalog_Stage
++                         (CatalogCode, Base, Weight_kg_per_m, DesignTypeDesc, Jacket, TBType, TBDescription, NominalOD, NumSubFillers, NumSubPositions, CablePasses, BaseID, 
++                         BaseCost, FiberCount, UnitOD, OracleItem, COLOR__c, LoadedBaseCost, Armored, Boxed, BoxedLength_FT, DesignTypeID, DateCreated, Fiber_Type__c, 
++                         Armor_Type__c, Packaging__c, UOM__c, Stock__c, Lead_Time_ID__c, ImageURL__c, Product_Spec_Link__c, Min_Order_Quantity__c, Print_Type__c, 
++                         Product_Quote_Description__c, ArmorJacket, FiberID, TBLetter, FinishedCableColor, FurcationTube, SetupID,Non_Standard, Active, Price, ProdLevel1, ProdLevel2, ProdLevel3, ID)
++SELECT        CatalogCode, Base, Weight_kg_per_m, DesignTypeDesc, Jacket, TBType, TBDescription, NominalOD, NumSubFillers, NumSubPositions, CablePasses, BaseID, 
++                         BaseCost, FiberCount, UnitOD, OracleItem, COLOR__c, LoadedBaseCost, Armored, Boxed, BoxedLength_FT, DesignTypeID, DateCreated, Fiber_Type__c, 
++                         Armor_Type__c, Packaging__c, UOM__c, Stock__c, Lead_Time_ID__c, ImageURL__c, Product_Spec_Link__c, Min_Order_Quantity__c, Print_Type__c, 
++                         Product_Quote_Description__c, ArmorJacket, FiberID, TBLetter, FinishedCableColor, FurcationTube, SetupID, Non_Standard, Active, Price, ProdLevel1, ProdLevel2, 
++                         ProdLevel3, ID
++FROM            tblSalesForce_Catalog
++
++
++
++GO
+diff --git a/Stored Procedures/dbo.usp_EmailSetupStdOpMismatch.sql b/Stored Procedures/dbo.usp_EmailSetupStdOpMismatch.sql
+new file mode 100644
+index 0000000..8a083af
+--- /dev/null
++++ b/Stored Procedures/dbo.usp_EmailSetupStdOpMismatch.sql
+@@ -0,0 +1,98 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++
++-- =============================================
++-- Author:		Bryan Eddy
++-- ALTER date: 10/31/2017
++-- automated email to notify product engineering of open orders with Standard Ops
++-- that do not match the Premise Configurator program's Standard Op.
++
++-- =============================================
++CREATE PROCEDURE [dbo].[usp_EmailSetupStdOpMismatch]
++
++
++AS
++
++EXECUTE AS USER = 'dbo' 
++
++SET ANSI_NULLS OFF;
++SET NOCOUNT ON;
++
++--Run around 8:30am everyday
++DECLARE @numRows int
++DECLARE @Receipientlist varchar(1000)
++
++--Check if any open item requests need commercial approval
++IF OBJECT_ID(N'tempdb..#Results', N'U') IS NOT NULL
++DROP TABLE #Results;
++SELECT [ItemRouting]
++	  ,[DateCreated]
++      ,[StdOpBOM]
++      ,[OperationDescription]
++      ,[StdOpConfigurator]
++      ,[OracleStatus]
++	  ,g.[Sales Order]
++	INTO	#Results
++  FROM [Premise].[Setup].[vSetupStandardOperationMismatch] K INNER JOIN
++  dbo.AFLPRD_ORDDTLREPT_UPLOAD_CAB G ON G.[Item Number] = K.ItemRouting
++  --WHERE StdOpBOM <> 'R204' AND StdOpConfigurator <> 'R446'
++  ORDER BY DateCreated DESC, StdOpBOM
++SELECT * FROM #Results
++
++SELECT @numRows = count(*) FROM #Results
++
++
++
++SET @ReceipientList = (STUFF((SELECT ';' + UserEmail 
++						FROM tblConfiguratorUser G  INNER JOIN users.UserResponsibility  K ON  G.UserID = K.UserID
++  						WHERE K.ResponsibilityID = 5 FOR XML PATH('')),1,1,''))
++						--WHERE g.UserTypeID = 1 FOR XML PATH('')),1,1,''))
++
++DECLARE @body1 VARCHAR(MAX)
++DECLARE @subject VARCHAR(MAX)
++DECLARE @query VARCHAR(MAX) = N'SELECT * FROM tempdb..#Results;'
++SET @subject = 'Stanadard Operation Errors' 
++SET @body1 = 'There are  ' + CAST(@numRows AS NVARCHAR) + ' item(s) in open orders with mismatch standard ops.  Please review.' +CHAR(13)+CHAR(13)
++
++DECLARE @tableHTML  NVARCHAR(MAX) ;
++IF @numRows > 0
++BEGIN
++	
++			SET @tableHTML =
++				N'<H1>Erroneous Standard Op Report</H1>' +
++				N'<p>'+@body1+'</p>' +
++				N'<p class=MsoNormal><span style=''font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497D''>'+
++				N'<table border="1">' +
++				N'<tr><th>Item</th><th>Bom Std Op</th>' +
++				N'<th>Std Op Desc</th><th>Configurator Std Op</th>'+
++				N'<th>Oracle Status</th><th>Sales Order</th>'+
++				N'<th>DateCreated</th></tr>' +
++				CAST ( ( SELECT		td=[ItemRouting],       '',
++									td=[StdOpBOM], '',
++									td=[OperationDescription], '',
++									td=[StdOpConfigurator], '', 
++									td=[OracleStatus], '', 
++									td=[Sales Order], '', 
++									td=[DateCreated], ''
++							FROM #Results 
++						  FOR XML PATH('tr'), TYPE 
++				) AS NVARCHAR(MAX) ) +
++				N'</table>' ;
++			--SET @tableHTML =
++			--	N'<H1>Premise Cut Sheet Approval</H1>' +
++			--	N'<p>'+@body1+'</p>' +
++			--	N'</table>' ;
++		
++			EXEC msdb.dbo.sp_send_dbmail 
++			@recipients=@ReceipientList,
++			--@recipients='Bryan.Eddy@aflglobal.com',
++			@blind_copy_recipients = 'Bryan.Eddy@aflglobal.com',
++			@subject = @subject,
++			@body = @tableHTML,
++			@body_format = 'HTML';
++
++
++END
++GO
+diff --git a/Stored Procedures/dbo.usp_Scheduling_Construction_CenterMember.sql b/Stored Procedures/dbo.usp_Scheduling_Construction_CenterMember.sql
+new file mode 100644
+index 0000000..5ff1a05
+--- /dev/null
++++ b/Stored Procedures/dbo.usp_Scheduling_Construction_CenterMember.sql
+@@ -0,0 +1,23 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++-- =============================================
++-- Author:		<Bryan Eddy>
++-- ALTER date: <1/27/2017>
++-- Description:	<Explodes all levels of BOM finds the UJCM>
++-- =============================================
++CREATE PROCEDURE [dbo].[usp_Scheduling_Construction_CenterMember](
++@Item varchar(50)
++)
++as
++SELECT ComponentItemNumber
++FROM dbo.fn_ExplodeBOM(@Item) INNER JOIN
++dbo.[Basic Product Construction] ON ComponentItemNumber = [New Oracle Part #] INNER JOIN
++dbo.tblCableConstructionReferences ON tblCableConstructionReferences.Base =  [Basic Product Construction].base INNER JOIN
++dbo.tblCableType ON tblCableType.CableType = tblCableConstructionReferences.CableType
++WHERE CableID = 6
++
++
++
++GO
+diff --git a/Tables/dbo.tblBurnListingRating.sql b/Tables/dbo.tblBurnListingRating.sql
+new file mode 100644
+index 0000000..2ddc280
+--- /dev/null
++++ b/Tables/dbo.tblBurnListingRating.sql
+@@ -0,0 +1,15 @@
++CREATE TABLE [dbo].[tblBurnListingRating]
++(
++[Rating] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[US] [bit] NULL,
++[Canada] [bit] NULL,
++[SSMA_TimeStamp] [timestamp] NOT NULL,
++[ConstructionID] [int] NOT NULL
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblBurnListingRating] ADD CONSTRAINT [PK_tblBurnListingRating] PRIMARY KEY CLUSTERED  ([Rating], [ConstructionID]) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblBurnListingRating] ADD CONSTRAINT [FK_tblBurnListingRating_tblBurnListingConstruction] FOREIGN KEY ([ConstructionID]) REFERENCES [dbo].[tblBurnListingConstruction] ([ConstructionID]) ON DELETE CASCADE ON UPDATE CASCADE
++GO
++ALTER TABLE [dbo].[tblBurnListingRating] ADD CONSTRAINT [FK_tblBurnListingRating_tblBurnListingRatingReference] FOREIGN KEY ([Rating]) REFERENCES [dbo].[tblBurnListingRatingReference] ([Rating]) ON DELETE CASCADE ON UPDATE CASCADE
++GO
+diff --git a/Tables/dbo.tblBurnListingRatingReference.sql b/Tables/dbo.tblBurnListingRatingReference.sql
+new file mode 100644
+index 0000000..c6455a9
+--- /dev/null
++++ b/Tables/dbo.tblBurnListingRatingReference.sql
+@@ -0,0 +1,20 @@
++CREATE TABLE [dbo].[tblBurnListingRatingReference]
++(
++[Rating] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[US] [bit] NULL,
++[Canada] [bit] NULL,
++[SSMA_TimeStamp] [timestamp] NOT NULL,
++[ID] [uniqueidentifier] NOT NULL CONSTRAINT [DF_tblBurnListingRatingReference_ID] DEFAULT (newid()),
++[Priority] [int] NULL,
++[StandardID] [int] NULL,
++[Standard] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblBurnListingRatingReference] ADD CONSTRAINT [PK_tblBurnListingRatingReference] PRIMARY KEY CLUSTERED  ([Rating]) ON [PRIMARY]
++GO
++CREATE NONCLUSTERED INDEX [IX_tblBurnListingRatingReference] ON [dbo].[tblBurnListingRatingReference] ([Canada], [US]) ON [PRIMARY]
++GO
++CREATE NONCLUSTERED INDEX [IX_tblBurnListingRatingReference_1] ON [dbo].[tblBurnListingRatingReference] ([Priority]) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblBurnListingRatingReference] ADD CONSTRAINT [FK_tblBurnListingRatingReference_tblBurnListingRatingReference] FOREIGN KEY ([Rating]) REFERENCES [dbo].[tblBurnListingRatingReference] ([Rating])
++GO
+diff --git a/Tables/dbo.tblCableConstructionsOLD.sql b/Tables/dbo.tblCableConstructionsOLD.sql
+new file mode 100644
+index 0000000..060447c
+--- /dev/null
++++ b/Tables/dbo.tblCableConstructionsOLD.sql
+@@ -0,0 +1,119 @@
++CREATE TABLE [dbo].[tblCableConstructionsOLD]
++(
++[StandardOperation] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[JacketMaterial] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[NominalOD] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[ODTolPlus] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[ODTolMinus] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Height] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[HeightTolPlus] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[HeightTolMinus] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[NominalWall] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[MaxAveWall] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[MinAveWall] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[MinSpotWall] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[AramidType1] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[AramidEnds1] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[AramidType2] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[AramidEnds2] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[ChipType] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Ripcord] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[LayLength] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Talc] [smallint] NULL,
++[FRP_Dia] [real] NULL,
++[CM] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[CMMaterial] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[CM_OD] [real] NULL,
++[CMODTolPlus] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[CMODTolMinus] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[CMWall] [real] NULL,
++[CMMinWall] [real] NULL,
++[HelixFactor] [real] NULL,
++[CoreWrap] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[CoreDia] [real] NULL,
++[Binder1] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[QtyBinder1] [tinyint] NULL,
++[Binder1LayLength] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Binder2] [nvarchar] (75) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[QtyBinder2] [tinyint] NULL,
++[Binder2LayLength] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Binder3] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[QtyBinder3] [tinyint] NULL,
++[Binder3LayLength] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[CablePasses] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblCableConstructions_CablePasses] DEFAULT ((1)),
++[RevisionDate] [datetime2] (0) NULL CONSTRAINT [DF_tblCableConstructions_RevisionDate2] DEFAULT (getdate()),
++[RevisionNumber] [smallint] NULL CONSTRAINT [DF__tblCableC__Revis__017F0B4C] DEFAULT ((0)),
++[RevisionHistory] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Instructions] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Instructions2] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[SSMA_TimeStamp] [timestamp] NOT NULL,
++[DateCreated] [datetime2] NULL CONSTRAINT [DF_tblCableConstructions_DateCreated2] DEFAULT (getdate()),
++[CreatedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblCableConstructions_CreatedBy2] DEFAULT (suser_sname()),
++[BaseID] [int] NOT NULL,
++[RevisedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblCableConstructions_RevisedBy2] DEFAULT (suser_sname()),
++[ColorChipPercentage] [numeric] (5, 5) NULL,
++[ID] [int] NOT NULL IDENTITY(1, 1)
++) ON [PRIMARY]
++GO
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++
++
++
++CREATE TRIGGER [dbo].[CableConstructionsUpdatetrgr] ON [dbo].[tblCableConstructionsOLD]
++AFTER INSERT, UPDATE 
++AS
++	BEGIN 
++		IF NOT (UPDATE(RevisionDate))
++			BEGIN
++			  UPDATE t
++			  SET t.RevisionDate = GETDATE(),
++			  t.RevisedBy = (SUSER_SNAME()),
++			  t.RevisionNumber = (t.RevisionNumber + 1) 
++			  FROM dbo.tblCableConstructions as t
++			  JOIN inserted i
++			  ON i.baseid = t.baseid
++			END
++		DECLARE @INS int, @DEL int
++
++		SELECT @INS = COUNT(*) FROM INSERTED
++		SELECT @DEL = COUNT(*) FROM DELETED
++
++		IF @INS > 0 AND @DEL > 0 
++		BEGIN
++
++		  INSERT INTO DBO.tblCableConstructionsARCHIVE(
++			 [StandardOperation],[JacketMaterial],[NominalOD],[ODTolPlus],[ODTolMinus],[Height],[HeightTolPlus],[HeightTolMinus],[NominalWall],[MaxAveWall],[MinAveWall],[MinSpotWall],[AramidType1]
++		,[AramidEnds1],[AramidType2],[AramidEnds2],[ChipType],[Ripcord],[LayLength],[Talc],[FRP_Dia],[CM],[CMMaterial],[CM_OD],[CMODTolPlus],[CMODTolMinus],[CMWall],[CMMinWall],[HelixFactor],[CoreWrap]
++		,[CoreDia],[Binder1],[QtyBinder1],[Binder1LayLength],[Binder2],[QtyBinder2],[Binder2LayLength],[Binder3],[QtyBinder3],[Binder3LayLength],[CablePasses],[RevisionDate],[RevisionNumber]
++		,[RevisionHistory],[Instructions],[Instructions2],[BaseID],[ColorChipPercentage],[ID]) 
++	  
++			  SELECT
++			 [StandardOperation],[JacketMaterial],[NominalOD],[ODTolPlus],[ODTolMinus],[Height],[HeightTolPlus],[HeightTolMinus],[NominalWall],[MaxAveWall],[MinAveWall],[MinSpotWall],[AramidType1]
++		,[AramidEnds1],[AramidType2],[AramidEnds2],[ChipType],[Ripcord],[LayLength],[Talc],[FRP_Dia],[CM],[CMMaterial],[CM_OD],[CMODTolPlus],[CMODTolMinus],[CMWall],[CMMinWall],[HelixFactor],[CoreWrap]
++		,[CoreDia],[Binder1],[QtyBinder1],[Binder1LayLength],[Binder2],[QtyBinder2],[Binder2LayLength],[Binder3],[QtyBinder3],[Binder3LayLength],[CablePasses],[RevisionDate],[RevisionNumber]
++		,[RevisionHistory],[Instructions],[Instructions2],[BaseID],[ColorChipPercentage],[ID] 
++			FROM DELETED --the DELETED table contains the OLD values
++
++		/*	  SELECT
++			 [StandardOperation],[JacketMaterial],[NominalOD],[ODTolPlus],[ODTolMinus],[Height],[HeightTolPlus],[HeightTolMinus],[NominalWall],[MaxAveWall],[MinAveWall],[MinSpotWall],[AramidType1]
++		,[AramidEnds1],[AramidType2],[AramidEnds2],[ChipType],[Ripcord],[LayLength],[Talc],[FRP_Dia],[CM],[CMMaterial],[CM_OD],[CMODTolPlus],[CMODTolMinus],[CMWall],[CMMinWall],[HelixFactor],[CoreWrap]
++		,[CoreDia],[Binder1],[QtyBinder1],[Binder1LayLength],[Binder2],[QtyBinder2],[Binder2LayLength],[Binder3],[QtyBinder3],[Binder3LayLength],[CablePasses],[RevisionDate],[RevisionNumber]
++		,[RevisionHistory],[Instructions],[Instructions2],[BaseID],[ColorChipPercentage],[ID] 
++			 FROM INSERTED  --the INSERTED table contains the NEW values*/
++		END
++
++
++	END
++			
++GO
++ALTER TABLE [dbo].[tblCableConstructionsOLD] ADD CONSTRAINT [PK_tblCableConstructions2] PRIMARY KEY CLUSTERED  ([BaseID]) ON [PRIMARY]
++GO
++CREATE NONCLUSTERED INDEX [IX_tblCableConstructions_9] ON [dbo].[tblCableConstructionsOLD] ([CablePasses]) ON [PRIMARY]
++GO
++CREATE NONCLUSTERED INDEX [IX_tblCableConstructions_7] ON [dbo].[tblCableConstructionsOLD] ([JacketMaterial]) ON [PRIMARY]
++GO
++CREATE NONCLUSTERED INDEX [IX_tblCableConstructions_8] ON [dbo].[tblCableConstructionsOLD] ([StandardOperation]) ON [PRIMARY]
++GO
+diff --git a/Tables/dbo.tblCableFamilyDocs.sql b/Tables/dbo.tblCableFamilyDocs.sql
+new file mode 100644
+index 0000000..30ff73e
+--- /dev/null
++++ b/Tables/dbo.tblCableFamilyDocs.sql
+@@ -0,0 +1,12 @@
++CREATE TABLE [dbo].[tblCableFamilyDocs]
++(
++[FamilyID] [int] NOT NULL,
++[Document] [nvarchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[DateCreated] [datetime2] NULL CONSTRAINT [DF_tblCableFamilyDocs_DateCreated] DEFAULT (getdate()),
++[CreatedBy] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblCableFamilyDocs_CreatedBy] DEFAULT (suser_sname())
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblCableFamilyDocs] ADD CONSTRAINT [PK_tblCableFamilyDocs] PRIMARY KEY CLUSTERED  ([FamilyID], [Document]) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblCableFamilyDocs] ADD CONSTRAINT [FK_tblCableFamilyDocs_tblCableFamily] FOREIGN KEY ([FamilyID]) REFERENCES [dbo].[tblCableFamily] ([FamilyID]) ON UPDATE CASCADE
++GO
+diff --git a/Tables/dbo.tblCorningPrint.sql b/Tables/dbo.tblCorningPrint.sql
+new file mode 100644
+index 0000000..5acf67c
+--- /dev/null
++++ b/Tables/dbo.tblCorningPrint.sql
+@@ -0,0 +1,10 @@
++CREATE TABLE [dbo].[tblCorningPrint]
++(
++[ID] [int] NOT NULL IDENTITY(1, 1),
++[CorningPrint] [nvarchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[FiberLetter] [nvarchar] (1) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[FiberExtensions] [nvarchar] (6) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblCorningPrint] ADD CONSTRAINT [PK_tblCorningPrint] PRIMARY KEY CLUSTERED  ([ID]) ON [PRIMARY]
++GO
+diff --git a/Tables/dbo.tblDesignArmorJacket.sql b/Tables/dbo.tblDesignArmorJacket.sql
+new file mode 100644
+index 0000000..6fcafde
+--- /dev/null
++++ b/Tables/dbo.tblDesignArmorJacket.sql
+@@ -0,0 +1,12 @@
++CREATE TABLE [dbo].[tblDesignArmorJacket]
++(
++[JacketMaterial] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[WallThickness] [decimal] (4, 2) NULL,
++[JacketRating] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[ArmorExtension] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[JacketLetter] [nvarchar] (1) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[ColorChip] [nvarchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
++) ON [PRIMARY]
++GO
++CREATE NONCLUSTERED INDEX [IX_tblDesignArmorJacket] ON [dbo].[tblDesignArmorJacket] ([JacketLetter]) ON [PRIMARY]
++GO
+diff --git a/Tables/dbo.tblDesignCode_BoxedFiber.sql b/Tables/dbo.tblDesignCode_BoxedFiber.sql
+new file mode 100644
+index 0000000..bd26265
+--- /dev/null
++++ b/Tables/dbo.tblDesignCode_BoxedFiber.sql
+@@ -0,0 +1,14 @@
++CREATE TABLE [dbo].[tblDesignCode_BoxedFiber]
++(
++[DesignTypeID] [int] NOT NULL,
++[BoxExtension] [nvarchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[FeetCablePerBox] [smallint] NOT NULL,
++[MaxOD] [decimal] (10, 4) NULL,
++[MaxFiberCount] [decimal] (10, 4) NULL,
++[Minimum_Order_Multiple] [tinyint] NULL
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblDesignCode_BoxedFiber] ADD CONSTRAINT [PK_tblDesignCode_BoxedFiber] PRIMARY KEY CLUSTERED  ([DesignTypeID], [FeetCablePerBox]) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblDesignCode_BoxedFiber] ADD CONSTRAINT [FK_tblDesignCode_BoxedFiber_tblDesignTypes] FOREIGN KEY ([DesignTypeID]) REFERENCES [dbo].[tblDesignTypes] ([DesignTypeID]) ON DELETE CASCADE ON UPDATE CASCADE
++GO
+diff --git a/Tables/dbo.tblEmailOptions.sql b/Tables/dbo.tblEmailOptions.sql
+new file mode 100644
+index 0000000..cf980ca
+--- /dev/null
++++ b/Tables/dbo.tblEmailOptions.sql
+@@ -0,0 +1,14 @@
++CREATE TABLE [dbo].[tblEmailOptions]
++(
++[EmailSubject] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[EmailTo] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[EmailCC] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[EmailBCC] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[ProductType] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[EmailOption] [int] NOT NULL IDENTITY(1, 1),
++[EmailBody] [nvarchar] (300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Path] [nvarchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblEmailOptions] ADD CONSTRAINT [PK_tblEmailOptions] PRIMARY KEY CLUSTERED  ([EmailOption]) ON [PRIMARY]
++GO
+diff --git a/Tables/dbo.tblFiberExtensions.sql b/Tables/dbo.tblFiberExtensions.sql
+new file mode 100644
+index 0000000..c385b97
+--- /dev/null
++++ b/Tables/dbo.tblFiberExtensions.sql
+@@ -0,0 +1,12 @@
++CREATE TABLE [dbo].[tblFiberExtensions]
++(
++[Fiber] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[FiberExtension] [nvarchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[DateCreated] [datetime2] NULL CONSTRAINT [DF_tblFiberExtensions_DateCreated] DEFAULT (getdate()),
++[CreatedBy] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblFiberExtensions_CreatedBy] DEFAULT (suser_sname())
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblFiberExtensions] ADD CONSTRAINT [PK_tblFiberExtensions] PRIMARY KEY CLUSTERED  ([Fiber], [FiberExtension]) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblFiberExtensions] ADD CONSTRAINT [FK_tblFiberExtensions_tbl_Fibers] FOREIGN KEY ([Fiber]) REFERENCES [dbo].[tbl_Fibers] ([Fiber]) ON DELETE CASCADE ON UPDATE CASCADE
++GO
+diff --git a/Tables/dbo.tblLeadTime.sql b/Tables/dbo.tblLeadTime.sql
+new file mode 100644
+index 0000000..58cf969
+--- /dev/null
++++ b/Tables/dbo.tblLeadTime.sql
+@@ -0,0 +1,8 @@
++CREATE TABLE [dbo].[tblLeadTime]
++(
++[ID] [tinyint] NULL,
++[LeadTimeID] [int] NULL,
++[LeadTimeCat] [nvarchar] (150) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[LeadTime] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
++) ON [PRIMARY]
++GO
+diff --git a/Tables/dbo.tblMasterSchedule.sql b/Tables/dbo.tblMasterSchedule.sql
+new file mode 100644
+index 0000000..571d885
+--- /dev/null
++++ b/Tables/dbo.tblMasterSchedule.sql
+@@ -0,0 +1,75 @@
++CREATE TABLE [dbo].[tblMasterSchedule]
++(
++[DESIRED_SHIP_DATE] [datetime] NULL,
++[STATUS] [nvarchar] (25) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[LINE_STATUS] [nvarchar] (1) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Cust_Ord_ID] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Line_No] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[DEMAND_BASE_ID] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[PART_ID] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[DESCRIPTION] [nvarchar] (40) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[PROMISE_DATE] [datetime] NULL,
++[Mth] [float] NULL,
++[YEAR] [float] NULL,
++[CUSTOMER_ID] [nvarchar] (15) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[CustomerName] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[ORDER_QTY] [float] NULL,
++[SELLING_UM] [nvarchar] (15) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[USER_ORDER_QTY] [decimal] (14, 4) NULL,
++[MultLen] [float] NULL,
++[MultUoM] [nvarchar] (80) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[NumOMults] [float] NULL,
++[SetName] [nvarchar] (80) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[SetNum] [nvarchar] (80) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[ReelType] [nvarchar] (80) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[SPEC] [nvarchar] (80) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Earliest_DDay] [datetime] NULL,
++[WOID] [nvarchar] (15) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[ProdCode] [nvarchar] (15) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[WOStatus] [nvarchar] (6) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[QTY_SHPD] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[LastShip] [datetime] NULL,
++[SOComments] [nvarchar] (max) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[WOComments] [nvarchar] (max) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Stock_UM] [nvarchar] (5) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[KG] [float] NULL,
++[Due_By] [datetime] NULL,
++[Comments] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Customer_Part_ID] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[ID] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Day] [float] NULL,
++[Line_Spec] [nvarchar] (max) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[CUSTOMER_PO_REF] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Balance] [float] NULL,
++[Booked_Date] [datetime] NULL,
++[Cat_Info] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Completed_Qty] [float] NULL,
++[Entry_Status] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Holds] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Item_Type] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Job_Number] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Order_Line] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Order_Line_ID] [int] NULL,
++[Order_Type] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Org_Code] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Run_Date] [datetime] NULL,
++[Schedule_Approved] [datetime] NULL,
++[Source_Type] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Plan_Header_Spec] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Customer Order Quantity] [float] NULL,
++[Detail_Schedule] [datetime] NULL,
++[Detail_Balance] [int] NULL,
++[Scheduled] [nvarchar] (5) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Reel Header Spec] [nvarchar] (250) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Reel Line Spec] [nvarchar] (250) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Packaging] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[CSR] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[CableWeight] [float] NULL,
++[Line_Tol] [float] NULL,
++[Shop_Order_Status] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Stacked_On] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Shop_ID] [int] NULL,
++[FGItemNumber] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[RecordSource] [int] NULL
++) ON [PRIMARY]
++GO
+diff --git a/Tables/dbo.tblMaterialDensity.sql b/Tables/dbo.tblMaterialDensity.sql
+new file mode 100644
+index 0000000..b29aeef
+--- /dev/null
++++ b/Tables/dbo.tblMaterialDensity.sql
+@@ -0,0 +1,13 @@
++CREATE TABLE [dbo].[tblMaterialDensity]
++(
++[Compound] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[SpecificGravity] [decimal] (18, 8) NULL,
++[DateCreated] [datetime2] NULL CONSTRAINT [DF_tblCompounds_DateCreated] DEFAULT (getdate()),
++[RevisedBy] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblCompounds_RevisedBy] DEFAULT (suser_sname()),
++[RevisedDate] [datetime2] NULL CONSTRAINT [DF_tblCompounds_RevisedDate] DEFAULT (getdate()),
++[Createdby] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblMaterialDensity_Createdby] DEFAULT (suser_sname()),
++[LotSize] [int] NULL
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblMaterialDensity] ADD CONSTRAINT [PK_tblMaterialDensity] PRIMARY KEY CLUSTERED  ([Compound]) ON [PRIMARY]
++GO
+diff --git a/Tables/dbo.tblSalesForce_Catalog_Stage.sql b/Tables/dbo.tblSalesForce_Catalog_Stage.sql
+new file mode 100644
+index 0000000..2cc6acf
+--- /dev/null
++++ b/Tables/dbo.tblSalesForce_Catalog_Stage.sql
+@@ -0,0 +1,72 @@
++CREATE TABLE [dbo].[tblSalesForce_Catalog_Stage]
++(
++[CatalogCode] [nvarchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[Base] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[Weight_kg_per_m] [decimal] (10, 4) NULL,
++[DesignTypeDesc] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Jacket] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[TBType] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[TBDescription] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[NominalOD] [decimal] (6, 3) NULL,
++[NumSubFillers] [int] NULL,
++[NumSubPositions] [int] NULL,
++[CablePasses] [tinyint] NULL,
++[BaseID] [int] NULL,
++[BaseCost] [decimal] (10, 4) NULL,
++[FiberCount] [smallint] NULL,
++[UnitOD] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[OracleItem] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[COLOR__c] [nvarchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[LoadedBaseCost] [decimal] (10, 4) NULL,
++[Armored] [bit] NULL,
++[Boxed] [bit] NULL,
++[BoxedLength_FT] [smallint] NULL,
++[DesignTypeID] [smallint] NULL,
++[DateCreated] [datetime] NULL,
++[Fiber_Type__c] [nvarchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Armor_Type__c] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Packaging__c] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[UOM__c] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Stock__c] [nvarchar] (3) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Lead_Time_ID__c] [int] NULL,
++[ImageURL__c] [nvarchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Product_Spec_Link__c] [nvarchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Min_Order_Quantity__c] [int] NULL,
++[Print_Type__c] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Product_Quote_Description__c] [nvarchar] (315) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[ArmorJacket] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[FiberID] [int] NULL,
++[TBLetter] [nvarchar] (1) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[FinishedCableColor] [nvarchar] (1) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[FurcationTube] [nvarchar] (150) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[SetupID] [int] NULL,
++[Non_Standard] [bit] NULL,
++[Active] [bit] NULL,
++[Price] [decimal] (18, 6) NULL,
++[ProdLevel1] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblSalesForce_Catalog_Stage_ProdLevel1] DEFAULT ('Fiber Optic Cable'),
++[ProdLevel2] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblSalesForce_Catalog_Stage_ProdLevel2] DEFAULT ('Premise'),
++[ProdLevel3] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[ID] [uniqueidentifier] NULL,
++[Postion_Inner_Jacket_Color] [tinyint] NULL CONSTRAINT [DF_tblSalesForce_Catalog_Stage_Postion_Inner_Jacket_Color] DEFAULT ((10)),
++[Postion_Outer_Jacket_Color] [tinyint] NULL CONSTRAINT [DF_tblSalesForce_Catalog_Stage_Postion_Outer_Jacket_Color] DEFAULT ((11)),
++[Poistion_Print] [tinyint] NULL CONSTRAINT [DF_tblSalesForce_Catalog_Stage_Poistion_Print] DEFAULT ((9)),
++[Quoted_Product__c] [nvarchar] (5) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblSalesForce_Catalog_Stage_Quoted_Product__c] DEFAULT ('TRUE'),
++[Non_Standard_Design__c] [nvarchar] (5) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Distributor_Price_List__c] [nvarchar] (3) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblSalesForce_Catalog_Stage_Distributor_Price_List__c] DEFAULT ('No'),
++[Minimum_Order_Multiple__c] [int] NULL CONSTRAINT [DF_tblSalesForce_Catalog_Stage_Minimum_Order_Multiple__c] DEFAULT ((1)),
++[Override__c] [nvarchar] (5) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblSalesForce_Catalog_Stage_Override__c] DEFAULT ('TRUE'),
++[Fiber_Type_Config__c] [nvarchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Fiber_Count_Config__c] [smallint] NULL,
++[Status__c] [nvarchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblSalesForce_Catalog_Stage_Status__c] DEFAULT ('Inactive'),
++[Jacket_Print__c] [nvarchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Loaded_Base_Cost_Fiber_Included__c] [decimal] (10, 5) NULL,
++[Premise_Design_Program_Synch_ID] [nvarchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Configuration__c] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblSalesForce_Catalog_Stage_Configuration__c] DEFAULT ('Premise'),
++[Replacement_Part__c] [nvarchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Replacement_Part_ref__c] [nvarchar] (150) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Subunit_Color__c] [nvarchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[Stock__b] [bit] NULL CONSTRAINT [DF_tblSalesForce_Catalog_Stage_Stock__b] DEFAULT ((0))
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblSalesForce_Catalog_Stage] ADD CONSTRAINT [PK_tblSalesForce_Catalog_Stage] PRIMARY KEY CLUSTERED  ([CatalogCode]) ON [PRIMARY]
++GO
+diff --git a/Tables/dbo.tblTightBufferMachineGroups.sql b/Tables/dbo.tblTightBufferMachineGroups.sql
+new file mode 100644
+index 0000000..f065516
+--- /dev/null
++++ b/Tables/dbo.tblTightBufferMachineGroups.sql
+@@ -0,0 +1,12 @@
++CREATE TABLE [dbo].[tblTightBufferMachineGroups]
++(
++[MachineGroupID] [int] NOT NULL IDENTITY(1, 1),
++[MachineGroupName] [nvarchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[CreationDate] [datetime] NOT NULL CONSTRAINT [DF_tblTightBufferMachineGroups_CreationDate] DEFAULT (getdate()),
++[CreatedBy] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL CONSTRAINT [DF_tblTightBufferMachineGroups_CreatedBy] DEFAULT (suser_sname()),
++[RevisedDate] [datetime] NOT NULL CONSTRAINT [DF_tblTightBufferMachineGroups_RevisedDate] DEFAULT (getdate()),
++[RevisedBy] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL CONSTRAINT [DF_tblTightBufferMachineGroups_RevisedBy] DEFAULT (suser_sname())
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblTightBufferMachineGroups] ADD CONSTRAINT [PK_tblTightBufferMachineGroups] PRIMARY KEY CLUSTERED  ([MachineGroupID]) ON [PRIMARY]
++GO
+diff --git a/Tables/dbo.tblTightBufferMachines.sql b/Tables/dbo.tblTightBufferMachines.sql
+new file mode 100644
+index 0000000..925282f
+--- /dev/null
++++ b/Tables/dbo.tblTightBufferMachines.sql
+@@ -0,0 +1,15 @@
++CREATE TABLE [dbo].[tblTightBufferMachines]
++(
++[MachineID] [int] NOT NULL IDENTITY(1, 1),
++[MachineName] [nvarchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[MachineGroupID] [int] NOT NULL,
++[CreationDate] [datetime] NOT NULL CONSTRAINT [DF_tblTightBufferMachine_CreationDate] DEFAULT (getdate()),
++[CreatedBy] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL CONSTRAINT [DF_tblTightBufferMachine_CreatedBy] DEFAULT (suser_sname()),
++[RevisedDate] [datetime] NOT NULL CONSTRAINT [DF_tblTightBufferMachine_RevisedDate] DEFAULT (getdate()),
++[RevisedBy] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL CONSTRAINT [DF_tblTightBufferMachine_RevisedBy] DEFAULT (suser_sname())
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblTightBufferMachines] ADD CONSTRAINT [PK_tblTightBufferMachine] PRIMARY KEY CLUSTERED  ([MachineID]) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblTightBufferMachines] ADD CONSTRAINT [FK_tblTightBufferMachines_MachineName] FOREIGN KEY ([MachineGroupID]) REFERENCES [dbo].[tblTightBufferMachineGroups] ([MachineGroupID]) ON UPDATE CASCADE
++GO
+diff --git a/Tables/dbo.tblTightBufferSetup.sql b/Tables/dbo.tblTightBufferSetup.sql
+new file mode 100644
+index 0000000..ed5ece9
+--- /dev/null
++++ b/Tables/dbo.tblTightBufferSetup.sql
+@@ -0,0 +1,32 @@
++CREATE TABLE [dbo].[tblTightBufferSetup]
++(
++[PSS] [nvarchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[TightBufferStrip] [nvarchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[TBDescription] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[Recipe] [smallint] NOT NULL,
++[Compound] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
++[ColorChipPercentage] [decimal] (8, 6) NULL,
++[WaterLine_mm] [smallint] NULL,
++[ZumbachLibrarySetting] [decimal] (6, 4) NOT NULL,
++[HypoTube_mm] [decimal] (6, 4) NULL,
++[VacuumBlock_inch] [decimal] (6, 4) NULL,
++[ScreenPacks] [nvarchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[TipID_inch] [decimal] (6, 4) NULL,
++[DieID] [nvarchar] (25) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[HypoTubeExtension] [nvarchar] (25) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
++[PreheaterTemp_C] [int] NULL CONSTRAINT [DF_tblTightBufferSetup_PreheaterTemp_C] DEFAULT ((0)),
++[CreatedBy] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL CONSTRAINT [DF_tblTightBufferSetup_CreatedBy] DEFAULT (suser_sname()),
++[DateCreated] [datetime] NOT NULL CONSTRAINT [DF_tblTightBufferSetup_DateCreated] DEFAULT (getdate()),
++[RevisedBY] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL CONSTRAINT [DF_tblTightBufferSetup_RevisedBY] DEFAULT (suser_sname()),
++[DateRevised] [datetime] NOT NULL CONSTRAINT [DF_tblTightBufferSetup_DateRevised] DEFAULT (getdate()),
++[Filler] [bit] NOT NULL CONSTRAINT [DF_tblTightBufferSetup_Filler] DEFAULT ((0)),
++[TimeStamp] [timestamp] NOT NULL,
++[MachineGroupID] [int] NOT NULL CONSTRAINT [DF__tblTightB__Machi__53640638] DEFAULT ((1))
++) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblTightBufferSetup] ADD CONSTRAINT [PK_tblTightBufferSetup] PRIMARY KEY CLUSTERED  ([PSS], [TightBufferStrip], [Compound], [Filler]) ON [PRIMARY]
++GO
++ALTER TABLE [dbo].[tblTightBufferSetup] ADD CONSTRAINT [FK_tblTightBufferSetup_MachineGroupID] FOREIGN KEY ([MachineGroupID]) REFERENCES [dbo].[tblTightBufferMachineGroups] ([MachineGroupID]) ON UPDATE CASCADE
++GO
++ALTER TABLE [dbo].[tblTightBufferSetup] ADD CONSTRAINT [FK_tblTightBufferSetup_tblTightBufferStripType] FOREIGN KEY ([TightBufferStrip]) REFERENCES [dbo].[tblTightBufferStripType] ([TightBufferStrip]) ON UPDATE CASCADE
++GO
+diff --git a/Views/Setup.TightBufferSetupRecipe.sql b/Views/Setup.TightBufferSetupRecipe.sql
+new file mode 100644
+index 0000000..8b4d953
+--- /dev/null
++++ b/Views/Setup.TightBufferSetupRecipe.sql
+@@ -0,0 +1,217 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++
++CREATE VIEW [Setup].[TightBufferSetupRecipe]
++AS
++SELECT        BasicProductConstruction.[New Oracle Part #], BasicProductConstruction.[Item No], BasicProductConstruction.[Fiber Type], BasicProductConstruction.[Jacket Material], BasicProductConstruction.[EZ Strip] AS EZStrip, 
++                         BasicProductConstruction.[TB Material], BasicProductConstruction.[TB Chips Type], BasicProductConstruction.[TB Nominal OD], BasicProductConstruction.[TB OD Tol  (+)], BasicProductConstruction.[TB OD Tol  (-)], 
++                         BasicProductConstruction.[1st Req Freq], BasicProductConstruction.[1st Max Atten], BasicProductConstruction.[1st Min BandW], BasicProductConstruction.[2nd Req Freq], BasicProductConstruction.[2nd Max Atten], 
++                         BasicProductConstruction.[2nd Min BandW], BasicProductConstruction.[SM 1300 Max Atten], BasicProductConstruction.[SM 1550 Max Atten], BasicProductConstruction.[Special Instr Product1], 
++                         BasicProductConstruction.[Jacket Color], RIGHT(BasicProductConstruction.[New Oracle Part #], 2) AS right2, BasicProductConstruction.[Fiber Oracle item], BasicProductConstruction.[Cable Type], 
++                         tblCableConstructions.StandardOperation, tblCableConstructions.JacketMaterial, tblCableConstructions.NominalOD, tblCableConstructions.ODTolPlus, tblCableConstructions.ODTolMinus, tblCableConstructions.Height, 
++                         tblCableConstructions.HeightTolPlus, tblCableConstructions.HeightTolMinus, tblCableConstructions.NominalWall, tblCableConstructions.MaxAveWall, tblCableConstructions.MinAveWall, tblCableConstructions.MinSpotWall, 
++                         tblCableConstructions.AramidType1, tblCableConstructions.AramidEnds1, tblCableConstructions.AramidType2, tblCableConstructions.AramidEnds2, tblCableConstructions.ChipType, tblCableConstructions.Ripcord, 
++                         tblCableConstructions.LayLength, tblCableConstructions.Talc, tblCableConstructions.FRP_Dia, tblCableConstructions.CM, tblCableConstructions.CMMaterial, tblCableConstructions.CM_OD, tblCableConstructions.CMODTolPlus, 
++                         tblCableConstructions.CMODTolMinus, tblCableConstructions.CMWall, tblCableConstructions.CMMinWall, tblCableConstructions.HelixFactor, tblCableConstructions.CoreWrap, tblCableConstructions.CoreDia, 
++                         tblCableConstructions.Binder1, tblCableConstructions.QtyBinder1, tblCableConstructions.Binder1LayLength, tblCableConstructions.Binder2, tblCableConstructions.QtyBinder2, tblCableConstructions.Binder2LayLength, 
++                         tblCableConstructions.Binder3, tblCableConstructions.QtyBinder3, tblCableConstructions.Binder3LayLength, tblCableConstructions.CablePasses, tblCableConstructions.RevisionDate, tblCableConstructions.RevisionNumber, 
++                         tblCableConstructions.RevisionHistory, tblCableConstructions.Instructions2, tblCableConstructions.Instructions, tblCableConstructionReferences.Active, tblTightBufferSetup.PSS, tblTightBufferSetup.Recipe, 
++                         vColor_Chip_Jacket_Material.ColorChip, tblTightBufferStripType.ID, tblTightBufferSetup.MachineGroupID, K.MachineName, BasicProductConstruction.Base
++FROM            tblCableConstructions INNER JOIN
++                         dbo.BasicProductConstruction INNER JOIN
++                         tblCableConstructionReferences ON BasicProductConstruction.Base = tblCableConstructionReferences.Base ON tblCableConstructions.BaseID = tblCableConstructionReferences.BaseID INNER JOIN
++                         tblTightBufferSetup INNER JOIN
++                         tblTightBufferStripType ON tblTightBufferSetup.TightBufferStrip = tblTightBufferStripType.TightBufferStrip ON tblCableConstructions.NominalOD = tblTightBufferSetup.ZumbachLibrarySetting AND 
++                         tblCableConstructions.JacketMaterial = tblTightBufferSetup.Compound AND BasicProductConstruction.[EZ Strip] = tblTightBufferStripType.TightBufferStrip INNER JOIN
++                         [Product Desrcriptions] ON [Product Desrcriptions].SubFiller = tblTightBufferSetup.Filler AND tblCableConstructionReferences.SetupID = [Product Desrcriptions].ProductID INNER JOIN
++                         vColor_Chip_Jacket_Material ON BasicProductConstruction.[Jacket Color] = vColor_Chip_Jacket_Material.Color AND tblCableConstructions.JacketMaterial = vColor_Chip_Jacket_Material.JacketMaterial INNER JOIN
++                         tblTightBufferMachines AS K ON K.MachineGroupID = tblTightBufferSetup.MachineGroupID
++WHERE        (tblCableConstructionReferences.Active <> 0)
++GO
++EXEC sp_addextendedproperty N'MS_DiagramPane1', N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
++Begin DesignProperties = 
++   Begin PaneConfigurations = 
++      Begin PaneConfiguration = 0
++         NumPanes = 4
++         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
++      End
++      Begin PaneConfiguration = 1
++         NumPanes = 3
++         Configuration = "(H (1 [50] 4 [25] 3))"
++      End
++      Begin PaneConfiguration = 2
++         NumPanes = 3
++         Configuration = "(H (1 [50] 2 [25] 3))"
++      End
++      Begin PaneConfiguration = 3
++         NumPanes = 3
++         Configuration = "(H (4 [30] 2 [40] 3))"
++      End
++      Begin PaneConfiguration = 4
++         NumPanes = 2
++         Configuration = "(H (1 [56] 3))"
++      End
++      Begin PaneConfiguration = 5
++         NumPanes = 2
++         Configuration = "(H (2 [66] 3))"
++      End
++      Begin PaneConfiguration = 6
++         NumPanes = 2
++         Configuration = "(H (4 [50] 3))"
++      End
++      Begin PaneConfiguration = 7
++         NumPanes = 1
++         Configuration = "(V (3))"
++      End
++      Begin PaneConfiguration = 8
++         NumPanes = 3
++         Configuration = "(H (1[56] 4[18] 2) )"
++      End
++      Begin PaneConfiguration = 9
++         NumPanes = 2
++         Configuration = "(H (1 [75] 4))"
++      End
++      Begin PaneConfiguration = 10
++         NumPanes = 2
++         Configuration = "(H (1[66] 2) )"
++      End
++      Begin PaneConfiguration = 11
++         NumPanes = 2
++         Configuration = "(H (4 [60] 2))"
++      End
++      Begin PaneConfiguration = 12
++         NumPanes = 1
++         Configuration = "(H (1) )"
++      End
++      Begin PaneConfiguration = 13
++         NumPanes = 1
++         Configuration = "(V (4))"
++      End
++      Begin PaneConfiguration = 14
++         NumPanes = 1
++         Configuration = "(V (2))"
++      End
++      ActivePaneConfig = 0
++   End
++   Begin DiagramPane = 
++      Begin Origin = 
++         Top = 0
++         Left = 0
++      End
++      Begin Tables = 
++         Begin Table = "tblCableConstructions"
++            Begin Extent = 
++               Top = 6
++               Left = 38
++               Bottom = 135
++               Right = 284
++            End
++            DisplayFlags = 280
++            TopColumn = 0
++         End
++         Begin Table = "Basic Product Construction"
++            Begin Extent = 
++               Top = 138
++               Left = 38
++               Bottom = 267
++               Right = 280
++            End
++            DisplayFlags = 280
++            TopColumn = 0
++         End
++         Begin Table = "tblCableConstructionReferences"
++            Begin Extent = 
++               Top = 18
++               Left = 415
++               Bottom = 262
++               Right = 670
++            End
++            DisplayFlags = 280
++            TopColumn = 8
++         End
++         Begin Table = "tblTightBufferSetup"
++            Begin Extent = 
++               Top = 294
++               Left = 857
++               Bottom = 594
++               Right = 1086
++            End
++            DisplayFlags = 280
++            TopColumn = 0
++         End
++         Begin Table = "tblTightBufferStripType"
++            Begin Extent = 
++               Top = 349
++               Left = 84
++               Bottom = 478
++               Right = 273
++            End
++            DisplayFlags = 280
++            TopColumn = 0
++         End
++         Begin Table = "Product Desrcriptions"
++            Begin Extent = 
++               Top = 14
++               Left = 800
++               Bottom = 259
++               Right = 1050
++            End
++            DisplayFlags = 280
++            TopColumn = 15
++         End
++         Begin Table = "vColor_Chip_Jacket_Material"
++            Begin Extent = 
++               Top = 667
++           ', 'SCHEMA', N'Setup', 'VIEW', N'TightBufferSetupRecipe', NULL, NULL
++GO
++EXEC sp_addextendedproperty N'MS_DiagramPane2', N'    Left = 638
++               Bottom = 796
++               Right = 883
++            End
++            DisplayFlags = 280
++            TopColumn = 0
++         End
++         Begin Table = "K"
++            Begin Extent = 
++               Top = 348
++               Left = 767
++               Bottom = 477
++               Right = 962
++            End
++            DisplayFlags = 280
++            TopColumn = 1
++         End
++      End
++   End
++   Begin SQLPane = 
++   End
++   Begin DataPane = 
++      Begin ParameterDefaults = ""
++      End
++   End
++   Begin CriteriaPane = 
++      Begin ColumnWidths = 12
++         Column = 1440
++         Alias = 900
++         Table = 1170
++         Output = 720
++         Append = 1400
++         NewValue = 1170
++         SortType = 1350
++         SortOrder = 1410
++         GroupBy = 1350
++         Filter = 1350
++         Or = 1350
++         Or = 1350
++         Or = 1350
++      End
++   End
++End
++', 'SCHEMA', N'Setup', 'VIEW', N'TightBufferSetupRecipe', NULL, NULL
++GO
++DECLARE @xp int
++SELECT @xp=2
++EXEC sp_addextendedproperty N'MS_DiagramPaneCount', @xp, 'SCHEMA', N'Setup', 'VIEW', N'TightBufferSetupRecipe', NULL, NULL
++GO
+diff --git a/Views/Setup.vSetupStandardOperationMismatch.sql b/Views/Setup.vSetupStandardOperationMismatch.sql
+new file mode 100644
+index 0000000..8233905
+--- /dev/null
++++ b/Views/Setup.vSetupStandardOperationMismatch.sql
+@@ -0,0 +1,49 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++
++
++
++	/****** Script for SelectTopNRows command from SSMS  ******/
++	/*
++	Author:		 Bryan Eddy
++	Date:		10/30/2017
++	Desc:		This view shows where Setups in the configurator do not match the Standard Operation in the Routing
++	Version:	2
++	Update:		Reformatted
++	*/
++	CREATE VIEW [Setup].[vSetupStandardOperationMismatch]
++	AS
++	WITH cteSetup
++	AS(
++		SELECT DISTINCT K.OperationCode, K.TrueOperationCode, K.AssemblyItemNumber, o.part AS Setup, I.OracleStatus, i.DateCreated, K.SendtoAps, k.OperationDescription, i.CreatedBy
++		,i.[Item No] ItemNo
++		  FROM  dbo.AFLPRD_BOMOpSeq_CAB K 
++		  INNER JOIN dbo.[Basic Product Construction] i ON i.[New Oracle Part #] = K.AssemblyItemNumber
++		  INNER JOIN dbo.tblCableConstructionReferences e ON e.Base = i.Base
++		  INNER JOIN dbo.tblCableConstructions w ON w.BaseID = e.BaseID
++		  CROSS APPLY dbo.usf_SplitString(W.StandardOperation,'-') o 
++		 -- INNER JOIN dbo.AFLPRD_BOMRoutSub_CAB P ON P.AssemblyItemNumber = K.AssemblyItemNumber
++		  WHERE --k.OperationCode <> o.part AND G.AssemblyItemNumber LIKE '%-00' AND 
++		  K.SendtoAps = 'Y' --AND OracleStatus <> 'Obsolete'  
++		  AND LEFT(K.OperationCode,1) NOT IN ('q','k','N','E','P')  --AND P.CommonItemNumber IS NULL
++		   AND LEFT(K.OperationCode,2) NOT IN ('PK','CL')
++		  AND K.AssemblyItemNumber NOT LIKE '%-__BX%'
++
++	  ),
++	  cteMissingSetup
++	  AS(
++		  SELECT  i.DateCreated,i.OperationCode,i.OperationDescription, i.AssemblyItemNumber ItemRouting, e.Setup, e.AssemblyItemNumber ItemSetup, I.OracleStatus, e.CreatedBy
++		  ,e.ItemNo
++		  FROM cteSetup I FULL OUTER JOIN cteSetup e ON e.AssemblyItemNumber = i.AssemblyItemNumber AND i.OperationCode = e.Setup
++		WHERE e.AssemblyItemNumber IS NULL OR i.AssemblyItemNumber IS NULL
++		--ORDER BY i.DateCreated DESC, e.DateCreated desc,ItemRouting, ItemSetup
++		)
++	SELECT DISTINCT i.DateCreated, i.OperationCode StdOpBOM, i.OperationDescription, i.ItemRouting, e.Setup StdOpConfigurator, I.OracleStatus, E.CreatedBy, E.ItemNo
++	FROM cteMissingSetup I INNER JOIN cteMissingSetup E ON I.ItemRouting = E.ItemSetup
++	WHERE LEFT(E.SETUP,1) = LEFT(I.OperationCode,1)
++	--ORDER BY i.DateCreated DESC, E.OperationCode
++
++
++GO
+diff --git a/Views/dbo.vBasic_Prod_plus_Basic_Sheath.sql b/Views/dbo.vBasic_Prod_plus_Basic_Sheath.sql
+new file mode 100644
+index 0000000..9021b1c
+--- /dev/null
++++ b/Views/dbo.vBasic_Prod_plus_Basic_Sheath.sql
+@@ -0,0 +1,46 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++
++
++
++CREATE VIEW [dbo].[vBasic_Prod_plus_Basic_Sheath]
++as
++
++SELECT tblCableConstructions.CM AS CenterMember, tblCableConstructions.JacketMaterial AS [Jacket Material], vSchedulingCableUnion.*, tblCableConstructions.JacketMaterial AS JacketMat
++      ,[DesignCode]
++      ,[DesignExtension]
++      ,[ConstructionDescription]
++      ,[NumSubFillers]
++      ,tblCableConstructionReferences.[Active] AS ActiveConstruction
++      ,[PrefixID]
++      ,[ProductID]
++      ,[SetupID]
++      ,[FamilyID]
++      ,FibersPerBundle
++      ,[UnitIDTypeNumber]
++      ,[InactiveReason]
++      ,[NumSubPositions]
++      ,[TBType]
++      ,[CableFamily]
++      ,[CableLevel1]
++      ,[DesignTypeID]
++      ,[NumCopperUnits]
++      ,[ReleasedDesign]
++      ,[TemperatureApplication]
++      ,[TensileApplication]
++	  ,[CablePasses]
++      ,[StandardOperation]
++      ,[JacketMaterial]
++      ,[NominalOD]
++      ,[CM]
++      ,[CMMaterial]
++      ,[HelixFactor]
++FROM (vSchedulingCableUnion INNER JOIN tblCableConstructionReferences ON vSchedulingCableUnion.Base = tblCableConstructionReferences.Base) INNER JOIN tblCableConstructions ON tblCableConstructionReferences.BaseID = tblCableConstructions.BaseID;
++
++
++
++
++
++GO
+diff --git a/Views/dbo.vBurnListingBase.sql b/Views/dbo.vBurnListingBase.sql
+new file mode 100644
+index 0000000..aae1857
+--- /dev/null
++++ b/Views/dbo.vBurnListingBase.sql
+@@ -0,0 +1,175 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++CREATE VIEW [dbo].[vBurnListingBase]
++AS
++SELECT        dbo.tblBurnListing.ListingCompany, dbo.tblBurnListing.Base, dbo.tblBurnListing.ListingTab, dbo.tblBurnListing.ListingSection, 
++                         dbo.tblBurnListing.ListingConstruction, dbo.tblBurnListingConstruction.ConstructionID, dbo.tblBurnListingRating.Rating, dbo.tblBurnListingRatingReference.US, 
++                         dbo.tblBurnListingRatingReference.Canada
++FROM            dbo.tblBurnListing INNER JOIN
++                         dbo.tblBurnListingConstruction ON dbo.tblBurnListing.ListingConstruction = dbo.tblBurnListingConstruction.ListingConstruction AND 
++                         dbo.tblBurnListing.ListingSection = dbo.tblBurnListingConstruction.ListingSection AND 
++                         dbo.tblBurnListing.ListingTab = dbo.tblBurnListingConstruction.ListingDocument AND 
++                         dbo.tblBurnListing.ListingCompany = dbo.tblBurnListingConstruction.ListingCompany INNER JOIN
++                         dbo.tblBurnListingRating ON dbo.tblBurnListingConstruction.ConstructionID = dbo.tblBurnListingRating.ConstructionID INNER JOIN
++                         dbo.tblBurnListingRatingReference ON dbo.tblBurnListingRating.Rating = dbo.tblBurnListingRatingReference.Rating
++
++GO
++EXEC sp_addextendedproperty N'MS_DiagramPane1', N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
++Begin DesignProperties = 
++   Begin PaneConfigurations = 
++      Begin PaneConfiguration = 0
++         NumPanes = 4
++         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
++      End
++      Begin PaneConfiguration = 1
++         NumPanes = 3
++         Configuration = "(H (1 [50] 4 [25] 3))"
++      End
++      Begin PaneConfiguration = 2
++         NumPanes = 3
++         Configuration = "(H (1 [50] 2 [25] 3))"
++      End
++      Begin PaneConfiguration = 3
++         NumPanes = 3
++         Configuration = "(H (4 [30] 2 [40] 3))"
++      End
++      Begin PaneConfiguration = 4
++         NumPanes = 2
++         Configuration = "(H (1 [56] 3))"
++      End
++      Begin PaneConfiguration = 5
++         NumPanes = 2
++         Configuration = "(H (2 [66] 3))"
++      End
++      Begin PaneConfiguration = 6
++         NumPanes = 2
++         Configuration = "(H (4 [50] 3))"
++      End
++      Begin PaneConfiguration = 7
++         NumPanes = 1
++         Configuration = "(V (3))"
++      End
++      Begin PaneConfiguration = 8
++         NumPanes = 3
++         Configuration = "(H (1[56] 4[18] 2) )"
++      End
++      Begin PaneConfiguration = 9
++         NumPanes = 2
++         Configuration = "(H (1 [75] 4))"
++      End
++      Begin PaneConfiguration = 10
++         NumPanes = 2
++         Configuration = "(H (1[66] 2) )"
++      End
++      Begin PaneConfiguration = 11
++         NumPanes = 2
++         Configuration = "(H (4 [60] 2))"
++      End
++      Begin PaneConfiguration = 12
++         NumPanes = 1
++         Configuration = "(H (1) )"
++      End
++      Begin PaneConfiguration = 13
++         NumPanes = 1
++         Configuration = "(V (4))"
++      End
++      Begin PaneConfiguration = 14
++         NumPanes = 1
++         Configuration = "(V (2))"
++      End
++      ActivePaneConfig = 0
++   End
++   Begin DiagramPane = 
++      Begin Origin = 
++         Top = 0
++         Left = 0
++      End
++      Begin Tables = 
++         Begin Table = "tblBurnListing"
++            Begin Extent = 
++               Top = 6
++               Left = 38
++               Bottom = 231
++               Right = 231
++            End
++            DisplayFlags = 280
++            TopColumn = 0
++         End
++         Begin Table = "tblBurnListingConstruction"
++            Begin Extent = 
++               Top = 12
++               Left = 447
++               Bottom = 263
++               Right = 640
++            End
++            DisplayFlags = 280
++            TopColumn = 0
++         End
++         Begin Table = "tblBurnListingRating"
++            Begin Extent = 
++               Top = 111
++               Left = 726
++               Bottom = 294
++               Right = 1017
++            End
++            DisplayFlags = 280
++            TopColumn = 0
++         End
++         Begin Table = "tblBurnListingRatingReference"
++            Begin Extent = 
++               Top = 62
++               Left = 1109
++               Bottom = 241
++               Right = 1295
++            End
++            DisplayFlags = 280
++            TopColumn = 1
++         End
++      End
++   End
++   Begin SQLPane = 
++   End
++   Begin DataPane = 
++      Begin ParameterDefaults = ""
++      End
++      Begin ColumnWidths = 10
++         Width = 284
++         Width = 1500
++         Width = 1500
++         Width = 1500
++         Width = 1500
++         Width = 1500
++         Width = 1500
++         Width = 1500
++         Width = 1500
++         Width = 1500
++      End
++   End
++   Begin CriteriaPane = 
++      Begin ColumnWidths = 11
++         Column = 1440
++         Alias = 900
++         Table = 1170
++         Output = 720
++         Append = 1400
++         NewValue = 1170
++         SortType = 1350
++         SortOrder = 1410
++         GroupBy = 1350
++        ', 'SCHEMA', N'dbo', 'VIEW', N'vBurnListingBase', NULL, NULL
++GO
++EXEC sp_addextendedproperty N'MS_DiagramPane2', N' Filter = 1350
++         Or = 1350
++         Or = 1350
++         Or = 1350
++      End
++   End
++End
++', 'SCHEMA', N'dbo', 'VIEW', N'vBurnListingBase', NULL, NULL
++GO
++DECLARE @xp int
++SELECT @xp=2
++EXEC sp_addextendedproperty N'MS_DiagramPaneCount', @xp, 'SCHEMA', N'dbo', 'VIEW', N'vBurnListingBase', NULL, NULL
++GO
+diff --git a/Views/dbo.vColor_Chip_Jacket_Material.sql b/Views/dbo.vColor_Chip_Jacket_Material.sql
+new file mode 100644
+index 0000000..0a5a704
+--- /dev/null
++++ b/Views/dbo.vColor_Chip_Jacket_Material.sql
+@@ -0,0 +1,159 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++CREATE VIEW [dbo].[vColor_Chip_Jacket_Material]
++AS
++SELECT        dbo.tblColor_Chip_Concentration.ColorChip, dbo.tblColor_Chip_Concentration.Color_Chip_Concentration, dbo.tblJacketMaterials.JacketMaterial, 
++                         dbo.tblColor_Chip_Concentration.Color, dbo.tblColor_Chips.ColorChipType
++FROM            dbo.tblColor_Jacket_Catalog INNER JOIN
++                         dbo.tblColor_Chip_Concentration ON dbo.tblColor_Jacket_Catalog.Color_Chip_Catalog = dbo.tblColor_Chip_Concentration.Color_Chip_Catalog INNER JOIN
++                         dbo.tblJacketMaterials ON dbo.tblColor_Jacket_Catalog.Color_Chip_Catalog = dbo.tblJacketMaterials.Color_Chip_Catalog INNER JOIN
++                         dbo.tblColor_Chips ON dbo.tblColor_Chip_Concentration.ColorChip = dbo.tblColor_Chips.ColorChip
++
++
++
++GO
++EXEC sp_addextendedproperty N'MS_DiagramPane1', N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
++Begin DesignProperties = 
++   Begin PaneConfigurations = 
++      Begin PaneConfiguration = 0
++         NumPanes = 4
++         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
++      End
++      Begin PaneConfiguration = 1
++         NumPanes = 3
++         Configuration = "(H (1 [50] 4 [25] 3))"
++      End
++      Begin PaneConfiguration = 2
++         NumPanes = 3
++         Configuration = "(H (1 [50] 2 [25] 3))"
++      End
++      Begin PaneConfiguration = 3
++         NumPanes = 3
++         Configuration = "(H (4 [30] 2 [40] 3))"
++      End
++      Begin PaneConfiguration = 4
++         NumPanes = 2
++         Configuration = "(H (1 [56] 3))"
++      End
++      Begin PaneConfiguration = 5
++         NumPanes = 2
++         Configuration = "(H (2 [66] 3))"
++      End
++      Begin PaneConfiguration = 6
++         NumPanes = 2
++         Configuration = "(H (4 [50] 3))"
++      End
++      Begin PaneConfiguration = 7
++         NumPanes = 1
++         Configuration = "(V (3))"
++      End
++      Begin PaneConfiguration = 8
++         NumPanes = 3
++         Configuration = "(H (1[56] 4[18] 2) )"
++      End
++      Begin PaneConfiguration = 9
++         NumPanes = 2
++         Configuration = "(H (1 [75] 4))"
++      End
++      Begin PaneConfiguration = 10
++         NumPanes = 2
++         Configuration = "(H (1[66] 2) )"
++      End
++      Begin PaneConfiguration = 11
++         NumPanes = 2
++         Configuration = "(H (4 [60] 2))"
++      End
++      Begin PaneConfiguration = 12
++         NumPanes = 1
++         Configuration = "(H (1) )"
++      End
++      Begin PaneConfiguration = 13
++         NumPanes = 1
++         Configuration = "(V (4))"
++      End
++      Begin PaneConfiguration = 14
++         NumPanes = 1
++         Configuration = "(V (2))"
++      End
++      ActivePaneConfig = 0
++   End
++   Begin DiagramPane = 
++      Begin Origin = 
++         Top = 0
++         Left = 0
++      End
++      Begin Tables = 
++         Begin Table = "tblColor_Jacket_Catalog"
++            Begin Extent = 
++               Top = 6
++               Left = 38
++               Bottom = 268
++               Right = 232
++            End
++            DisplayFlags = 280
++            TopColumn = 0
++         End
++         Begin Table = "tblColor_Chip_Concentration"
++            Begin Extent = 
++               Top = 28
++               Left = 526
++               Bottom = 249
++               Right = 755
++            End
++            DisplayFlags = 280
++            TopColumn = 0
++         End
++         Begin Table = "tblJacketMaterials"
++            Begin Extent = 
++               Top = 6
++               Left = 270
++               Bottom = 269
++               Right = 464
++            End
++            DisplayFlags = 280
++            TopColumn = 0
++         End
++         Begin Table = "tblColor_Chips"
++            Begin Extent = 
++               Top = 113
++               Left = 935
++               Bottom = 324
++               Right = 1143
++            End
++            DisplayFlags = 280
++            TopColumn = 0
++         End
++      End
++   End
++   Begin SQLPane = 
++   End
++   Begin DataPane = 
++      Begin ParameterDefaults = ""
++      End
++   End
++   Begin CriteriaPane = 
++      Begin ColumnWidths = 11
++         Column = 4065
++         Alias = 900
++         Table = 1170
++         Output = 720
++         Append = 1400
++         NewValue = 1170
++         SortType = 1350
++         SortOrder = 1410
++         GroupBy = 1350
++         Filter = 1350
++         Or = 1350
++         Or = 1350
++         Or = 1350
++      End
++   End
++End
++', 'SCHEMA', N'dbo', 'VIEW', N'vColor_Chip_Jacket_Material', NULL, NULL
++GO
++DECLARE @xp int
++SELECT @xp=1
++EXEC sp_addextendedproperty N'MS_DiagramPaneCount', @xp, 'SCHEMA', N'dbo', 'VIEW', N'vColor_Chip_Jacket_Material', NULL, NULL
++GO
+diff --git a/Views/dbo.vFiber.sql b/Views/dbo.vFiber.sql
+new file mode 100644
+index 0000000..75e7fd5
+--- /dev/null
++++ b/Views/dbo.vFiber.sql
+@@ -0,0 +1,123 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++CREATE VIEW [dbo].[vFiber]
++AS
++SELECT        Fiber, [SM/MM], BIF, OM#, SpecialNotes, Fiber_Type, Alt1_Fiber_Type, Alt2_Fiber_Type, Alt3_Fiber_Type, Alt4_Fiber_Type, Description_Oracle, Active, Mode, 
++                         Vendor, TBCatalogType, OpticalID, FiberID, ITU
++FROM            dbo.tbl_Fibers
++GO
++EXEC sp_addextendedproperty N'MS_DiagramPane1', N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
++Begin DesignProperties = 
++   Begin PaneConfigurations = 
++      Begin PaneConfiguration = 0
++         NumPanes = 4
++         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
++      End
++      Begin PaneConfiguration = 1
++         NumPanes = 3
++         Configuration = "(H (1 [50] 4 [25] 3))"
++      End
++      Begin PaneConfiguration = 2
++         NumPanes = 3
++         Configuration = "(H (1 [50] 2 [25] 3))"
++      End
++      Begin PaneConfiguration = 3
++         NumPanes = 3
++         Configuration = "(H (4 [30] 2 [40] 3))"
++      End
++      Begin PaneConfiguration = 4
++         NumPanes = 2
++         Configuration = "(H (1 [56] 3))"
++      End
++      Begin PaneConfiguration = 5
++         NumPanes = 2
++         Configuration = "(H (2 [66] 3))"
++      End
++      Begin PaneConfiguration = 6
++         NumPanes = 2
++         Configuration = "(H (4 [50] 3))"
++      End
++      Begin PaneConfiguration = 7
++         NumPanes = 1
++         Configuration = "(V (3))"
++      End
++      Begin PaneConfiguration = 8
++         NumPanes = 3
++         Configuration = "(H (1[56] 4[18] 2) )"
++      End
++      Begin PaneConfiguration = 9
++         NumPanes = 2
++         Configuration = "(H (1 [75] 4))"
++      End
++      Begin PaneConfiguration = 10
++         NumPanes = 2
++         Configuration = "(H (1[66] 2) )"
++      End
++      Begin PaneConfiguration = 11
++         NumPanes = 2
++         Configuration = "(H (4 [60] 2))"
++      End
++      Begin PaneConfiguration = 12
++         NumPanes = 1
++         Configuration = "(H (1) )"
++      End
++      Begin PaneConfiguration = 13
++         NumPanes = 1
++         Configuration = "(V (4))"
++      End
++      Begin PaneConfiguration = 14
++         NumPanes = 1
++         Configuration = "(V (2))"
++      End
++      ActivePaneConfig = 0
++   End
++   Begin DiagramPane = 
++      Begin Origin = 
++         Top = 0
++         Left = 0
++      End
++      Begin Tables = 
++         Begin Table = "tbl_Fibers"
++            Begin Extent = 
++               Top = 6
++               Left = 38
++               Bottom = 320
++               Right = 712
++            End
++            DisplayFlags = 280
++            TopColumn = 8
++         End
++      End
++   End
++   Begin SQLPane = 
++   End
++   Begin DataPane = 
++      Begin ParameterDefaults = ""
++      End
++   End
++   Begin CriteriaPane = 
++      Begin ColumnWidths = 11
++         Column = 1440
++         Alias = 900
++         Table = 1170
++         Output = 720
++         Append = 1400
++         NewValue = 1170
++         SortType = 1350
++         SortOrder = 1410
++         GroupBy = 1350
++         Filter = 1350
++         Or = 1350
++         Or = 1350
++         Or = 1350
++      End
++   End
++End
++', 'SCHEMA', N'dbo', 'VIEW', N'vFiber', NULL, NULL
++GO
++DECLARE @xp int
++SELECT @xp=1
++EXEC sp_addextendedproperty N'MS_DiagramPaneCount', @xp, 'SCHEMA', N'dbo', 'VIEW', N'vFiber', NULL, NULL
++GO
+diff --git a/Views/dbo.vOracleBaseItems.sql b/Views/dbo.vOracleBaseItems.sql
+new file mode 100644
+index 0000000..1dcbe2a
+--- /dev/null
++++ b/Views/dbo.vOracleBaseItems.sql
+@@ -0,0 +1,36 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++
++
++
++
++
++
++CREATE VIEW [dbo].[vOracleBaseItems]
++as
++WITH cteOracleBaseItems(Base, AssemblyItemNumber, SetupID, ItemRank)
++as(
++--SELECT T.Base,  max(Oracle) AS AssemblyItemNumber, SetupID
++----INTO #BaseOracleBOM
++--FROM 
++--(
++	SELECT E.Base, [New Oracle Part #] AS Oracle, SetupID, ROW_NUMBER() OVER (PARTITION BY E.BASE ORDER BY [New Oracle Part #] DESC) as ItemRank
++	FROM  dbo.[AFLPRD_INVSysItemCost_CAB] K INNER JOIN DBO.BasicProductConstruction E  ON k.ItemNumber = E.[New Oracle Part #] 
++	INNER JOIN dbo.tblCableConstructionReferences G ON E.Base = G.Base
++	GROUP BY E.Base,Item_Status, E.[New Oracle Part #], SetupID
++	HAVING E.Base Not Like 'ia%'  --AND E.Oracle Not Like '%test%' 
++	AND [New Oracle Part #] not like '%-??bx%' AND ([New Oracle Part #] like '%-00' OR left([New Oracle Part #],3) IN ('DNS','DNT') OR [New Oracle Part #] LIKE '%test%')
++--)  AS T
++--GROUP BY T.Base, SetupID
++)
++SELECT *
++FROM cteOracleBaseItems
++WHERE ItemRank = 1
++
++
++
++
++
++GO
+diff --git a/Views/dbo.vSchedulingCableUnion.sql b/Views/dbo.vSchedulingCableUnion.sql
+new file mode 100644
+index 0000000..1684906
+--- /dev/null
++++ b/Views/dbo.vSchedulingCableUnion.sql
+@@ -0,0 +1,87 @@
++SET QUOTED_IDENTIFIER ON
++GO
++SET ANSI_NULLS ON
++GO
++
++
++
++
++
++
++
++CREATE VIEW [dbo].[vSchedulingCableUnion]
++AS
++
++SELECT [item no], 
++       [customer part#], 
++       [customer], 
++       [print type (base)], 
++       [new oracle part #], 
++       [base], 
++       [jacket color], 
++       [print line 1], 
++       [print line 2], 
++       [print line 3], 
++       [print line 4], 
++       [print reel no], 
++       [print item no], 
++       [print spacing], 
++       [1st req freq], 
++       [2nd req freq], 
++       [fiber oracle item]           AS [Fiber Type], 
++       LEFT([new oracle part #], 7)  AS [Base Oracle], 
++       [active], 
++       [revision date], 
++       [revision history], 
++       fibertype2                    AS Fiber2, 
++       [customer part#]              AS PID, 
++       [oraclestatus], 
++       enumber, 
++       fibertype3                    AS Fiber3, 
++       customerrev, 
++       1                             AS Location, 
++       [standard operation]          AS StdOp, 
++       [fiber oracle item]           AS Fiber, 
++       [1st req freq]                AS [1st Req Freq - A], 
++       [1st max atten]               AS [1st Max Atten - A], 
++       [1st min bandw]               AS [1st Min BandW - A], 
++       [2nd req freq]                AS [2nd Req Freq - A], 
++       [2nd max atten]               AS [2nd Max Atten - A], 
++       [2nd min bandw]               AS [2nd Min BandW - A], 
++       [sm 1300 max atten]           AS [1st Req Freq - B], 
++       [sm 1550 max atten]           AS [1st Max Atten - B], 
++       [1st Min BandW - B], 
++       [2nd Req Freq - B], 
++       [2nd Max Atten - B], 
++       [2nd Min BandW - B], 
++       [1st Req Freq - C], 
++       [1st Max Atten - C], 
++       [1st Min BandW - C], 
++       [2nd Req Freq - C], 
++       [2nd Max Atten - C], 
++       [2nd Min BandW - C], 
++       [Print Height], 
++       NULL                          AS [FRP Dia], 
++       ''								AS [color chip id], 
++       [special instr product1]      AS CustomerInstructions, 
++       [tb nominal od], 
++       [tb od tol  (-)], 
++       [tb od tol  (+)], 
++       [ez strip], 
++       [tb material], 
++       [tb chips type], 
++       [unit series], 
++       [special instr product1]      SpecialInstructions1, 
++       [zzspecial instr product3]    SpecialInstructions2 
++FROM   [basic product construction] 
++
++
++
++
++
++
++
++
++
++
++GO

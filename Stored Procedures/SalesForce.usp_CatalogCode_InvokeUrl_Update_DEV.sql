@@ -7,7 +7,7 @@ GO
 -- Create date: <Create Date,,>
 -- Description:	<Description,,>
 -- =============================================
-CREATE PROCEDURE [dbo].[usp_CatalogCode_SalesForce_InvokeURL_SalesForce_Update_DEV] 
+CREATE PROCEDURE [SalesForce].[usp_CatalogCode_InvokeUrl_Update_DEV] 
 
 
 AS

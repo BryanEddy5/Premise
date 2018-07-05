@@ -50,7 +50,3 @@ GRANT UPDATE ([Min_Order_Quantity]) ON [dbo].[tblStockItems] TO [NAA\houckmi]
 GO
 GRANT UPDATE ([Price_feet]) ON [dbo].[tblStockItems] TO [NAA\houckmi]
 GO
-DENY DELETE ON  [dbo].[tblStockItems] TO [SPB Premise SQL RW]
-GO
-DENY UPDATE ON  [dbo].[tblStockItems] TO [SPB Premise SQL RW]
-GO

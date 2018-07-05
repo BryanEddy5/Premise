@@ -7,7 +7,7 @@ GO
 -- ALTER date: <1/27/2017>
 -- Description:	<Explodes all levels of BOM finds the UJCM>
 -- =============================================
-CREATE PROCEDURE [dbo].[usp_Scheduling_Construction_CenterMember](
+CREATE PROC [dbo].[usp_Scheduling_Construction_CenterMember](
 @Item varchar(50)
 )
 as

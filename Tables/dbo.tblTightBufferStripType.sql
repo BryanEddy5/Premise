@@ -8,3 +8,5 @@ CREATE TABLE [dbo].[tblTightBufferStripType]
 GO
 ALTER TABLE [dbo].[tblTightBufferStripType] ADD CONSTRAINT [PK_tblEZStripType] PRIMARY KEY CLUSTERED  ([TightBufferStrip]) ON [PRIMARY]
 GO
+ALTER TABLE [dbo].[tblTightBufferStripType] ADD CONSTRAINT [IX_tblTightBufferStripType] UNIQUE NONCLUSTERED  ([ID]) ON [PRIMARY]
+GO

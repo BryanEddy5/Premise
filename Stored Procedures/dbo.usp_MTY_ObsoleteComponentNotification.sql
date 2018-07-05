@@ -2,6 +2,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
+
 -- =============================================
 -- Author:		Bryan Eddy
 -- ALTER date: 2/15/2017
@@ -40,22 +41,22 @@ LEFT JOIN PCN_History P ON P.OldItem = ComponentItemNumber
 LEFT JOIN cteInventory i ON i.Item = G.ItemNumber
 WHERE Item_Status <>'active' and AssemblyItemStatus = 'active' AND NewItem IS NULL
 
-SELECT @numRows = count(*) FROM #Results
+SELECT @numRows = COUNT(*) FROM #Results
 
 
+SET @ReceipientList = (STUFF((SELECT ';' + UserEmail 
+						FROM tblConfiguratorUser G  INNER JOIN users.UserResponsibility  K ON  G.UserID = K.UserID
+  						WHERE K.ResponsibilityID = 20 FOR XML PATH('')),1,1,''))
 
---SET @ReceipientList = (STUFF((SELECT ';' + UserEmail FROM tblConfiguratorUser WHERE ItemBuilder <> 0 FOR XML PATH('')),1,1,''))
-SET @Receipientlist = 'AFLMTYInactiveComponentAlertDL@aflglobal.com'
-
-declare @body1 varchar(max)
-declare @subject varchar(max)
-declare @query varchar(max) = N'SELECT * FROM tempdb..#Results;'
-set @subject = 'MTY ALERT - Inactive Components in BOM ' + CAST(GETDATE() AS NVARCHAR)
-set @body1 = 'There are  ' + CAST(@numRows AS NVARCHAR) + ' inactive components in MTY BOMs.  Please review.' +char(13)+CHAR(13)
+DECLARE @body1 VARCHAR(MAX)
+DECLARE @subject VARCHAR(MAX)
+DECLARE @query VARCHAR(MAX) = N'SELECT * FROM tempdb..#Results;'
+SET @subject = 'MTY ALERT - Inactive Components in BOM ' + CAST(GETDATE() AS NVARCHAR)
+SET @body1 = 'There are  ' + CAST(@numRows AS NVARCHAR) + ' inactive components in MTY BOMs.  Please review.' +CHAR(13)+CHAR(13)
 
 DECLARE @tableHTML  NVARCHAR(MAX) ;
-if @numRows > 0
-begin
+IF @numRows > 0
+BEGIN
 	
 			SET @tableHTML =
 				N'<H1>MTY Inactive BOM Components</H1>' +
@@ -88,6 +89,6 @@ begin
 			@subject = @subject,
 			@body = @tableHTML,
 			@body_format = 'HTML';
-end
+END
 
 GO

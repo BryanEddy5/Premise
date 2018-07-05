@@ -12,7 +12,3 @@ ALTER TABLE [dbo].[tblSalesForce_Pricing] ADD CONSTRAINT [PK_tblSalesForce_Prici
 GO
 GRANT UPDATE ([Contribution]) ON [dbo].[tblSalesForce_Pricing] TO [NAA\houckmi]
 GO
-DENY DELETE ON  [dbo].[tblSalesForce_Pricing] TO [SPB Premise SQL RW]
-GO
-DENY UPDATE ON  [dbo].[tblSalesForce_Pricing] TO [SPB Premise SQL RW]
-GO

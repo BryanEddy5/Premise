@@ -1,6 +1,6 @@
 CREATE TABLE [dbo].[Unit Series]
 (
-[Unit Color Series] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Unit Color Series] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 [Unit ID] [nvarchar] (25) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Description] [nvarchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [TB Color Series] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,

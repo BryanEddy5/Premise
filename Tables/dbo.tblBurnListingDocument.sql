@@ -4,8 +4,8 @@ CREATE TABLE [dbo].[tblBurnListingDocument]
 [ListingCompany] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [DateRecordCreated] [datetime] NULL CONSTRAINT [DF_tblBurnListingDocuments_DateRecordCreated] DEFAULT (getdate()),
 [RecordCreatedby] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblBurnListingDocuments_RecordCreatedby] DEFAULT (suser_sname()),
-[RevisionDate] [datetime] NULL,
-[RevisedBy] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[RevisionDate] [datetime] NULL CONSTRAINT [DF_tblBurnListingDocument_RevisionDate] DEFAULT (getdate()),
+[RevisedBy] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblBurnListingDocument_RevisedBy] DEFAULT (suser_sname()),
 [Timestamp] [timestamp] NULL
 ) ON [PRIMARY]
 GO

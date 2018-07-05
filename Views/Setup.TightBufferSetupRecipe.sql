@@ -3,6 +3,7 @@ GO
 SET ANSI_NULLS ON
 GO
 
+
 CREATE VIEW [Setup].[TightBufferSetupRecipe]
 AS
 SELECT        BasicProductConstruction.[New Oracle Part #], BasicProductConstruction.[Item No], BasicProductConstruction.[Fiber Type], BasicProductConstruction.[Jacket Material], BasicProductConstruction.[EZ Strip] AS EZStrip, 
@@ -18,7 +19,7 @@ SELECT        BasicProductConstruction.[New Oracle Part #], BasicProductConstruc
                          tblCableConstructions.Binder1, tblCableConstructions.QtyBinder1, tblCableConstructions.Binder1LayLength, tblCableConstructions.Binder2, tblCableConstructions.QtyBinder2, tblCableConstructions.Binder2LayLength, 
                          tblCableConstructions.Binder3, tblCableConstructions.QtyBinder3, tblCableConstructions.Binder3LayLength, tblCableConstructions.CablePasses, tblCableConstructions.RevisionDate, tblCableConstructions.RevisionNumber, 
                          tblCableConstructions.RevisionHistory, tblCableConstructions.Instructions2, tblCableConstructions.Instructions, tblCableConstructionReferences.Active, tblTightBufferSetup.PSS, tblTightBufferSetup.Recipe, 
-                         vColor_Chip_Jacket_Material.ColorChip, tblTightBufferStripType.ID, tblTightBufferSetup.MachineGroupID, K.MachineName, BasicProductConstruction.Base
+                         vColor_Chip_Jacket_Material.ColorChip, tblTightBufferStripType.ID, tblTightBufferSetup.MachineGroupID, K.MachineName, BasicProductConstruction.Base, Filler, TBType
 FROM            tblCableConstructions INNER JOIN
                          dbo.BasicProductConstruction INNER JOIN
                          tblCableConstructionReferences ON BasicProductConstruction.Base = tblCableConstructionReferences.Base ON tblCableConstructions.BaseID = tblCableConstructionReferences.BaseID INNER JOIN

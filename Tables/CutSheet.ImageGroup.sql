@@ -11,8 +11,6 @@ ALTER TABLE [CutSheet].[ImageGroup] ADD CONSTRAINT [PK_ImageGroup] PRIMARY KEY C
 GO
 CREATE UNIQUE NONCLUSTERED INDEX [IX_ImageGroup] ON [CutSheet].[ImageGroup] ([ImageGroupName]) ON [PRIMARY]
 GO
-ALTER TABLE [CutSheet].[ImageGroup] ADD CONSTRAINT [FK_ImageGroup_ImageGroup] FOREIGN KEY ([ImageGroupID]) REFERENCES [CutSheet].[ImageGroup] ([ImageGroupID])
-GO
 GRANT DELETE ON  [CutSheet].[ImageGroup] TO [NAA\SPB Premise SQL RO]
 GO
 GRANT INSERT ON  [CutSheet].[ImageGroup] TO [NAA\SPB Premise SQL RO]
