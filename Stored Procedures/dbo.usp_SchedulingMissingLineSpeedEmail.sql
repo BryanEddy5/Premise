@@ -2,6 +2,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
+
 -- =============================================
 -- Author:		Bryan Eddy
 -- ALTER date: 6/12/17
@@ -192,7 +193,7 @@ BEGIN
 			EXEC msdb.dbo.sp_send_dbmail 
 			@recipients=@ReceipientList,
 			--@recipients = 'bryan.eddy@aflglobal.com;Rich.DiDonato@aflglobal.com',
-			@blind_copy_recipients =  @BlindRecipientlist, --@ReceipientList
+			--@blind_copy_recipients =  @BlindRecipientlist, --@ReceipientList
 			@subject = @subject,
 			@body = @tableHTML,
 			@body_format = 'HTML';

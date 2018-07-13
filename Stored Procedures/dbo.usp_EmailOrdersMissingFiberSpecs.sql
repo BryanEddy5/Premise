@@ -2,6 +2,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
+
 -- =============================================
 -- Author:		Bryan Eddy
 -- ALTER date: 2/15/2017
@@ -41,7 +42,7 @@ FROM #Hold K INNER JOIN Oracle.vMissingFiberSpecs G ON G.ItemNumber = k.ItemNumb
 SELECT * 
 FROM #Results
 
-SELECT @numRows = count(*) FROM #Results
+SELECT @numRows = COUNT(*) FROM #Results
 
 
 
@@ -49,15 +50,15 @@ SET @ReceipientList = (STUFF((SELECT ';' + UserEmail
 						FROM tblConfiguratorUser G  INNER JOIN users.UserResponsibility  K ON  G.UserID = K.UserID
   						WHERE K.ResponsibilityID = 5 FOR XML PATH('')),1,1,''))
 
-declare @body1 varchar(max)
-declare @subject varchar(max)
-declare @query varchar(max) = N'SELECT * FROM tempdb..#Results;'
-set @subject = 'Orders Missing Oracle Fiber Specs' 
-set @body1 = 'There are  ' + CAST(@numRows AS NVARCHAR) + ' item(s) are missing specs.  Please review.' +char(13)+CHAR(13)
+DECLARE @body1 VARCHAR(MAX)
+DECLARE @subject VARCHAR(MAX)
+DECLARE @query VARCHAR(MAX) = N'SELECT * FROM tempdb..#Results;'
+SET @subject = 'Orders Missing Oracle Fiber Specs' 
+SET @body1 = 'There are  ' + CAST(@numRows AS NVARCHAR) + ' item(s) are missing specs.  Please review.' +CHAR(13)+CHAR(13)
 
 DECLARE @tableHTML  NVARCHAR(MAX) ;
-if @numRows > 0
-begin
+IF @numRows > 0
+BEGIN
 	
 			SET @tableHTML =
 				N'<H1>Order Missing Fiber Spec Report</H1>' +
@@ -84,11 +85,11 @@ begin
 		
 			EXEC msdb.dbo.sp_send_dbmail 
 			@recipients=@ReceipientList,
-			@blind_copy_recipients = 'Bryan.Eddy@aflglobal.com',
+			--@blind_copy_recipients = 'Bryan.Eddy@aflglobal.com',
 			@subject = @subject,
 			@body = @tableHTML,
 			@body_format = 'HTML';
-end
+END
 
 
 GO

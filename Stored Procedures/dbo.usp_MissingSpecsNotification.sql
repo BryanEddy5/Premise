@@ -2,6 +2,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
+
 -- =============================================
 -- Author:		Bryan Eddy
 -- ALTER date: 2/15/2017
@@ -32,7 +33,7 @@ inner join AFLPRD_INVSysItemCost_CAB t on k.[New Oracle Part #] = t.ItemNumber
 where   G.ItemNumber IS NULL AND [Fiber Oracle item] NOT IN ('NONE','FBRRD999','FBR00100' ) AND [New Oracle Part #] NOT LIKE '%OSP%' and t.Item_Status <> 'obsolete'
 AND [New Oracle Part #] NOT LIKE 'FBR%' and [New Oracle Part #] not like 'rbn%' and [New Oracle Part #] not like 'swr%'
 
-SELECT @numRows = count(*) FROM #Results
+SELECT @numRows = COUNT(*) FROM #Results
 
 
 
@@ -40,15 +41,15 @@ SELECT @numRows = count(*) FROM #Results
 SET @ReceipientList = (STUFF((SELECT ';' + UserEmail 
 						FROM tblConfiguratorUser G  INNER JOIN users.UserResponsibility  K ON  G.UserID = K.UserID
   						WHERE K.ResponsibilityID = 5 FOR XML PATH('')),1,1,''))
-declare @body1 varchar(max)
-declare @subject varchar(max)
-declare @query varchar(max) = N'SELECT * FROM tempdb..#Results;'
-set @subject = 'Missing Oracle Specs' 
-set @body1 = 'There are  ' + CAST(@numRows AS NVARCHAR) + ' items are missing specs.  Please review.' +char(13)+CHAR(13)
+DECLARE @body1 VARCHAR(MAX)
+DECLARE @subject VARCHAR(MAX)
+DECLARE @query VARCHAR(MAX) = N'SELECT * FROM tempdb..#Results;'
+SET @subject = 'Missing Oracle Specs' 
+SET @body1 = 'There are  ' + CAST(@numRows AS NVARCHAR) + ' items are missing specs.  Please review.' +CHAR(13)+CHAR(13)
 
 DECLARE @tableHTML  NVARCHAR(MAX) ;
-if @numRows > 0
-begin
+IF @numRows > 0
+BEGIN
 	
 			SET @tableHTML =
 				N'<H1>Oracle Spec Missing Report</H1>' +
@@ -77,10 +78,10 @@ begin
 		
 			EXEC msdb.dbo.sp_send_dbmail 
 			@recipients=@ReceipientList,
-			@blind_copy_recipients = 'Bryan.Eddy@aflglobal.com',
+			--@blind_copy_recipients = 'Bryan.Eddy@aflglobal.com',
 			@subject = @subject,
 			@body = @tableHTML,
 			@body_format = 'HTML';
-end
+END
 
 GO

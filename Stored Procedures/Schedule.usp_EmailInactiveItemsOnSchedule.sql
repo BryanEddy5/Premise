@@ -5,6 +5,7 @@ GO
 
 
 
+
 /*
 Author:		Bryan Eddy
 Date:		4/2/2018
@@ -43,7 +44,7 @@ IF @RowCount > 0
 						EXEC msdb.dbo.sp_send_dbmail 
 						@recipients=@ReceipientList,
 						--@recipients='bryan.eddy@aflglobal.com',
-						@blind_copy_recipients = 'bryan.eddy@aflglobal.com',
+						--@blind_copy_recipients = 'bryan.eddy@aflglobal.com',
 						@subject = 'Inactive Items on Premise Schedule',
 						@body = @html,
 						@body_format = 'HTML',

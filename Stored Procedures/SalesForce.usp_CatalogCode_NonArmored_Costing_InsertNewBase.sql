@@ -3,13 +3,13 @@ GO
 SET ANSI_NULLS ON
 GO
 
+
 -- =============================================
 -- Author:		Bryan Eddy
 -- ALTER date: 12/2/2016
 -- Description:	Insert new base costs into tblBase_Skeletal_Cost
--- Version:		1 
--- Update:		refactored into a merge statement
---				added error handling
+-- Version:		2
+-- Update:		Added error handling and coalesce function into loadedbasecost 
 -- =============================================
 CREATE PROCEDURE [SalesForce].[usp_CatalogCode_NonArmored_Costing_InsertNewBase]
 AS
@@ -55,11 +55,12 @@ DECLARE @ErrorLine INT = ERROR_LINE();
 	END CATCH;
 
 	BEGIN TRY
-		BEGIN tran
+		BEGIN TRAN
 
-			UPDATE dbo.tblBase_Skeletal_Cost
-			SET LoadedBaseCost = g.Resource_Cost + g.Overhead_Cost + BaseSkeletalCost
+			UPDATE X
+			SET LoadedBaseCost = COALESCE(g.Resource_Cost,0) + COALESCE(g.Overhead_Cost,0) + X.BaseSkeletalCost
 			FROM dbo.tblBase_Skeletal_Cost X INNER JOIN  dbo.AFLPRD_INVSysItemCost_CAB G ON G.ItemNumber = X.AssemblyItemNumber
+			WHERE X.LoadedBaseCost IS NULL
 
 		COMMIT TRAN
 	END TRY

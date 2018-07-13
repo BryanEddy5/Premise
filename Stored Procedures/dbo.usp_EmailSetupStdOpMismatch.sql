@@ -4,6 +4,7 @@ SET ANSI_NULLS ON
 GO
 
 
+
 -- =============================================
 -- Author:		Bryan Eddy
 -- ALTER date: 10/31/2017
@@ -94,7 +95,7 @@ BEGIN
 			EXEC msdb.dbo.sp_send_dbmail 
 			@recipients=@ReceipientList,
 			--@recipients='Bryan.Eddy@aflglobal.com',
-			@blind_copy_recipients = 'Bryan.Eddy@aflglobal.com',
+			--@blind_copy_recipients = 'Bryan.Eddy@aflglobal.com',
 			@subject = @subject,
 			@body = @tableHTML,
 			@body_format = 'HTML';

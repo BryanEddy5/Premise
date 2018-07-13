@@ -3,6 +3,7 @@ GO
 SET ANSI_NULLS ON
 GO
 
+
 -- =============================================
 -- Author:		Bryan Eddy
 -- ALTER date:	11/6/2017
@@ -34,7 +35,7 @@ ORDER BY AssemblyItemNumber
 
 SELECT * FROM #Results
 
-SELECT @numRows = count(*) FROM #Results
+SELECT @numRows = COUNT(*) FROM #Results
 
 
 
@@ -77,7 +78,7 @@ BEGIN
 		
 			EXEC msdb.dbo.sp_send_dbmail 
 			@recipients=@ReceipientList,
-			@blind_copy_recipients = 'Bryan.Eddy@aflglobal.com',
+			--@blind_copy_recipients = 'Bryan.Eddy@aflglobal.com',
 			@subject = @subject,
 			@body = @tableHTML,
 			@body_format = 'HTML';

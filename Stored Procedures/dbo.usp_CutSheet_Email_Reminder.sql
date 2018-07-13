@@ -3,6 +3,7 @@ GO
 SET ANSI_NULLS ON
 GO
 
+
 /*
 -- =============================================
 -- Author:		Bryan Eddy
@@ -74,7 +75,7 @@ BEGIN
 									td=ApprovedByEngineer,''
 
 							FROM #Results 
-							ORDER BY DaysOpen desc
+							ORDER BY DaysOpen DESC
 						  FOR XML PATH('tr'), TYPE 
 				) AS NVARCHAR(MAX) ) +
 				N'</table>' ;
@@ -86,7 +87,7 @@ BEGIN
 			EXEC msdb.dbo.sp_send_dbmail 
 			@recipients=@ReceipientList,
 			--@recipients = 'Bryan.Eddy@aflglobal.com',
-			@blind_copy_recipients = 'Bryan.Eddy@aflglobal.com',
+			--@blind_copy_recipients = 'Bryan.Eddy@aflglobal.com',
 			@subject = @subject,
 			@body = @tableHTML,
 			@body_format = 'HTML';

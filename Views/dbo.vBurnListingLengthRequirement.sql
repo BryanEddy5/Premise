@@ -2,7 +2,6 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
-
 /*
 Author:		Bryan Eddy
 Date:		2/28/2018
@@ -58,7 +57,7 @@ SELECT DISTINCT
 		,e.*
 		--,g.Locator, g.AvailQty, g.ItemDesc, g.LotNumber
 FROM cteBurnCalculation  e --INNER JOIN dbo.AFLPRD_acswopattn_CAB_SNF g ON g.Item = e.Oracle
-WHERE e.Oracle ='PS05720-01'
+--WHERE e.Oracle ='PS05720-01'
 
 
 

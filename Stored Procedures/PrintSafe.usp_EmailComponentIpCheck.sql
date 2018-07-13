@@ -2,6 +2,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
+
 -- =============================================
 -- Author:		Bryan Eddy
 -- ALTER date: 2/15/2017
@@ -34,7 +35,7 @@ WHERE (STATUS = 'NO REPLY') OR (LastRan < DateAdd(Hour, DateDiff(Hour, 0, GetDat
 
 --SELECT * FROM #Results
 
-SELECT @numRows = count(*) FROM #Results
+SELECT @numRows = COUNT(*) FROM #Results
 
 
 
@@ -43,15 +44,15 @@ SET @ReceipientList = (STUFF((SELECT ';' + UserEmail
   						WHERE K.ResponsibilityID = 8 FOR XML PATH('')),1,1,''))
 						--WHERE g.UserTypeID = 1 FOR XML PATH('')),1,1,''))
 
-declare @body1 varchar(max)
-declare @subject varchar(max)
-declare @query varchar(max) = N'SELECT * FROM tempdb..#Results;'
-set @subject = 'Machine Camera and Printer IP Check' 
-set @body1 = 'There are  ' + CAST(@numRows AS NVARCHAR) + ' component(s) that have no connection.' +char(13)+CHAR(13)
+DECLARE @body1 VARCHAR(MAX)
+DECLARE @subject VARCHAR(MAX)
+DECLARE @query VARCHAR(MAX) = N'SELECT * FROM tempdb..#Results;'
+SET @subject = 'Machine Camera and Printer IP Check' 
+SET @body1 = 'There are  ' + CAST(@numRows AS NVARCHAR) + ' component(s) that have no connection.' +CHAR(13)+CHAR(13)
 
 DECLARE @tableHTML  NVARCHAR(MAX) ;
-if @numRows > 0
-begin
+IF @numRows > 0
+BEGIN
 	
 			SET @tableHTML =
 				N'<H1>Machine resource component IP address alert.</H1>' +
@@ -76,11 +77,11 @@ begin
 		
 			EXEC msdb.dbo.sp_send_dbmail 
 			@recipients=@ReceipientList,
-			@blind_copy_recipients = 'Bryan.Eddy@aflglobal.com',
+			--@blind_copy_recipients = 'Bryan.Eddy@aflglobal.com',
 			@subject = @subject,
 			@body = @tableHTML,
 			@body_format = 'HTML';
 
 
-end
+END
 GO

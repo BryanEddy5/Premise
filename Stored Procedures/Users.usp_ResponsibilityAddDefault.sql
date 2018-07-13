@@ -6,8 +6,8 @@ GO
 Author:		Bryan Eddy
 Date:		1/15/2017
 Desc:		Add the default responsibility for a user that has no existing responsibilities
-Version:	1
-Update:		Initial creation
+Version:	2
+Update:		Changed default user responsiblity to 23 so all new users default to the main configurator.
 
 */
 
@@ -23,7 +23,7 @@ DECLARE @Sql AS NVARCHAR(1000),
 SET @Sql = 'SELECT TOP 1
             UserID
 			FROM Users.vUserResponsibility 
-			WHERE SQL_User = SUSER_SNAME() AND ResponsibilityID = 7
+			WHERE SQL_User = SUSER_SNAME() 
 			ORDER BY UserID DESC'
 EXEC Sp_executesql @Sql
 
@@ -49,7 +49,7 @@ IF @rowcnt = 0
             )
             VALUES
             (   @UserID, -- UserID - int
-                7        -- ResponsibilityID - int
+                23        -- ResponsibilityID - int
                 );
             COMMIT TRAN;
         END TRY
