@@ -9,7 +9,8 @@ CREATE TABLE [DiamondJet].[JobPrint]
 [TemplateID] [int] NULL,
 [CreatedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_JobPrint_CreatedBy] DEFAULT (suser_sname()),
 [RevisedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_JobPrint_RevisedBy] DEFAULT (suser_sname()),
-[VerificationPrint] [nvarchar] (1000) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
+[VerificationPrint] [nvarchar] (1000) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[ParentJobNumber] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
 ) ON [PRIMARY]
 GO
 SET QUOTED_IDENTIFIER ON

@@ -9,7 +9,7 @@ SELECT        dbo.CableUnion.Oracle, dbo.CableUnion.Fiber, dbo.CableUnion.Color,
                          dbo.CableUnion.OracleStatus, dbo.CableUnion.PID, dbo.CableUnion.Fiber2, dbo.CableUnion.Fiber3, dbo.CableUnion.CustomerRev, dbo.CableUnion.[Revision Date], 
                          dbo.CableUnion.RibbonHighCure, dbo.CableUnion.PrintLine4, dbo.CableUnion.Customer, dbo.tblCableConstructions.JacketMaterial,dbo.CableUnion.ItemID,
                          dbo.tblCableConstructions.NominalOD, convert(date, [Revision Date]) RevDate, PrintSpacing , [Item No], dbo.CableUnion.DateCreated as CreationDate
-						 ,tblCableConstructionReferences.DesignCode
+						 ,tblCableConstructionReferences.DesignCode, Height
 FROM            dbo.CableUnion INNER JOIN
                          dbo.tblCableConstructionReferences ON dbo.CableUnion.Base = dbo.tblCableConstructionReferences.Base INNER JOIN
                          dbo.tblCableConstructions ON dbo.tblCableConstructionReferences.BaseID = dbo.tblCableConstructions.BaseID

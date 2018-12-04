@@ -1,6 +1,6 @@
 CREATE TABLE [SalesForce].[AcsEngineeredItems]
 (
-[RecordID] [int] NULL,
+[RecordID] [int] NOT NULL,
 [QuoteID] [nvarchar] (150) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [LineNumber] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Alternate] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
@@ -35,8 +35,8 @@ CREATE TABLE [SalesForce].[AcsEngineeredItems]
 [MaxLengthOnWood] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [MaxLengthOnSteel] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Processed] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-[PricingNotes] [nvarchar] (150) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-[ItemInternal] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[PricingNotes] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[ItemInternal] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [BillableTolerance] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [QuotePriceUOM] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [QuoteCostUOM] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
@@ -44,4 +44,14 @@ CREATE TABLE [SalesForce].[AcsEngineeredItems]
 [OpportunityID] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [ActivityID] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
 ) ON [PRIMARY]
+GO
+ALTER TABLE [SalesForce].[AcsEngineeredItems] ADD CONSTRAINT [PK_AcsEngineeredItems] PRIMARY KEY CLUSTERED  ([RecordID]) ON [PRIMARY]
+GO
+GRANT DELETE ON  [SalesForce].[AcsEngineeredItems] TO [NAA\SPB Users]
+GO
+GRANT INSERT ON  [SalesForce].[AcsEngineeredItems] TO [NAA\SPB Users]
+GO
+GRANT SELECT ON  [SalesForce].[AcsEngineeredItems] TO [NAA\SPB Users]
+GO
+GRANT UPDATE ON  [SalesForce].[AcsEngineeredItems] TO [NAA\SPB Users]
 GO

@@ -17,7 +17,7 @@ IF OBJECT_ID(N'tempdb..#Cost', N'U') IS NOT NULL
 DROP TABLE #Cost
 
 
-	SELECT DISTINCT tblCableConstructionReferences.Base,
+	SELECT  DISTINCT tblCableConstructionReferences.Base,
 										(CASE 
 													WHEN A.Contribution <> 0 THEN ROUND((P.LoadedBaseCost + FiberCount * E.CPQ_Fiber_Cost +
 														(CASE WHEN tblCableConstructionReferences.TBType = 'Ribbon' THEN FiberCount*(.207 / 12)*1.02
@@ -28,24 +28,26 @@ DROP TABLE #Cost
 															ELSE 0
 														END )+ A.Contribution) / (1 - Multiplier.Multiplier), 3) 
 											END ) as Price,
-	                         tblDesignCodeFiberElementValue.Fiber_Type__c, E.CPQ_Fiber_Cost, tblCableConstructionReferences.FiberCount, 
+	                         E.Fiber_Type__c, E.CPQ_Fiber_Cost, tblCableConstructionReferences.FiberCount, 
                          E.CPQ_Fiber_Cost * tblCableConstructionReferences.FiberCount AS TotalFiberCost, A.Contribution, Multiplier.Multiplier, P.LoadedBaseCost, 
                          ROUND(P.BaseSkeletalCost, 4) AS BaseSkeletalCost, A.Product_Category, Multiplier.FiberID, 
                          E.CPQ_Fiber_Cost * tblCableConstructionReferences.FiberCount + P.BaseSkeletalCost AS BaseCostFiber, G.Armor AS Armored--, Fiber
 INTO #Cost
 FROM            tblCableConstructionReferences INNER JOIN
-                         tblDesignTypes AS G INNER JOIN
-                         tblSalesForce_Pricing AS A ON A.Product_Category = G.Product_Pricing_Group INNER JOIN
-                         tblSalesForce_Pricing_Multiplier AS Multiplier ON A.Product_Category = Multiplier.Product_Category ON 
-                         tblCableConstructionReferences.DesignTypeID = G.DesignTypeID INNER JOIN
-                         tblBase_Skeletal_Cost AS P ON tblCableConstructionReferences.Base = P.Base INNER JOIN
-                         tblCableTightBufferReference ON tblCableConstructionReferences.TBType = tblCableTightBufferReference.TBType INNER JOIN
-                         tblDesignCodeFiberElementValue ON Multiplier.FiberID = tblDesignCodeFiberElementValue.FiberID INNER JOIN
-                         tbl_Fibers INNER JOIN
-                         tblDesignCodeFiberElementValue AS E ON tbl_Fibers.FiberID = E.FiberID INNER JOIN
-                         tblFiberTBIndicators ON tbl_Fibers.TBCatalogType = tblFiberTBIndicators.TBCatalogType INNER JOIN
-                         tblFiberTBCatalog ON tblFiberTBIndicators.TBCatalogType = tblFiberTBCatalog.TBCatalogType ON 
-                         tblDesignCodeFiberElementValue.FiberID = tbl_Fibers.FiberID INNER JOIN
+                         tblDesignTypes AS G ON  tblCableConstructionReferences.DesignTypeID = G.DesignTypeID
+                         INNER JOIN tblSalesForce_Pricing AS A ON A.Product_Category = G.Product_Pricing_Group 
+                         INNER JOIN tblSalesForce_Pricing_Multiplier AS Multiplier ON A.Product_Category = Multiplier.Product_Category  
+                         INNER JOIN tblBase_Skeletal_Cost AS P ON tblCableConstructionReferences.Base = P.Base 
+                         INNER JOIN tblCableTightBufferReference ON tblCableConstructionReferences.TBType = tblCableTightBufferReference.TBType 
+                         INNER JOIN tblDesignCodeFiberElementValue E ON Multiplier.FiberID = E.FiberID 
+						 INNER JOIN SalesForce.FiberToFiberDescriptionQuoting SFSQ ON SFSQ.FiberID = E.FiberID
+						 INNER JOIN tbl_Fibers F ON F.FiberItemID = SFSQ.FiberItemID INNER JOIN
+                         tblFiberTBIndicators ON F.TBCatalogType = tblFiberTBIndicators.TBCatalogType INNER JOIN
+                         tblFiberTBCatalog ON tblFiberTBIndicators.TBCatalogType = tblFiberTBCatalog.TBCatalogType  
+                         INNER JOIN 
+						 salesforce.FiberToFiberDescriptionQuoting SFQF 
+						 ON SFQF.FiberItemID = F.FiberItemID 
+						 INNER JOIN 
                          tblCableTBType ON tblCableTightBufferReference.TBTypeID = tblCableTBType.TBIndicatorID AND 
                          tblFiberTBIndicators.TBLetter = tblCableTBType.TBLetter
 WHERE        tblCableConstructionReferences.Base = @BASE

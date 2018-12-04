@@ -6,8 +6,8 @@ GO
 Author:		Bryan Eddy
 Desc:		View for DiamondJet to pull print information from
 Date:		4/25/2018
-Version:	1
-Update:		n/a
+Version:	2
+Update:		Added ParentJobNumber to the view
 */
 
 CREATE VIEW [DiamondJet].[vJobPrintInterface]
@@ -21,6 +21,7 @@ SELECT k.JobNumber,
        k.TemplateID,
 	   i.Template,
 	   k.VerificationPrint
+	   ,k.ParentJobNumber
 	   ,k.RevisedBy
 	   ,k.CreatedBy
 FROM DiamondJet.JobPrint k INNER JOIN DiamondJet.Templates i ON i.TemplateID = k.TemplateID

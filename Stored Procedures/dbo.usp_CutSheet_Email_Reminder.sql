@@ -39,11 +39,11 @@ INTO #Results
 FROM tblCutSheetApproval
 WHERE Requested = 1 AND (Technical_Approval =0 OR Commercial_Approval = 0) and DATEDIFF(DD,RecordCreationDate,GETDATE()) > 3
 
-SET @ReceipientList = (STUFF((SELECT ';' + UserEmail FROM tblConfiguratorUser I
+SET @ReceipientList = (STUFF((SELECT DISTINCT ';' + UserEmail FROM tblConfiguratorUser I
 						INNER JOIN Users.UserResponsibility K ON K.UserID = I.UserID
-						 WHERE k.ResponsibilityID = (17) FOR XML PATH('')),1,1,''))
+						 WHERE k.ResponsibilityID = (17) OR i.CutSheetApprover IN (1,2) FOR XML PATH('')),1,1,''))
 
-						PRINT @Receipientlist
+						--PRINT @Receipientlist
 
 SELECT @numRows = COUNT(*) FROM #Results
 
@@ -87,7 +87,7 @@ BEGIN
 			EXEC msdb.dbo.sp_send_dbmail 
 			@recipients=@ReceipientList,
 			--@recipients = 'Bryan.Eddy@aflglobal.com',
-			--@blind_copy_recipients = 'Bryan.Eddy@aflglobal.com',
+			@blind_copy_recipients = 'Bryan.Eddy@aflglobal.com',
 			@subject = @subject,
 			@body = @tableHTML,
 			@body_format = 'HTML';

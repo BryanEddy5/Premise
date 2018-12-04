@@ -30,7 +30,8 @@ CREATE TABLE [dbo].[Buff#1/#2 Alloc Table]
 [TimeStamp] [timestamp] NULL,
 [PrimaryBufferingLine] [int] NULL,
 [B18_Line_Speed] [decimal] (18, 3) NULL,
-[B2_Second_Pass] [decimal] (18, 3) NULL
+[B2_Second_Pass] [decimal] (18, 3) NULL,
+[B18_Line_Speed_Second_Pass] [decimal] (18, 3) NULL
 ) ON [PRIMARY]
 GO
 SET QUOTED_IDENTIFIER ON

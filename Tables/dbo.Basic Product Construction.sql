@@ -105,7 +105,9 @@ CREATE TABLE [dbo].[Basic Product Construction]
 [ActiveStatusChangedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [SafetyRatingUS] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [SafetyRatingCanadian] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-[VendorSpecificFiber] [bit] NULL CONSTRAINT [DF_Basic Product Construction_VendorSpecificFiber] DEFAULT ((0))
+[VendorSpecificFiber] [bit] NULL CONSTRAINT [DF_Basic Product Construction_VendorSpecificFiber] DEFAULT ((0)),
+[ItemEngineeringAssist] [bit] NULL CONSTRAINT [DF_Basic Product Construction_EngineeringAssist] DEFAULT ((0)),
+[ItemEngineeringAssistReason] [nvarchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 SET QUOTED_IDENTIFIER ON

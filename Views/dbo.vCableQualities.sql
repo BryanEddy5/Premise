@@ -25,7 +25,7 @@ SELECT        dbo.tblCableConstructionReferences.Base, dbo.tblCableConstructionR
                          dbo.tblCableTightBufferReference.TightBuffered, Cable.[Jacket Color] AS CableColor, Cable.[Fiber Oracle item] AS Fiber1, Cable.FiberType2 AS Fiber2, Cable.FiberType3 AS Fiber3, Cable.[Item No] AS ItemNo, 
                          Cable.[New Oracle Part #] AS ItemNumber, Cable.Customer, Cable.[Customer Part#] AS PID, Cable.CustomerRev, Cable.Active AS CableItemActive, Cable.Reason, Cable.RibbonHighCure, dbo.tblCableTBType.OracleTBDesc, 
                          dbo.tblCableTBType.TBLetterIndicator, dbo.tblCableTightBufferReference.ComponentSelection, dbo.tblCableTightBufferReference.TBTypeID, Cable.[Print Line 2] AS PrintLine2, Cable.[Print Line 1] AS PrintLine1, 
-                         Cable.[Print Line 4] AS PrintLine4, Cable.[Print Line 3] AS PrintLine3, Cable.[Print Item No], Cable.[Print Reel No]
+                         Cable.[Print Line 4] AS PrintLine4, Cable.[Print Line 3] AS PrintLine3, Cable.[Print Item No], Cable.[Print Reel No], Cable.ItemEngineeringAssist, Cable.ItemEngineeringAssistReason
 FROM            dbo.tblCableConstructionReferences INNER JOIN
                          dbo.tblCableConstructions ON dbo.tblCableConstructionReferences.BaseID = dbo.tblCableConstructions.BaseID INNER JOIN
                          dbo.[Basic Product Construction] AS Cable ON Cable.Base = dbo.tblCableConstructionReferences.Base LEFT OUTER JOIN

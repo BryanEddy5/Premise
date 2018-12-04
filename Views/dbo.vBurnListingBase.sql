@@ -5,15 +5,16 @@ GO
 CREATE VIEW [dbo].[vBurnListingBase]
 AS
 SELECT        dbo.tblBurnListing.ListingCompany, dbo.tblBurnListing.Base, dbo.tblBurnListing.ListingTab, dbo.tblBurnListing.ListingSection, 
-                         dbo.tblBurnListing.ListingConstruction, dbo.tblBurnListingConstruction.ConstructionID, dbo.tblBurnListingRating.Rating, dbo.tblBurnListingRatingReference.US, 
-                         dbo.tblBurnListingRatingReference.Canada, Priority
+                         dbo.tblBurnListing.ListingConstruction, C.ConstructionID, Rating.Rating, R.US, 
+                         R.Canada, Priority,  D.DocumentID
 FROM            dbo.tblBurnListing INNER JOIN
-                         dbo.tblBurnListingConstruction ON dbo.tblBurnListing.ListingConstruction = dbo.tblBurnListingConstruction.ListingConstruction AND 
-                         dbo.tblBurnListing.ListingSection = dbo.tblBurnListingConstruction.ListingSection AND 
-                         dbo.tblBurnListing.ListingTab = dbo.tblBurnListingConstruction.ListingDocument AND 
-                         dbo.tblBurnListing.ListingCompany = dbo.tblBurnListingConstruction.ListingCompany INNER JOIN
-                         dbo.tblBurnListingRating ON dbo.tblBurnListingConstruction.ConstructionID = dbo.tblBurnListingRating.ConstructionID INNER JOIN
-                         dbo.tblBurnListingRatingReference ON dbo.tblBurnListingRating.Rating = dbo.tblBurnListingRatingReference.Rating
+                         dbo.tblBurnListingConstruction C ON dbo.tblBurnListing.ListingConstruction = C.ListingConstruction AND 
+                         dbo.tblBurnListing.ListingSection = C.ListingSection AND 
+                         dbo.tblBurnListing.ListingTab = C.ListingDocument AND 
+                         dbo.tblBurnListing.ListingCompany = C.ListingCompany 
+                         INNER JOIN dbo.tblBurnListingRating Rating ON C.ConstructionID = Rating.ConstructionID 
+                         INNER JOIN dbo.tblBurnListingRatingReference R ON Rating.Rating = R.Rating
+						 INNER JOIN dbo.tblBurnListingDocument D ON D.ListingDocument = C.ListingDocument
 
 GO
 EXEC sp_addextendedproperty N'MS_DiagramPane1', N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]

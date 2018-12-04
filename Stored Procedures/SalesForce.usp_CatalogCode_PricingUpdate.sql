@@ -62,7 +62,8 @@ DECLARE @ErrorLine INT = ERROR_LINE();
 		SET    
 		--SELECT            catalogcode,k.base,k.BaseCost,k.loadedbasecost, e.item_cost,t.Multiplier,a.Contribution,P.FiberCount,
 						Price = (CASE WHEN A.Contribution <> 0 THEN ROUND((K.LoadedBaseCost + P.FiberCount * E.Item_Cost + A.Contribution) / (1 - T .Multiplier), 3) 
-								 ELSE ROUND((K.BaseCost + P.FiberCount * E.Item_Cost + A.Contribution) / (1 - T .Multiplier), 3) END)
+								 ELSE ROUND((K.BaseCost + P.FiberCount * E.Item_Cost + A.Contribution) / (1 - T .Multiplier), 3) END),
+						Loaded_Base_Cost_Fiber_Included__c =    ROUND((K.LoadedBaseCost + P.FiberCount * E.Item_Cost),3)
 		FROM            tblSalesForce_Pricing AS A INNER JOIN
 								 tblDesignTypes AS G ON A.Product_Category = G.Product_Pricing_Group INNER JOIN
 								 tblSalesForce_Pricing_Multiplier AS T ON A.Product_Category = T.Product_Category INNER JOIN

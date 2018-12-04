@@ -13,3 +13,5 @@ ALTER TABLE [dbo].[tblDesignArmor] ADD CONSTRAINT [PK_tblDesignArmor] PRIMARY KE
 GO
 CREATE NONCLUSTERED INDEX [IX_tblDesignArmor] ON [dbo].[tblDesignArmor] ([MaxCoreOD], [ArmorSize]) ON [PRIMARY]
 GO
+GRANT UPDATE ON  [dbo].[tblDesignArmor] TO [NAA\houckmi]
+GO
