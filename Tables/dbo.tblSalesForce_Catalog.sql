@@ -65,7 +65,8 @@ CREATE TABLE [dbo].[tblSalesForce_Catalog]
 [Replacement_Part__c] [nvarchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Replacement_Part_ref__c] [nvarchar] (150) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Subunit_Color__c] [nvarchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-[Stock__b] [bit] NULL CONSTRAINT [DF_tblSalesForce_Catalog_Stock__b] DEFAULT ((0))
+[Stock__b] [bit] NULL CONSTRAINT [DF_tblSalesForce_Catalog_Stock__b] DEFAULT ((0)),
+[StockOracleItem] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
 ) ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[tblSalesForce_Catalog] ADD CONSTRAINT [PK_tblSalesForce_Catalog] PRIMARY KEY CLUSTERED  ([ID]) ON [PRIMARY]

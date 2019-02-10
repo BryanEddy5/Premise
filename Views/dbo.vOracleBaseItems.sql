@@ -15,7 +15,7 @@ as(
 	INNER JOIN dbo.tblCableConstructionReferences G ON E.Base = G.Base
 	GROUP BY E.Base,Item_Status, E.[New Oracle Part #], SetupID
 	HAVING E.Base Not Like 'ia%'  --AND E.Oracle Not Like '%test%' 
-	AND [New Oracle Part #] not like '%-??bx%' AND ([New Oracle Part #] like '%-00' OR left([New Oracle Part #],3) IN ('DNS','DNT') OR [New Oracle Part #] LIKE '%test%')
+	AND [New Oracle Part #] not like '%-__bx%' AND ([New Oracle Part #] like '%-00' OR left([New Oracle Part #],3) IN ('DNS','DNT') OR [New Oracle Part #] LIKE '%test%')
 	AND K.Item_Status <> 'obsolete'
 --)  AS T
 --GROUP BY T.Base, SetupID

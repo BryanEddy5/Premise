@@ -29,7 +29,8 @@ CREATE TABLE [dbo].[AFLPRD_BOMInvComp_CAB]
 [ID] [nvarchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Number] [int] NULL,
 [SupplyLocator] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-[SupplyType] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
+[SupplyType] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Yield] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
 ) ON [PRIMARY]
 GO
 CREATE NONCLUSTERED INDEX [IX_AFLPRD_BOMInvComp_CAB] ON [dbo].[AFLPRD_BOMInvComp_CAB] ([AssemblyItemNumber], [ComponentItemNumber], [AssemblyItemStatus], [ComponentQuantity], [CountPerUOM], [OrganizationCode]) ON [PRIMARY]

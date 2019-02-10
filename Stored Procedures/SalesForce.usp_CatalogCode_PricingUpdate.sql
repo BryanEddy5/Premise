@@ -189,6 +189,7 @@ DECLARE @ErrorLine INT = ERROR_LINE();
 		BEGIN TRAN
 		UPDATE tblSalesForce_Catalog
 		SET Price =	Price + G.ArmorCostAdder, LoadedBaseCost = LoadedBaseCost + ArmorLoadedCost, BaseCost = AmorMaterialCost + BaseCost
+		,Loaded_Base_Cost_Fiber_Included__c = k.LoadedBaseCost + ArmorCostAdder
 		FROM            tblSalesForce_Catalog AS K INNER JOIN ArmorConstructionBase_TEMP G ON K.Base = G.Base
 		WHERE armored = 1
 			

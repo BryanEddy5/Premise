@@ -2,34 +2,104 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
-
-
 CREATE VIEW [Setup].[TightBufferSetupRecipe]
 AS
-SELECT        BasicProductConstruction.[New Oracle Part #], BasicProductConstruction.[Item No], BasicProductConstruction.[Fiber Type], BasicProductConstruction.[Jacket Material], BasicProductConstruction.[EZ Strip] AS EZStrip, 
-                         BasicProductConstruction.[TB Material], BasicProductConstruction.[TB Chips Type], BasicProductConstruction.[TB Nominal OD], BasicProductConstruction.[TB OD Tol  (+)], BasicProductConstruction.[TB OD Tol  (-)], 
-                         BasicProductConstruction.[1st Req Freq], BasicProductConstruction.[1st Max Atten], BasicProductConstruction.[1st Min BandW], BasicProductConstruction.[2nd Req Freq], BasicProductConstruction.[2nd Max Atten], 
-                         BasicProductConstruction.[2nd Min BandW], BasicProductConstruction.[SM 1300 Max Atten], BasicProductConstruction.[SM 1550 Max Atten], BasicProductConstruction.[Special Instr Product1], 
-                         BasicProductConstruction.[Jacket Color], RIGHT(BasicProductConstruction.[New Oracle Part #], 2) AS right2, BasicProductConstruction.[Fiber Oracle item], BasicProductConstruction.[Cable Type], 
-                         tblCableConstructions.StandardOperation, tblCableConstructions.JacketMaterial, tblCableConstructions.NominalOD, tblCableConstructions.ODTolPlus, tblCableConstructions.ODTolMinus, tblCableConstructions.Height, 
-                         tblCableConstructions.HeightTolPlus, tblCableConstructions.HeightTolMinus, tblCableConstructions.NominalWall, tblCableConstructions.MaxAveWall, tblCableConstructions.MinAveWall, tblCableConstructions.MinSpotWall, 
-                         tblCableConstructions.AramidType1, tblCableConstructions.AramidEnds1, tblCableConstructions.AramidType2, tblCableConstructions.AramidEnds2, tblCableConstructions.ChipType, tblCableConstructions.Ripcord, 
-                         tblCableConstructions.LayLength, tblCableConstructions.Talc, tblCableConstructions.FRP_Dia, tblCableConstructions.CM, tblCableConstructions.CMMaterial, tblCableConstructions.CM_OD, tblCableConstructions.CMODTolPlus, 
-                         tblCableConstructions.CMODTolMinus, tblCableConstructions.CMWall, tblCableConstructions.CMMinWall, tblCableConstructions.HelixFactor, tblCableConstructions.CoreWrap, tblCableConstructions.CoreDia, 
-                         tblCableConstructions.Binder1, tblCableConstructions.QtyBinder1, tblCableConstructions.Binder1LayLength, tblCableConstructions.Binder2, tblCableConstructions.QtyBinder2, tblCableConstructions.Binder2LayLength, 
-                         tblCableConstructions.Binder3, tblCableConstructions.QtyBinder3, tblCableConstructions.Binder3LayLength, tblCableConstructions.CablePasses, tblCableConstructions.RevisionDate, tblCableConstructions.RevisionNumber, 
-                         tblCableConstructions.RevisionHistory, tblCableConstructions.Instructions2, tblCableConstructions.Instructions, tblCableConstructionReferences.Active, tblTightBufferSetup.PSS, tblTightBufferSetup.Recipe, 
-                         vColor_Chip_Jacket_Material.ColorChip, tblTightBufferStripType.ID, tblTightBufferSetup.MachineGroupID, K.MachineName, BasicProductConstruction.Base, Filler, TBType
-FROM            tblCableConstructions INNER JOIN
-                         dbo.BasicProductConstruction INNER JOIN
-                         tblCableConstructionReferences ON BasicProductConstruction.Base = tblCableConstructionReferences.Base ON tblCableConstructions.BaseID = tblCableConstructionReferences.BaseID INNER JOIN
-                         tblTightBufferSetup INNER JOIN
-                         tblTightBufferStripType ON tblTightBufferSetup.TightBufferStrip = tblTightBufferStripType.TightBufferStrip ON tblCableConstructions.NominalOD = tblTightBufferSetup.ZumbachLibrarySetting AND 
-                         tblCableConstructions.JacketMaterial = tblTightBufferSetup.Compound AND BasicProductConstruction.[EZ Strip] = tblTightBufferStripType.TightBufferStrip INNER JOIN
-                         [Product Desrcriptions] ON [Product Desrcriptions].SubFiller = tblTightBufferSetup.Filler AND tblCableConstructionReferences.SetupID = [Product Desrcriptions].ProductID INNER JOIN
-                         vColor_Chip_Jacket_Material ON BasicProductConstruction.[Jacket Color] = vColor_Chip_Jacket_Material.Color AND tblCableConstructions.JacketMaterial = vColor_Chip_Jacket_Material.JacketMaterial INNER JOIN
-                         tblTightBufferMachines AS K ON K.MachineGroupID = tblTightBufferSetup.MachineGroupID
-WHERE        (tblCableConstructionReferences.Active <> 0)
+SELECT B.[New Oracle Part #],
+       B.[Item No],
+       B.[Fiber Type],
+       B.[Jacket Material],
+       B.[EZ Strip] AS EZStrip,
+       B.[TB Material],
+       B.[TB Chips Type],
+       B.[TB Nominal OD],
+       B.[TB OD Tol  (+)],
+       B.[TB OD Tol  (-)],
+       B.[1st Req Freq],
+       B.[1st Max Atten],
+       B.[1st Min BandW],
+       B.[2nd Req Freq],
+       B.[2nd Max Atten],
+       B.[2nd Min BandW],
+       B.[SM 1300 Max Atten],
+       B.[SM 1550 Max Atten],
+       B.[Special Instr Product1],
+       B.[Jacket Color],
+       RIGHT(B.[New Oracle Part #], 2) AS right2,
+       B.[Fiber Oracle item],
+       B.[Cable Type],
+       C.StandardOperation,
+       C.JacketMaterial,
+       C.NominalOD,
+       C.ODTolPlus,
+       C.ODTolMinus,
+       C.Height,
+       C.HeightTolPlus,
+       C.HeightTolMinus,
+       C.NominalWall,
+       C.MaxAveWall,
+       C.MinAveWall,
+       C.MinSpotWall,
+       C.AramidType1,
+       C.AramidEnds1,
+       C.AramidType2,
+       C.AramidEnds2,
+       C.ChipType,
+       C.Ripcord,
+       C.LayLength,
+       C.Talc,
+       C.FRP_Dia,
+       C.CM,
+       C.CMMaterial,
+       C.CM_OD,
+       C.CMODTolPlus,
+       C.CMODTolMinus,
+       C.CMWall,
+       C.CMMinWall,
+       C.HelixFactor,
+       C.CoreWrap,
+       C.CoreDia,
+       C.Binder1,
+       C.QtyBinder1,
+       C.Binder1LayLength,
+       C.Binder2,
+       C.QtyBinder2,
+       C.Binder2LayLength,
+       C.Binder3,
+       C.QtyBinder3,
+       C.Binder3LayLength,
+       C.CablePasses,
+       C.RevisionDate,
+       C.RevisionNumber,
+       C.RevisionHistory,
+       C.Instructions2,
+       C.Instructions,
+       R.Active,
+       T.PSS,
+       T.Recipe,
+       vColor_Chip_Jacket_Material.ColorChip,
+       tblTightBufferStripType.ID,
+       T.MachineGroupID,
+       K.MachineName,
+       B.Base,
+       Filler,
+       TBType
+	   , r.CableType
+FROM dbo.tblCableConstructions C
+    INNER JOIN dbo.BasicProductConstruction B
+        INNER JOIN tblCableConstructionReferences R
+            ON B.Base = R.Base
+        ON C.BaseID = R.BaseID
+    INNER JOIN tblTightBufferSetup T ON T.CableType = R.CableType AND T.ZumbachLibrarySetting = C.NominalOD
+        INNER JOIN tblTightBufferStripType
+            ON T.TightBufferStrip = tblTightBufferStripType.TightBufferStrip
+           AND C.JacketMaterial = T.Compound
+           AND B.[EZ Strip] = tblTightBufferStripType.TightBufferStrip
+    INNER JOIN vColor_Chip_Jacket_Material
+        ON B.[Jacket Color] = vColor_Chip_Jacket_Material.Color
+           AND C.JacketMaterial = vColor_Chip_Jacket_Material.JacketMaterial
+    INNER JOIN tblTightBufferMachines AS K
+        ON K.MachineGroupID = T.MachineGroupID
+WHERE R.Active <> 0 AND B.Active <> 0 
 GO
 EXEC sp_addextendedproperty N'MS_DiagramPane1', N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
 Begin DesignProperties = 

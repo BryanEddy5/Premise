@@ -29,7 +29,7 @@ INSERT INTO @ExistingItem(ExistingItem)
 SELECT DISTINCT TOP 1 Existing.Oracle--, new.Oracle, Existing.BASE, Existing.DateCreated
 FROM dbo.AFLPRD_BOMInvComp_CAB k INNER JOIN dbo.CableUnion Existing ON Existing.Oracle = K.AssemblyItemNumber
 INNER JOIN dbo.CableUnion New ON Existing.BASE = New.BASE
-WHERE New.Oracle NOT LIKE '%OSP%' AND NEW.Oracle = @Item
+WHERE Existing.Oracle NOT LIKE '%OSP%' AND NEW.Oracle = @Item AND Existing.Oracle NOT LIKE '%-__BX%'
 ORDER BY Existing.Oracle DESC
 
 RETURN

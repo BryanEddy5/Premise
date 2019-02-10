@@ -9,7 +9,7 @@ GO
 -- Version:		4
 -- Update:		added loaded base cost with fiber to the stock conversion UOM from meters to feet for costing
 -- =============================================
-CREATE PROCEDURE [SalesForce].[usp_CatalogCode_Generator] 
+CREATE PROC [SalesForce].[usp_CatalogCode_Generator] 
 
 AS
 BEGIN
@@ -173,6 +173,7 @@ EXEC SalesForce.usp_CatalogCode_PricingUpdate
 			SET Stock__b = 1,Stock__c='Yes', Min_Order_Quantity__c = G.Min_Order_Quantity, UOM__c = 'Feet'
 			, LoadedBaseCost = LoadedBaseCost /3.281, BaseCost = BaseCost /3.281--, Weight_kg_per_m = Weight_kg_per_m * 0.671969
 			,price = G.Price_feet, Lead_Time_ID__c = G.LeadTime_ID, Loaded_Base_Cost_Fiber_Included__c = K.Loaded_Base_Cost_Fiber_Included__c/3.281
+			, StockOracleItem = g.StockOracleItem
 			FROM dbo.tblstockitems G INNER JOIN dbo.tblSalesForce_Catalog K ON G.itemno = k.CatalogCode
 			COMMIT TRAN
 		END TRY
@@ -331,10 +332,18 @@ EXEC SalesForce.usp_CatalogCode_RemoveDuplicates
 
 EXEC SalesForce.usp_CatalogCode_FlateFile_Export;
 
---If the count of SalesForce_Catalog table is < 30k then send Bryan an email and don't run SF update
+--If the count of SalesForce_Catalog table is < 10k then send product engineering an email and don't send the data to CPQ
 
-exec SalesForce.usp_CatalogCode_InvokeUrl_Update ;
+DECLARE @Count INT;
 
+SELECT @Count = COUNT(*)
+FROM tblSalesForce_Catalog
+
+IF @count > 10000
+	EXEC SalesForce.usp_CatalogCode_InvokeUrl_Update ;
+ELSE 
+	EXEC SalesForce.[usp_EmailCpqTransferFail] @Count
+	
 
 
 END

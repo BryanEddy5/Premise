@@ -8,7 +8,9 @@ CREATE TABLE [dbo].[tblStockItems]
 [Price_feet] [decimal] (18, 6) NULL,
 [RevisedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblStockItems_RevisedBy] DEFAULT (suser_sname()),
 [RevisionDate] [datetime] NULL CONSTRAINT [DF_tblStockItems_RevisionDate] DEFAULT (getdate()),
-[LeadTime_ID] [int] NULL
+[LeadTime_ID] [int] NULL,
+[StockOracleItem] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[StockItemId] [int] NOT NULL IDENTITY(1, 1)
 ) ON [PRIMARY]
 GO
 SET QUOTED_IDENTIFIER ON
@@ -39,6 +41,8 @@ BEGIN
 END
 GO
 ALTER TABLE [dbo].[tblStockItems] ADD CONSTRAINT [PK_tblStockItems] PRIMARY KEY CLUSTERED  ([ItemNo]) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[tblStockItems] ADD CONSTRAINT [FK__tblStockI__Stock__15DBD50B] FOREIGN KEY ([StockOracleItem]) REFERENCES [dbo].[Basic Product Construction] ([New Oracle Part #]) ON UPDATE CASCADE
 GO
 GRANT DELETE ON  [dbo].[tblStockItems] TO [NAA\houckmi]
 GO

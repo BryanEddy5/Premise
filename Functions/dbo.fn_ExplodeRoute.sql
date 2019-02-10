@@ -25,7 +25,7 @@ begin
      from AFLPRD_BOMInvComp_CAB G INNER JOIN AFLPRD_INVSysItemCost_CAB K ON G.AssemblyItemNumber = K.ItemNumber  
 		INNER JOIN dbo.AFLPRD_BOMOpSeq_CAB i ON i.AssemblyItemNumber = g.AssemblyItemNumber AND i.AlternateRoutingDesignator = g.AlternateBOMDesignator
 		AND i.OperationSeqNum = g.OperationSeqNumber
-   where g.AssemblyItemNumber = @FinishedGood AND LEN(EffectivityDateTo) > 0 and AlternateBOMDesignator is null
+   where g.AssemblyItemNumber = @FinishedGood AND (LEN(EffectivityDateTo) > 0 OR G.EffectivityDateTo IS NULL) and AlternateBOMDesignator is null
 
     --explode downward
    insert into @BOM

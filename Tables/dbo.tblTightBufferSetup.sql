@@ -19,14 +19,20 @@ CREATE TABLE [dbo].[tblTightBufferSetup]
 [DateCreated] [datetime] NOT NULL CONSTRAINT [DF_tblTightBufferSetup_DateCreated] DEFAULT (getdate()),
 [RevisedBY] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL CONSTRAINT [DF_tblTightBufferSetup_RevisedBY] DEFAULT (suser_sname()),
 [DateRevised] [datetime] NOT NULL CONSTRAINT [DF_tblTightBufferSetup_DateRevised] DEFAULT (getdate()),
-[Filler] [bit] NOT NULL CONSTRAINT [DF_tblTightBufferSetup_Filler] DEFAULT ((0)),
+[Filler] [bit] NULL CONSTRAINT [DF_tblTightBufferSetup_Filler] DEFAULT ((0)),
 [TimeStamp] [timestamp] NOT NULL,
-[MachineGroupID] [int] NOT NULL CONSTRAINT [DF__tblTightB__Machi__53640638] DEFAULT ((1))
+[MachineGroupID] [int] NOT NULL CONSTRAINT [DF__tblTightB__Machi__53640638] DEFAULT ((1)),
+[CableType] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[TightBuffSetupId] [int] NOT NULL IDENTITY(1, 1)
 ) ON [PRIMARY]
 GO
-ALTER TABLE [dbo].[tblTightBufferSetup] ADD CONSTRAINT [PK_tblTightBufferSetup] PRIMARY KEY CLUSTERED  ([PSS], [TightBufferStrip], [Compound], [Filler]) ON [PRIMARY]
+ALTER TABLE [dbo].[tblTightBufferSetup] ADD CONSTRAINT [PK_tblTightBufferSetup] PRIMARY KEY CLUSTERED  ([TightBuffSetupId]) ON [PRIMARY]
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [IX_tblTightBufferSetup] ON [dbo].[tblTightBufferSetup] ([PSS], [TightBufferStrip], [Compound], [CableType]) ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[tblTightBufferSetup] ADD CONSTRAINT [FK_tblTightBufferSetup_MachineGroupID] FOREIGN KEY ([MachineGroupID]) REFERENCES [dbo].[tblTightBufferMachineGroups] ([MachineGroupID]) ON UPDATE CASCADE
 GO
 ALTER TABLE [dbo].[tblTightBufferSetup] ADD CONSTRAINT [FK_tblTightBufferSetup_tblTightBufferStripType] FOREIGN KEY ([TightBufferStrip]) REFERENCES [dbo].[tblTightBufferStripType] ([TightBufferStrip]) ON UPDATE CASCADE
+GO
+ALTER TABLE [dbo].[tblTightBufferSetup] ADD CONSTRAINT [FK__tblTightB__Cable__16CFF944] FOREIGN KEY ([CableType]) REFERENCES [dbo].[tblCableType] ([CableType]) ON UPDATE CASCADE
 GO
