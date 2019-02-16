@@ -1,4 +1,0 @@
-﻿tblBOMOperationSetupParameters
-;DATABASE=C:\Applications\CDITables.mdb
-tblBOMOperationSetupParameters
-OrganizationCode;+ItemNumber;+OperationSeqNum;+OperationCode;+ElementName;+CopyCount

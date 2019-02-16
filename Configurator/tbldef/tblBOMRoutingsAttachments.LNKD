@@ -1,4 +1,0 @@
-﻿tblBOMRoutingsAttachments
-;DATABASE=C:\Applications\CDITables.mdb
-tblBOMRoutingsAttachments
-OrganizationCode;+AssemblyItemNumber;+OperationSeqNumber;+SeqNumber;+CopyCount;+OrgOpSeq

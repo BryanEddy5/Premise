@@ -1,8 +1,0 @@
-2
-tblColors_AvailabletblColor_Chip_Concentration
-tblColors_Available
-tblColor_Chip_Concentration
-Field = Begin
-Color
-Color
-End

@@ -1,8 +1,0 @@
-2
-tblDesignTypestblDesignTypeGroups
-tblDesignTypes
-tblDesignTypeGroups
-Field = Begin
-DesignTypeGroupID
-DesignTypeGroupID
-End

@@ -1,8 +1,0 @@
-2
-tblBurnListingRatingtblBurnListingConstruction
-tblBurnListingRating
-tblBurnListingConstruction
-Field = Begin
-ConstructionID
-ConstructionID
-End

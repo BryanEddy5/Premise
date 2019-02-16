@@ -1,6 +1,0 @@
-CREATE TABLE [tblNewSetup] (
-  [ID] AUTOINCREMENT,
-  [OldSetup] VARCHAR (255) CONSTRAINT [PrimaryKey] PRIMARY KEY  UNIQUE  NOT NULL ,
-  [NewSetup] VARCHAR (255),
-  [DepartmentCode] VARCHAR (255)
-)
