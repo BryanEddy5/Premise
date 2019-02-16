@@ -149,7 +149,7 @@ AS
 				FROM dbo.BasicProductConstruction as t
 				INNER JOIN inserted i 
 				ON LEFT(I.[New Oracle Part #],8) = LEFT(T.[New Oracle Part #],8)
-				WHERE right(T.[New Oracle Part #],2) NOT IN ('IA','SS','BB')  AND LEFT(T.[New Oracle Part #],2) not in ('PT','fb','A-','O-','WS')
+				WHERE right(T.[New Oracle Part #],2) NOT IN ('IA','SS','BB')  AND LEFT(T.[New Oracle Part #],2) not in ('PT','fb','A-','O-','WS', 'PE')
 				and i.Base = t.Base
 			END
 	END
