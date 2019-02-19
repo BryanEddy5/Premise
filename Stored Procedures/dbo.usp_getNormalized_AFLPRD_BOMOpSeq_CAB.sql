@@ -59,6 +59,11 @@ DECLARE @FirstTrueOp bit;
 DECLARE @NextSeq bit;
 DECLARE @NewItem bit;
 
+SET @FirstTrueOp = 0;
+SET @NextSeq = 0;
+SET @SeqLayer = 10;
+Set @NewItem = 0;
+
  --Iterate through table and apply Unit ID and Layer ID
  --Unit ID's are make components or units that schedule needs to schedule to make
  --Layer ID is used to identify what components are used together
@@ -206,9 +211,6 @@ WITH
 	INNER JOIN AFLPRD_INVSysItem_CAB K ON cteRoute.Item = k.ItemNumber
 	AND COALESCE(cteRoute.Alternate,'Primary') = COALESCE(cteBomSetup.Alternate,'Primary')
 		;
-
-		--SELECT * FROM #SetupNormalize
-		--WHERE ITEM = 'DNA-28309'
 
 
 UPDATE AFLPRD_BOMOpSeq_CAB

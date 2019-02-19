@@ -1,0 +1,3 @@
+CREATE SCHEMA [PlanetTogether]
+AUTHORIZATION [dbo]
+GO

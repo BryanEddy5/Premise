@@ -21,7 +21,8 @@ CREATE TABLE [dbo].[Cust Order Specifications]
 [Shipped Qty] [int] NULL,
 [Freight Charge] [money] NULL CONSTRAINT [DF__Cust Orde__Freig__09003183] DEFAULT ((0)),
 [Seq NO] [int] NOT NULL IDENTITY(1, 1),
-[Creation Date] [datetime] NULL CONSTRAINT [DF__Cust Orde__Creat__09F455BC] DEFAULT (getdate())
+[Creation Date] [datetime] NULL CONSTRAINT [DF__Cust Orde__Creat__09F455BC] DEFAULT (getdate()),
+[OrderId] [int] NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[Cust Order Specifications] ADD CONSTRAINT [SSMA_CC$Cust Order Specifications$Type Order$validation_rule] CHECK (([Type Order]='New' OR [Type Order]='Sset'))
@@ -52,9 +53,11 @@ CREATE NONCLUSTERED INDEX [IX_Cust Order Specifications] ON [dbo].[Cust Order Sp
 GO
 CREATE NONCLUSTERED INDEX [IX_Cust Order Specifications_1] ON [dbo].[Cust Order Specifications] ([Type Order], [Reel No], [Order Qty], [Customer], [Co Number], [Item No], [Mfg commit date], [Units], [Desgin]) ON [PRIMARY]
 GO
-GRANT INSERT ON  [dbo].[Cust Order Specifications] TO [NAA\SPB Premise SQL RO]
+ALTER TABLE [dbo].[Cust Order Specifications] ADD CONSTRAINT [FK__Cust Orde__Order__251E189B] FOREIGN KEY ([OrderId]) REFERENCES [dbo].[New Orders (Premise) to Transfer to SS] ([Order ID])
 GO
 GRANT DELETE ON  [dbo].[Cust Order Specifications] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT INSERT ON  [dbo].[Cust Order Specifications] TO [NAA\SPB Premise SQL RO]
 GO
 GRANT UPDATE ([Reel No]) ON [dbo].[Cust Order Specifications] TO [NAA\SPB Premise SQL RO]
 GO

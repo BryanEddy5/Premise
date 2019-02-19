@@ -55,7 +55,7 @@ ALTER TABLE [dbo].[New Orders (Premise) to Transfer to SS] ADD CONSTRAINT [SSMA_
 GO
 ALTER TABLE [dbo].[New Orders (Premise) to Transfer to SS] ADD CONSTRAINT [SSMA_CC$New Orders (Premise) to Transfer to SS$Units$disallow_zero_length] CHECK ((len([Units])>(0)))
 GO
-ALTER TABLE [dbo].[New Orders (Premise) to Transfer to SS] ADD CONSTRAINT [PK__New Orde__81BDAE1E16E43C86] PRIMARY KEY CLUSTERED  ([Order ID], [Length]) ON [PRIMARY]
+ALTER TABLE [dbo].[New Orders (Premise) to Transfer to SS] ADD CONSTRAINT [PK_New Orders (Premise) to Transfer to SS] PRIMARY KEY CLUSTERED  ([Order ID]) ON [PRIMARY]
 GO
 EXEC sp_addextendedproperty N'MS_SSMA_SOURCE', N'AccessSQLExport.[New Orders (Premise) to Transfer to SS]', 'SCHEMA', N'dbo', 'TABLE', N'New Orders (Premise) to Transfer to SS', NULL, NULL
 GO
