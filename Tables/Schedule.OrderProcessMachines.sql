@@ -14,7 +14,10 @@ CREATE TABLE [Schedule].[OrderProcessMachines]
 [IsComplete] [bit] NULL CONSTRAINT [DF_OrderProcessMachines_Completed] DEFAULT ((0)),
 [Stamp] [timestamp] NOT NULL,
 [Quantity] [decimal] (15, 3) NULL,
-[DepartmentCode] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
+[DepartmentCode] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[ItemNumber] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[JobNumber] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[ParentItemNumber] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
 ) ON [PRIMARY]
 GO
 SET QUOTED_IDENTIFIER ON
@@ -37,7 +40,7 @@ AS
 GO
 ALTER TABLE [Schedule].[OrderProcessMachines] ADD CONSTRAINT [PK__OrderPro__011244F7110EADDF] PRIMARY KEY CLUSTERED  ([OrderProcessMachineId]) ON [PRIMARY]
 GO
-ALTER TABLE [Schedule].[OrderProcessMachines] ADD CONSTRAINT [IX_OrderProcessMachines] UNIQUE NONCLUSTERED  ([BomLevel], [TrueOperationSequence], [OrderId], [Setup]) ON [PRIMARY]
+ALTER TABLE [Schedule].[OrderProcessMachines] ADD CONSTRAINT [IX_OrderProcessMachines] UNIQUE NONCLUSTERED  ([BomLevel], [TrueOperationSequence], [OrderId], [Setup], [ItemNumber]) ON [PRIMARY]
 GO
 ALTER TABLE [Schedule].[OrderProcessMachines] ADD CONSTRAINT [FK__OrderProc__Order__1B94AE61] FOREIGN KEY ([OrderId]) REFERENCES [dbo].[New Orders (Premise) to Transfer to SS] ([Order ID])
 GO

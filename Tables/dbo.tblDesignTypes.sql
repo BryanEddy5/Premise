@@ -19,7 +19,8 @@ CREATE TABLE [dbo].[tblDesignTypes]
 [Oracle_Product_Class_5] [nvarchar] (30) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Createdby] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblDesignTypes_Createdby] DEFAULT (suser_sname()),
 [CreationDate] [datetime] NULL CONSTRAINT [DF_tblDesignTypes_CreationDate] DEFAULT (getdate()),
-[CableLevelGuid] [uniqueidentifier] NULL
+[CableLevelGuid] [uniqueidentifier] NULL,
+[OracleCatalogCableType] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
 ) ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[tblDesignTypes] ADD CONSTRAINT [PK_tblDesignTypes] PRIMARY KEY CLUSTERED  ([DesignTypeID]) ON [PRIMARY]
