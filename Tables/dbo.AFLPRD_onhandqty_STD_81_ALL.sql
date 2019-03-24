@@ -8,7 +8,7 @@ CREATE TABLE [dbo].[AFLPRD_onhandqty_STD_81_ALL]
 [Item] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 [Item Description] [varchar] (max) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [UOM] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-[QTY] [bigint] NOT NULL,
+[QTY] [int] NULL,
 [Cost Type] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Value] [bigint] NOT NULL,
 [Matl Value] [bigint] NULL,

@@ -22,7 +22,8 @@ CREATE TABLE [dbo].[Cust Order Specifications]
 [Freight Charge] [money] NULL CONSTRAINT [DF__Cust Orde__Freig__09003183] DEFAULT ((0)),
 [Seq NO] [int] NOT NULL IDENTITY(1, 1),
 [Creation Date] [datetime] NULL CONSTRAINT [DF__Cust Orde__Creat__09F455BC] DEFAULT (getdate()),
-[OrderId] [int] NULL
+[OrderId] [int] NULL,
+[Stamp] [timestamp] NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[Cust Order Specifications] ADD CONSTRAINT [SSMA_CC$Cust Order Specifications$Type Order$validation_rule] CHECK (([Type Order]='New' OR [Type Order]='Sset'))
@@ -50,6 +51,8 @@ GO
 ALTER TABLE [dbo].[Cust Order Specifications] ADD CONSTRAINT [PK_Cust Order Specifications] PRIMARY KEY CLUSTERED  ([Reel No], [Order Qty]) ON [PRIMARY]
 GO
 CREATE NONCLUSTERED INDEX [IX_Cust Order Specifications] ON [dbo].[Cust Order Specifications] ([Item No], [Reel No], [Order Qty], [Co Number], [Desgin], [Mfg commit date], [Freight Charge], [Type Order], [Units]) ON [PRIMARY]
+GO
+CREATE NONCLUSTERED INDEX [CustOrderIXX] ON [dbo].[Cust Order Specifications] ([Order Qty], [Co Number]) INCLUDE ([OrderId]) ON [PRIMARY]
 GO
 CREATE NONCLUSTERED INDEX [IX_Cust Order Specifications_1] ON [dbo].[Cust Order Specifications] ([Type Order], [Reel No], [Order Qty], [Customer], [Co Number], [Item No], [Mfg commit date], [Units], [Desgin]) ON [PRIMARY]
 GO

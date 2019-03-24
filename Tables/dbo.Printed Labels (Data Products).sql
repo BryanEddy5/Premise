@@ -5,7 +5,7 @@ CREATE TABLE [dbo].[Printed Labels (Data Products)]
 [Previously Printed] [int] NULL CONSTRAINT [DF__Printed L__Previ__60683044] DEFAULT ((0)),
 [Print Now] [int] NULL CONSTRAINT [DF__Printed L__Print__615C547D] DEFAULT ((0)),
 [Completed Buffering] [int] NULL CONSTRAINT [DF__Printed L__Compl__625078B6] DEFAULT ((0)),
-[Buff Line #] [smallint] NOT NULL CONSTRAINT [DF__Printed L__Buff __63449CEF] DEFAULT ((9)),
+[Buff Line #] [smallint] NULL CONSTRAINT [DF__Printed L__Buff __63449CEF] DEFAULT ((9)),
 [TB PRIORITY] [float] NULL CONSTRAINT [DF__Printed L__TB PR__6438C128] DEFAULT ((100)),
 [Setup Buff] [int] NULL CONSTRAINT [DF__Printed L__Setup__652CE561] DEFAULT ((0)),
 [Setup SZ/SH] [int] NULL CONSTRAINT [DF__Printed L__Setup__6621099A] DEFAULT ((0)),
@@ -141,7 +141,7 @@ ALTER TABLE [dbo].[Printed Labels (Data Products)] ADD CONSTRAINT [SSMA_CC$Print
 GO
 ALTER TABLE [dbo].[Printed Labels (Data Products)] ADD CONSTRAINT [SSMA_CC$Printed Labels (Data Products)$Reel No$disallow_zero_length] CHECK ((len([Reel No])>(0)))
 GO
-ALTER TABLE [dbo].[Printed Labels (Data Products)] ADD CONSTRAINT [PK_Printed Labels (Data Products)] PRIMARY KEY CLUSTERED  ([Reel No], [Order Qty], [Buff Line #]) ON [PRIMARY]
+ALTER TABLE [dbo].[Printed Labels (Data Products)] ADD CONSTRAINT [PK_Printed Labels (Data Products)_1] PRIMARY KEY CLUSTERED  ([Reel No], [Order Qty]) ON [PRIMARY]
 GO
 CREATE NONCLUSTERED INDEX [IX_Printed Labels (Data Products)] ON [dbo].[Printed Labels (Data Products)] ([Shipped], [Completed TightBuffer], [Reel No], [Order Qty]) ON [PRIMARY]
 GO

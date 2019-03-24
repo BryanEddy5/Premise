@@ -57,7 +57,9 @@ CREATE TABLE [dbo].[Temp (Premise Load)]
 [CabSeq] [smallint] NULL CONSTRAINT [DF__Temp (Pre__CabSe__45D43599] DEFAULT ((0)),
 [Sh3Seq] [smallint] NULL CONSTRAINT [DF__Temp (Pre__Sh3Se__46C859D2] DEFAULT ((0)),
 [SSMA_TimeStamp] [timestamp] NOT NULL,
-[B18Hrs] [int] NULL CONSTRAINT [DF_Temp (Premise Load)_B18Hrs] DEFAULT ((0))
+[B18Hrs] [int] NULL CONSTRAINT [DF_Temp (Premise Load)_B18Hrs] DEFAULT ((0)),
+[Setup] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[MachineId] [int] NULL
 ) ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[Temp (Premise Load)] ADD CONSTRAINT [SSMA_CC$Temp (Premise Load)$Base$disallow_zero_length] CHECK ((len([Base])>(0)))
@@ -94,9 +96,9 @@ ALTER TABLE [dbo].[Temp (Premise Load)] ADD CONSTRAINT [PK_Temp (Premise Load)] 
 GO
 CREATE NONCLUSTERED INDEX [IX_Temp (Premise Load)] ON [dbo].[Temp (Premise Load)] ([Item number], [Customer], [Reel number], [CO#], [Complete Buff]) ON [PRIMARY]
 GO
-GRANT INSERT ON  [dbo].[Temp (Premise Load)] TO [NAA\SPB Premise SQL RO]
-GO
 GRANT DELETE ON  [dbo].[Temp (Premise Load)] TO [NAA\SPB Premise SQL RO]
+GO
+GRANT INSERT ON  [dbo].[Temp (Premise Load)] TO [NAA\SPB Premise SQL RO]
 GO
 GRANT UPDATE ON  [dbo].[Temp (Premise Load)] TO [NAA\SPB Premise SQL RO]
 GO

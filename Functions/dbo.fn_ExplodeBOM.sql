@@ -40,7 +40,7 @@ begin
    , 1, ItemSeqNumber, OperationSeqNumber, UnitID, LayerID,
 	    COALESCE(CountPerUOM,'1')
    from AFLPRD_BOMInvComp_CAB G INNER JOIN AFLPRD_INVSysItemCost_CAB K ON G.AssemblyItemNumber = K.ItemNumber  
-   where AssemblyItemNumber = @FinishedGood AND (LEN(EffectivityDateTo) > 0 OR G.EffectivityDateto IS NULL) AND AlternateBOMDesignator is null
+	WHERE g.AssemblyItemNumber = @FinishedGood AND (LEN(EffectivityDateTo) > 0 OR G.EffectivityDateTo IS NULL) and AlternateBOMDesignator is null
 
     --explode downward
    insert into @BOM
@@ -52,6 +52,7 @@ begin
    cross apply dbo.[fn_ExplodeBOM](c.ComponentItemNumber) n
    return
 end
+
 
 
 

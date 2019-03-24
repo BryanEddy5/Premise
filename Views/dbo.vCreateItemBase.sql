@@ -14,13 +14,12 @@ SELECT       DISTINCT dbo.tblCableConstructionReferences.Base, dbo.tblCableConst
 						 ,FiberCount, dbo.tblCableConstructionReferences.SetupID, StandardOperation, DesignExtension, EngineeringAssist, EngineeringAssistReason
 FROM            dbo.tblCableConstructions INNER JOIN
                          dbo.tblCableConstructionReferences INNER JOIN
-                         dbo.CableRunSpeeds ON dbo.tblCableConstructionReferences.PrefixID = dbo.CableRunSpeeds.PrefixID ON 
+                         dbo.[Buff#1/#2 Alloc Table] ON dbo.tblCableConstructionReferences.PrefixID = dbo.[Buff#1/#2 Alloc Table].PrefixID ON 
                          dbo.tblCableConstructions.BaseID = dbo.tblCableConstructionReferences.BaseID LEFT OUTER JOIN
                          dbo.CableUnion ON dbo.tblCableConstructionReferences.Base = dbo.CableUnion.Base INNER JOIN
                          dbo.tblCableTightBufferReference ON dbo.tblCableConstructionReferences.TBType = dbo.tblCableTightBufferReference.TBType INNER JOIN
                          dbo.tblCableTBType ON dbo.tblCableTightBufferReference.TBTypeID = dbo.tblCableTBType.TBIndicatorID
 WHERE        (dbo.tblCableConstructionReferences.Active <> 0)
-
 
 
 

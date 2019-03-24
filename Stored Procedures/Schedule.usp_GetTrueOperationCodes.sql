@@ -63,28 +63,24 @@ BEGIN TRY
 				INNER JOIN Schedule.RouteDepartmentsAuthorized r ON r.DepartmentCode = i.DepartmentCode --Only pass approved Department Setups / True Operation Codes
 				WHERE i.SendtoAps ='y'
 
-			MERGE Schedule.OrderProcessMachines AS Target
+
+
+			MERGE Schedule.OrderProcessItems AS Target
 			USING (
-				SELECT *
+				SELECT DISTINCT AssemblyItemNumber, ParentItemNumber, OrderId, BOMLevel
 				FROM #Results
 			) AS Source
 			ON (Target.OrderId = Source.OrderId 
-			AND Target.BomLevel = Source.BOMLevel 
-			AND Target.TrueOperationSequence = Source.DummySeq 
-			AND Source.TrueOperationCode = Target.Setup
 			AND Target.ItemNumber = Source.AssemblyItemNumber)
 			WHEN MATCHED THEN
-				UPDATE SET	Target.Setup = source.TrueOperationCode,
-							Target.TrueOperationSequence = Source.DummySeq,
+				UPDATE SET	
 							Target.OrderId = Source.OrderId,
-							Target.BomLevel = Source.BomLevel,
-							Target.Quantity = Source.TotalQuantity,
-							Target.DepartmentCode = Source.DepartmentCode,
 							Target.ItemNumber = source.AssemblyItemNumber,
-							Target.ParentItemNumber = Source.ParentItemNumber
+							Target.ParentItemNumber = Source.ParentItemNumber,
+							Target.BomLevel = Source.BOMLevel
 			WHEN NOT MATCHED BY TARGET THEN
-				INSERT (Orderid, Setup, BomLevel, TrueOperationSequence, Quantity, DepartmentCode, ItemNumber, ParentItemNumber)
-				VALUES (Source.Orderid, Source.TrueOperationCode, Source.BomLevel, Source.DummySeq, Source.TotalQuantity, Source.DepartmentCode, Source.AssemblyItemNumber, Source.ParentItemNumber);
+				INSERT (Orderid,  ItemNumber, ParentItemNumber, BomLevel)
+				VALUES (Source.Orderid,  Source.AssemblyItemNumber, Source.ParentItemNumber, Source.BOMLevel);
 		COMMIT TRAN
 	END TRY
 	BEGIN CATCH
@@ -96,6 +92,55 @@ BEGIN TRY
  
 		THROW;
 	END CATCH;
+
+
+BEGIN TRY
+	BEGIN TRAN
+
+
+	IF OBJECT_ID(N'tempdb..#OrderProcessItems', N'U') IS NOT NULL
+	DROP TABLE dbo.#OrderProcessItems;
+	SELECT 
+           r.TrueOperationCode,
+           r.BOMLevel,
+           r.DummySeq,
+           r.DepartmentCode,
+           r.TotalQuantity,
+           O.OrderProcessItemsID
+	INTO #OrderProcessItems
+	FROM #Results r 
+	INNER JOIN Schedule.OrderProcessItems O ON O.OrderId = r.OrderId AND R.AssemblyItemNumber = O.ItemNumber
+
+	MERGE Schedule.OrderProcessMachines AS Target
+			USING (
+				SELECT *
+				FROM #OrderProcessItems
+			) AS Source
+			ON (Target.OrderProcessItemId = Source.OrderProcessItemsID 
+			AND Target.TrueOperationSequence = Source.DummySeq 
+			AND Source.TrueOperationCode = Target.Setup)
+			WHEN MATCHED THEN
+				UPDATE SET	Target.Setup = source.TrueOperationCode,
+							Target.TrueOperationSequence = Source.DummySeq,
+							Target.Quantity = Source.TotalQuantity,
+							Target.DepartmentCode = Source.DepartmentCode,
+							Target.OrderProcessItemId = Source.OrderProcessItemsID
+			WHEN NOT MATCHED BY TARGET THEN
+				INSERT ( Setup,  TrueOperationSequence, Quantity, DepartmentCode, OrderProcessItemId)
+				VALUES ( Source.TrueOperationCode, Source.DummySeq, Source.TotalQuantity, Source.DepartmentCode, Source.OrderProcessItemsID);
+		COMMIT TRAN
+END TRY
+BEGIN CATCH
+	IF @@TRANCOUNT > 0
+	ROLLBACK TRANSACTION;
+ 
+	PRINT 'Actual error number: ' + CAST(@ErrorNumber AS VARCHAR(10));
+	PRINT 'Actual line number: ' + CAST(@ErrorLine AS VARCHAR(10));
+ 
+	THROW;
+END CATCH;
+
+
 end
 
 
