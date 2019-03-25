@@ -13,21 +13,23 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
-CREATE TRIGGER [Schedule].[trgrSchedule_SetupPreferredMachine] ON [Schedule].[SetupPreferredMachine]
-AFTER INSERT, UPDATE 
+CREATE TRIGGER [Schedule].[trgrSchedule_SetupPreferredMachine]
+ON [Schedule].[SetupPreferredMachine]
+AFTER INSERT, UPDATE
 AS
-	--Capture the user and time a change occured 
-	BEGIN 
+SET NOCOUNT ON;
+BEGIN
 
-	SET NOCOUNT ON
+    SET NOCOUNT ON;
 
-	UPDATE t
-	SET t.DateRevised = GETDATE() , t.RevisedBy = (SUSER_SNAME()) 
-	FROM Schedule.SetupPreferredMachine as t
-	JOIN inserted i
-	ON i.SetupPreferredLineId = t.SetupPreferredLineId
+    UPDATE t
+    SET t.DateRevised = GETDATE(),
+        t.RevisedBy = (SUSER_SNAME())
+    FROM Schedule.SetupPreferredMachine AS t
+        JOIN inserted i
+            ON i.SetupPreferredLineId = t.SetupPreferredLineId;
 
-	END
+END;
 GO
 ALTER TABLE [Schedule].[SetupPreferredMachine] ADD CONSTRAINT [PK__SetupPre__380E786CC3161C04] PRIMARY KEY CLUSTERED  ([SetupPreferredLineId]) ON [PRIMARY]
 GO

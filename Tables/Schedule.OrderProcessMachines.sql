@@ -23,19 +23,21 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
-CREATE TRIGGER [Schedule].[tgrNewOrdersUpdate] ON [Schedule].[OrderProcessMachines]
-AFTER INSERT, UPDATE 
+CREATE TRIGGER [Schedule].[tgrNewOrdersUpdate]
+ON [Schedule].[OrderProcessMachines]
+AFTER INSERT, UPDATE
 AS
-	--Capture the user and time a change occured 
-	BEGIN 
+SET NOCOUNT ON;
+BEGIN
 
-	UPDATE t
-	SET t.DateRevised = GETDATE() , t.RevisedBy = (SUSER_SNAME()) 
-	FROM Schedule.OrderProcessMachines as t
-	JOIN inserted i
-	ON i.OrderProcessMachineId = t.OrderProcessMachineId
+    UPDATE t
+    SET t.DateRevised = GETDATE(),
+        t.RevisedBy = (SUSER_SNAME())
+    FROM Schedule.OrderProcessMachines AS t
+        JOIN inserted i
+            ON i.OrderProcessMachineId = t.OrderProcessMachineId;
 
-	END
+END;
 GO
 ALTER TABLE [Schedule].[OrderProcessMachines] ADD CONSTRAINT [PK__OrderPro__011244F7EB58E6DB] PRIMARY KEY CLUSTERED  ([OrderProcessMachineId]) ON [PRIMARY]
 GO

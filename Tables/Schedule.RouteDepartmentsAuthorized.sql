@@ -13,19 +13,21 @@ GO
 SET ANSI_NULLS ON
 GO
 
-CREATE TRIGGER [Schedule].[trgrSchedule_RouteDepartmentsAuthorized] ON [Schedule].[RouteDepartmentsAuthorized]
-AFTER INSERT, UPDATE 
+CREATE TRIGGER [Schedule].[trgrSchedule_RouteDepartmentsAuthorized]
+ON [Schedule].[RouteDepartmentsAuthorized]
+AFTER INSERT, UPDATE
 AS
-	--Capture the user and time a change occured 
-	BEGIN 
+SET NOCOUNT ON;
+BEGIN
 
-	UPDATE t
-	SET t.DateRevised = GETDATE() , t.RevisedBy = (SUSER_SNAME()) 
-	FROM Schedule.RouteDepartmentsAuthorized as t
-	JOIN inserted i
-	ON i.Id = t.Id
+    UPDATE t
+    SET t.DateRevised = GETDATE(),
+        t.RevisedBy = (SUSER_SNAME())
+    FROM Schedule.RouteDepartmentsAuthorized AS t
+        JOIN inserted i
+            ON i.Id = t.Id;
 
-	END
+END;
 GO
 ALTER TABLE [Schedule].[RouteDepartmentsAuthorized] ADD CONSTRAINT [PK__RouteDep__3214EC0733B3AC6B] PRIMARY KEY CLUSTERED  ([Id]) ON [PRIMARY]
 GO
