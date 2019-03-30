@@ -11,6 +11,26 @@ Des:		Migration script for new system data structuring.  This script will be ran
 CREATE PROC [Schedule].[usp_MigrationToNewSystem]
 AS
 
+
+
+/****************************************************************************************************
+*****************************************************************************************************/
+-- Add the authorized departments
+-- This is needed in order to get the components for each order
+--INSERT INTO schedule.RouteDepartmentsAuthorized
+--(
+--    DepartmentCode
+--)
+--VALUES
+--( N'PRE BUFF' ), 
+--( N'PRE INSP' ), 
+--( N'PRE JKT' ), 
+--( N'PRE SZ CAB' ), 
+--( N'INT ARMOR' ), 
+--( N'RESPOOL' );
+
+PRINT 'Authorized Departments Complete'
+
 /****************************************************************************************************
 *****************************************************************************************************/
 --Link all orders
@@ -20,7 +40,7 @@ SET c.OrderId = k.[Order ID]
 FROM dbo.[New Orders (Premise) to Transfer to SS] K 
 INNER JOIN dbo.[Cust Order Specifications] C ON C.[Co Number] = K.[Co number] AND C.[Order Qty] = K.Length
 COMMIT
-
+PRINT 'Linked Orders Complete'
 
 /****************************************************************************************************
 *****************************************************************************************************/
@@ -52,6 +72,7 @@ BEGIN
     DEALLOCATE @Order_Cursor;
 END;
 
+PRINT 'Get operation codes for orders complete'
 /****************************************************************************************************
 *****************************************************************************************************/
 --Update all buffering operations
@@ -66,7 +87,7 @@ INNER JOIN PlanetTogether.vMachineNames Y ON RIGHT(Y.MachineName,2) = RIGHT('00'
 INNER JOIN PlanetTogether.vSetupLineSpeed s ON s.Setup = m.Setup AND s.MachineID = y.MachineID
 WHERE Y.Plant = 'PREMISE' AND ISNUMERIC(p.[Buff Line #]) = 1 AND LEFT(Y.MACHINENAME,2) = 'BL'
 
-
+PRINT 'Update buffeirng operations complete'
 /****************************************************************************************************
 *****************************************************************************************************/
 --Update all all cabling operations to CL08	
@@ -77,7 +98,7 @@ INNER JOIN PlanetTogether.vSetupLineSpeed L ON L.Setup = S.Setup
 WHERE L.MachineID = 45
 
 
-
+PRINT 'Update cabling operations complete'
 /****************************************************************************************************
 *****************************************************************************************************/
 --Update Sheathing Lines
@@ -100,14 +121,14 @@ INNER JOIN PlanetTogether.vMachineNames Y ON RIGHT(Y.MachineName,2) = RIGHT('00'
 INNER JOIN PlanetTogether.vSetupLineSpeed s ON s.Setup = m.Setup AND s.MachineID = y.MachineID
 WHERE Y.Plant = 'PREMISE' AND ISNUMERIC(p.[Buff Line #]) = 1 AND LEFT(Y.MACHINENAME,2) IN ('BL','SL')
 
-
+PRINT 'Update Sheating Lines Complete'
 /****************************************************************************************************
 *****************************************************************************************************/
 --Delete anything that has more than 2 Bom levels
 DELETE FROM Schedule.OrderProcessItems
 WHERE BomLevel > 2
 
-
+PRINT 'Remove > 2 level bom items complete'
 /****************************************************************************************************
 *****************************************************************************************************/
 --Delete core items for armor, box, and ss
@@ -117,7 +138,7 @@ INNER JOIN dbo.[Cust Order Specifications] C ON C.OrderId = S.OrderId
 WHERE (C.[Item No] LIKE '%-__IA' OR C.[Item No] LIKE '%-__BX%' OR C.[Item No] LIKE '%-__SS%')
 AND S.BomLevel > 1
 
-
+PRINT 'Delete core items complete'
 /****************************************************************************************************
 *****************************************************************************************************/
 --Marking as completed
@@ -179,6 +200,9 @@ INNER JOIN dbo.[Printed Labels (Data Products)] P ON P.[Order Qty] = c.[Order Qt
 INNER JOIN Schedule.OrderProcessItems I ON I.OrderId = c.OrderId
 INNER JOIN SCHEDULE.OrderProcessMachines M ON M.OrderProcessItemId = I.OrderProcessItemsID
 WHERE P.[Setup Buff] <> 0 AND M.Setup  LIKE 'IA%'
+
+
+PRINT 'Update finished operations complete'
 
 
 GO
