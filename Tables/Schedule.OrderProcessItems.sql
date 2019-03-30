@@ -39,5 +39,7 @@ ALTER TABLE [Schedule].[OrderProcessItems] ADD CONSTRAINT [PK_OrderProcessItems]
 GO
 CREATE UNIQUE NONCLUSTERED INDEX [IX_OrderProcessItems] ON [Schedule].[OrderProcessItems] ([ItemNumber], [OrderId], [ParentItemNumber], [BomLevel]) ON [PRIMARY]
 GO
+CREATE NONCLUSTERED INDEX [OrderProcessItemsOrderId] ON [Schedule].[OrderProcessItems] ([OrderId]) INCLUDE ([OrderProcessItemsID]) ON [PRIMARY]
+GO
 ALTER TABLE [Schedule].[OrderProcessItems] ADD CONSTRAINT [FK__OrderProc__Order__69C848A3] FOREIGN KEY ([OrderId]) REFERENCES [dbo].[New Orders (Premise) to Transfer to SS] ([Order ID])
 GO
