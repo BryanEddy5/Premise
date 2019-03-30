@@ -2,7 +2,6 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
-
 CREATE VIEW [dbo].[vCableQualities]
 AS
 SELECT R.Base,
@@ -111,7 +110,7 @@ SELECT R.Base,
        Cable.ItemEngineeringAssistReason,
        C.CableID,
        D.OracleCatalogCableType,
-	   CF.NewProductCode
+	   COALESCE(CF.NewProductCode,r.NewProductCode) NewProductCode
 FROM dbo.tblCableConstructionReferences R
     INNER JOIN dbo.tblCableConstructions
         ON R.BaseID = dbo.tblCableConstructions.BaseID

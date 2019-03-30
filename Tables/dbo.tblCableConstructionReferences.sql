@@ -37,7 +37,8 @@ CREATE TABLE [dbo].[tblCableConstructionReferences]
 [ReleasedStatusChangedDate] [datetime] NULL,
 [ReleasedStatusChangedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [ImageGroupID] [int] NULL,
-[IsCommoned] [bit] NULL CONSTRAINT [DF_tblCableConstructionReferences_IsCommoned] DEFAULT ((1))
+[IsCommoned] [bit] NULL CONSTRAINT [DF_tblCableConstructionReferences_IsCommoned] DEFAULT ((1)),
+[NewProductCode] [nvarchar] (75) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
 ) ON [PRIMARY]
 GO
 SET QUOTED_IDENTIFIER ON
@@ -82,6 +83,8 @@ GO
 CREATE TRIGGER [dbo].[trgCableConstructionReferencesUpdate] ON [dbo].[tblCableConstructionReferences]
 AFTER INSERT, UPDATE 
 AS
+
+ SET NOCOUNT ON;
 	BEGIN 
 		IF NOT (UPDATE(RevisionDate))
 			BEGIN
