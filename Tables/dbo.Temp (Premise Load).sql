@@ -15,7 +15,7 @@ CREATE TABLE [dbo].[Temp (Premise Load)]
 [Reel number] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Adj Mfg  Date] [datetime] NULL,
 [Week ending-mfg] [datetime] NULL,
-[Factor] [tinyint] NULL,
+[Factor] [decimal] (15, 3) NULL,
 [Count] [int] NULL,
 [Ftype] [nvarchar] (1) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Base] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
