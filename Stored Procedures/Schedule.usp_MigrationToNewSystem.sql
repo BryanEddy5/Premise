@@ -122,6 +122,22 @@ INNER JOIN PlanetTogether.vSetupLineSpeed s ON s.Setup = m.Setup AND s.MachineID
 WHERE Y.Plant = 'PREMISE' AND ISNUMERIC(p.[Buff Line #]) = 1 AND LEFT(Y.MACHINENAME,2) IN ('BL','SL')
 
 PRINT 'Update Sheating Lines Complete'
+
+/****************************************************************************************************
+*****************************************************************************************************/
+--Update Armor Lines
+UPDATE s
+SET s.MachineID = L.MachineID, s.MachineName = L.MachineName
+--SELECT 
+--	   S.MachineID,
+--	   S.MachineName,
+--	   L.MachineID AS OrderMachineId,
+--	   L.MachineName AS OrderMachineName
+FROM Schedule.OrderProcessMachines S 
+INNER JOIN PlanetTogether.vSetupLineSpeed L ON L.Setup = S.Setup
+WHERE L.MachineID = 36
+
+PRINT 'Update Armor Lines Complete'
 /****************************************************************************************************
 *****************************************************************************************************/
 --Delete anything that has more than 2 Bom levels
