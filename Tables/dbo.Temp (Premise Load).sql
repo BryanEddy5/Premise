@@ -59,7 +59,8 @@ CREATE TABLE [dbo].[Temp (Premise Load)]
 [SSMA_TimeStamp] [timestamp] NOT NULL,
 [B18Hrs] [int] NULL CONSTRAINT [DF_Temp (Premise Load)_B18Hrs] DEFAULT ((0)),
 [Setup] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-[MachineId] [int] NULL
+[MachineId] [int] NULL,
+[IsDownTime] [bit] NULL CONSTRAINT [DF_Temp (Premise Load)_IsDownTime] DEFAULT ((0))
 ) ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[Temp (Premise Load)] ADD CONSTRAINT [SSMA_CC$Temp (Premise Load)$Base$disallow_zero_length] CHECK ((len([Base])>(0)))
