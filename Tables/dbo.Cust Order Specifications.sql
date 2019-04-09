@@ -23,7 +23,8 @@ CREATE TABLE [dbo].[Cust Order Specifications]
 [Seq NO] [int] NOT NULL IDENTITY(1, 1),
 [Creation Date] [datetime] NULL CONSTRAINT [DF__Cust Orde__Creat__09F455BC] DEFAULT (getdate()),
 [OrderId] [int] NULL,
-[Stamp] [timestamp] NULL
+[Stamp] [timestamp] NULL,
+[MachineName] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[Cust Order Specifications] ADD CONSTRAINT [SSMA_CC$Cust Order Specifications$Type Order$validation_rule] CHECK (([Type Order]='New' OR [Type Order]='Sset'))

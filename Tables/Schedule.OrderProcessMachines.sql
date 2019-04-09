@@ -37,6 +37,14 @@ BEGIN
         JOIN inserted i
             ON i.OrderProcessMachineId = t.OrderProcessMachineId;
 
+	-- Whenever a machine record is updated then sync with Cust Order Specifications to ensure it has 
+	-- the correct machine
+	UPDATE C
+	SET C.MachineName = I.MachineName
+	FROM dbo.[Cust Order Specifications] C
+	INNER JOIN Schedule.vMachineTopLevel M ON M.OrderId = C.OrderId
+	INNER JOIN Inserted I ON I.OrderProcessMachineId = M.OrderProcessMachineId
+
 END;
 GO
 ALTER TABLE [Schedule].[OrderProcessMachines] ADD CONSTRAINT [PK__OrderPro__011244F7EB58E6DB] PRIMARY KEY CLUSTERED  ([OrderProcessMachineId]) ON [PRIMARY]
