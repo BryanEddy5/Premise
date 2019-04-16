@@ -91,8 +91,8 @@ INSERT INTO [Temp (Premise Load)]
 )
 SELECT 
     C.Length,
-    ROUND((((((C.LengthM * [Buffering Factor]) - CompLength) / [LineSpeed] / 60)) / 0.85  + 
-	((([LengthM] * ([Buffering Factor]) - CompLength) / [PlannedLotSize]) * [Set-up time level 2] + IIF(C.CompLength < 1,[Set-up time level 1] , 0))-- The setup hours for the required days calculation
+    ROUND((((((C.LengthM * m.Quantity) - CompLength) / [LineSpeed] / 60)) / 0.85  + 
+	((([LengthM] * (m.Quantity) - CompLength) / [PlannedLotSize]) * [Set-up time level 2] + IIF(C.CompLength < 1,[Set-up time level 1] , 0))-- The setup hours for the required days calculation
 	) / 24,5) AS [Req'd Days],
     IIF(LEFT([ItemNumber], 2) = 'PT' OR LEFT([ItemNumber], 3) = 'FBR' OR LEFT([ItemNumber], 3) = 'RBN', 0, NULL) AS [Req'd Days (#TB or RBN)],
     [Adj Schedule Date],
@@ -100,11 +100,11 @@ SELECT
     P.[Setup SZ/SH],
     DATEADD(dd, 6 - (DATEPART(dw, [Adj Schedule Date])), [Adj Schedule Date]) AS [Week ending] ,
     C.ItemNumber,
-    [Length] / IIF(C.[Units] = 'Feet', 3.28, 1) + [TotalStartUpScrap] AS RunLength,
+    [Length] * m.Quantity / IIF(C.[Units] = 'Feet', 3.28, 1) + [TotalStartUpScrap] AS RunLength,
     [Adj Mfg Date],
     DATEADD(dd, 6 - (DATEPART(dw, [Adj Mfg Date])), [Adj Mfg Date]) AS [Week ending-mfg],
     M.Quantity,
-    C.LengthM,
+    C.LengthM * m.Quantity,
     SUBSTRING(C.[ItemNo], 6, 1) AS FiberType,
     C.ItemNo,
     LEFT([ItemNumber], 7) AS Family,
@@ -114,7 +114,7 @@ SELECT
     L.MachineName,
     COALESCE([Run Order], 999) AS Sequence,
     P.[Early Star Date],
-    ((([LengthM] * ([Buffering Factor]) - CompLength) / [PlannedLotSize]) * [Set-up time level 2] + IIF(C.CompLength < 1,[Set-up time level 1] , 0)) AS SetupHrs,
+    ((([LengthM] * (m.Quantity) - CompLength) / [PlannedLotSize]) * [Set-up time level 2] + IIF(C.CompLength < 1,[Set-up time level 1] , 0)) AS SetupHrs,
     COALESCE([PromiseDate], IIF([Promise Date] IS NULL, [Mfg commit date], [Promise Date])) AS PromDate,
     C.CompLength,
     IIF(C.Active = 1, -1, 0) AS Active,

@@ -7,11 +7,11 @@ CREATE VIEW [Schedule].[vMachineTopLevel]
 as
 WITH cteLastOperation
 AS(
-	SELECT P.MachineName, M.MachineID, ROW_NUMBER() OVER (PARTITION BY I.OrderId ORDER BY I.OrderId,i.BomLevel, M.TrueOperationSequence DESC) RowNumber, I.OrderId
+	SELECT M.MachineName, M.MachineID, ROW_NUMBER() OVER (PARTITION BY I.OrderId ORDER BY I.OrderId,i.BomLevel, M.TrueOperationSequence DESC) RowNumber, I.OrderId
 	,m.OrderProcessMachineId
 	FROM Schedule.OrderProcessItems I
 	INNER JOIN Schedule.OrderProcessMachines M ON M.OrderProcessItemId = I.OrderProcessItemsID
-	INNER JOIN PlanetTogether.vMachineNames P ON P.MachineID = M.MachineID
+	--INNER JOIN PlanetTogether.vMachineNames P ON P.MachineID = M.MachineID
 	WHERE I.ParentItemNumber IS NULL
 )
 SELECT o.MachineName,

@@ -10,7 +10,8 @@ CREATE TABLE [Schedule].[MachineDowntime]
 [RevisedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF__MachineDo__Revis__15A6CAE1] DEFAULT (suser_sname()),
 [Reason] [nvarchar] (250) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Active] [bit] NULL CONSTRAINT [DF_MachineDowntime_Active] DEFAULT ((1)),
-[Stamp] [timestamp] NOT NULL
+[Stamp] [timestamp] NOT NULL,
+[HoursDt] [decimal] (10, 5) NULL
 ) ON [PRIMARY]
 GO
 SET QUOTED_IDENTIFIER ON
@@ -29,6 +30,15 @@ AS
 	FROM Schedule.MachineDowntime as t
 	JOIN inserted i
 	ON i.MchnDtId = t.MchnDtId
+
+	IF UPDATE(HoursDT) OR UPDATE(StartDt)
+	BEGIN
+		UPDATE t
+		SET t.EndDt = DATEADD(MINUTE,T.HoursDt * 60,T.StartDt)
+        FROM Schedule.MachineDowntime T 
+		INNER JOIN Inserted I ON I.MchnDtId = T.MchnDtId
+		
+	end
 
 	END
 

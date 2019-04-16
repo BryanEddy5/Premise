@@ -97,6 +97,8 @@ ALTER TABLE [dbo].[Temp (Premise Load)] ADD CONSTRAINT [PK_Temp (Premise Load)] 
 GO
 CREATE NONCLUSTERED INDEX [IX_Temp (Premise Load)] ON [dbo].[Temp (Premise Load)] ([Item number], [Customer], [Reel number], [CO#], [Complete Buff]) ON [PRIMARY]
 GO
+GRANT ALTER ON  [dbo].[Temp (Premise Load)] TO [db_executor]
+GO
 GRANT DELETE ON  [dbo].[Temp (Premise Load)] TO [NAA\SPB Premise SQL RO]
 GO
 GRANT INSERT ON  [dbo].[Temp (Premise Load)] TO [NAA\SPB Premise SQL RO]

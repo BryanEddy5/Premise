@@ -23,6 +23,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
+
 CREATE TRIGGER [Schedule].[tgrNewOrdersUpdate]
 ON [Schedule].[OrderProcessMachines]
 AFTER INSERT, UPDATE
@@ -37,13 +38,30 @@ BEGIN
         JOIN inserted i
             ON i.OrderProcessMachineId = t.OrderProcessMachineId;
 
-	-- Whenever a machine record is updated then sync with Cust Order Specifications to ensure it has 
-	-- the correct machine
-	UPDATE C
-	SET C.MachineName = I.MachineName
-	FROM dbo.[Cust Order Specifications] C
-	INNER JOIN Schedule.vMachineTopLevel M ON M.OrderId = C.OrderId
-	INNER JOIN Inserted I ON I.OrderProcessMachineId = M.OrderProcessMachineId
+	-- Whenever a machine record is updated then sync with Cust Order Specifications to ensure 
+	-- Should show just the buffering lines.  Single Pass and Subunit cables
+	IF UPDATE(MachineID)
+	begin
+
+		WITH cteItems
+		AS(
+		SELECT L.MachineName, ROW_NUMBER() OVER (PARTITION BY C.OrderId ORDER BY B.[New Oracle Part #]) RowNumber, C.OrderId--, B.[Item No], B.[New Oracle Part #], C.[Item No], C.Desgin,L.OrderProcessMachineId
+		FROM dbo.[Cust Order Specifications] C
+		INNER JOIN Schedule.OrderProcessItems M ON M.OrderId = C.OrderId
+		INNER JOIN schedule.OrderProcessMachines L ON L.OrderProcessItemId = M.OrderProcessItemsID
+		INNER JOIN dbo.[Basic Product Construction] B ON B.[New Oracle Part #] = M.ItemNumber
+		INNER JOIN dbo.tblCableConstructionReferences R ON R.Base = B.Base
+		INNER JOIN dbo.tblCableConstructions P ON P.BaseID = R.BaseID
+		INNER JOIN dbo.tblCableType O ON O.CableType = R.CableType
+		INNER JOIN Inserted I ON I.OrderProcessMachineId = L.OrderProcessMachineId
+		WHERE  O.CableID IN (1,2) AND P.CablePasses = 1
+		)
+		UPDATE C
+		SET C.MachineName = I.MachineName
+		FROM cteItems I INNER JOIN dbo.[Cust Order Specifications] C ON C.OrderId = I.OrderId
+		WHERE I.RowNumber = 1
+
+	end
 
 END;
 GO

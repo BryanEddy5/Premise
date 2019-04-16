@@ -24,8 +24,33 @@ CREATE TABLE [dbo].[Cust Order Specifications]
 [Creation Date] [datetime] NULL CONSTRAINT [DF__Cust Orde__Creat__09F455BC] DEFAULT (getdate()),
 [OrderId] [int] NULL,
 [Stamp] [timestamp] NULL,
-[MachineName] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
+[MachineName] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[DateCreated] [datetime] NULL CONSTRAINT [DF__Cust Orde__DateC__25DD32AA] DEFAULT (getdate()),
+[CreatedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF__Cust Orde__Creat__26D156E3] DEFAULT (suser_sname()),
+[DateRevised] [datetime] NULL CONSTRAINT [DF__Cust Orde__DateR__27C57B1C] DEFAULT (getdate()),
+[RevisedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF__Cust Orde__Revis__28B99F55] DEFAULT (suser_sname())
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+
+
+CREATE TRIGGER [dbo].[trgrCustorderSpecification] ON [dbo].[Cust Order Specifications]
+AFTER INSERT, UPDATE 
+AS
+	SET NOCOUNT ON
+	--Capture the user and time a change occured 
+	BEGIN 
+
+	UPDATE t
+	SET t.DateRevised = GETDATE() , t.RevisedBy = (SUSER_SNAME()) 
+	FROM [Cust Order Specifications] as t
+	JOIN inserted i
+	ON i.[Seq NO] = t.[Seq NO]
+
+	END
 GO
 ALTER TABLE [dbo].[Cust Order Specifications] ADD CONSTRAINT [SSMA_CC$Cust Order Specifications$Type Order$validation_rule] CHECK (([Type Order]='New' OR [Type Order]='Sset'))
 GO
@@ -54,6 +79,8 @@ GO
 CREATE NONCLUSTERED INDEX [IX_Cust Order Specifications] ON [dbo].[Cust Order Specifications] ([Item No], [Reel No], [Order Qty], [Co Number], [Desgin], [Mfg commit date], [Freight Charge], [Type Order], [Units]) ON [PRIMARY]
 GO
 CREATE NONCLUSTERED INDEX [CustOrderIXX] ON [dbo].[Cust Order Specifications] ([Order Qty], [Co Number]) INCLUDE ([OrderId]) ON [PRIMARY]
+GO
+CREATE NONCLUSTERED INDEX [OrderID_IX] ON [dbo].[Cust Order Specifications] ([OrderId]) ON [PRIMARY]
 GO
 CREATE NONCLUSTERED INDEX [IX_Cust Order Specifications_1] ON [dbo].[Cust Order Specifications] ([Type Order], [Reel No], [Order Qty], [Customer], [Co Number], [Item No], [Mfg commit date], [Units], [Desgin]) ON [PRIMARY]
 GO

@@ -5,7 +5,8 @@ CREATE TABLE [Schedule].[RouteDepartmentsAuthorized]
 [DateCreated] [datetime] NULL CONSTRAINT [DF__RouteDepa__DateC__2EA782D5] DEFAULT (getdate()),
 [CreatedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF__RouteDepa__Creat__2F9BA70E] DEFAULT (suser_sname()),
 [DateRevised] [datetime] NULL CONSTRAINT [DF__RouteDepa__DateR__308FCB47] DEFAULT (getdate()),
-[RevisedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF__RouteDepa__Revis__3183EF80] DEFAULT (suser_sname())
+[RevisedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF__RouteDepa__Revis__3183EF80] DEFAULT (suser_sname()),
+[Stamp] [timestamp] NULL
 ) ON [PRIMARY]
 GO
 SET QUOTED_IDENTIFIER ON
