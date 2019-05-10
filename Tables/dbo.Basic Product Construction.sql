@@ -214,7 +214,7 @@ AS
 
 	END
 GO
-ALTER TABLE [dbo].[Basic Product Construction] ADD CONSTRAINT [PK_Basic Product Construction] PRIMARY KEY CLUSTERED  ([New Oracle Part #]) ON [PRIMARY]
+ALTER TABLE [dbo].[Basic Product Construction] ADD CONSTRAINT [PK_Basic Product Construction] PRIMARY KEY CLUSTERED  ([ID]) ON [PRIMARY]
 GO
 CREATE NONCLUSTERED INDEX [BasicProdConstruction_IXX] ON [dbo].[Basic Product Construction] ([Active], [OracleStatus]) INCLUDE ([Base], [Customer], [Customer Part#], [Fiber Oracle item], [FiberType2], [Item No], [Jacket Color], [New Oracle Part #], [Print Spacing], [Revision Date]) ON [PRIMARY]
 GO
@@ -226,7 +226,7 @@ CREATE NONCLUSTERED INDEX [IX_Basic Product Construction] ON [dbo].[Basic Produc
 GO
 CREATE NONCLUSTERED INDEX [IXI_BasicProdConstruction] ON [dbo].[Basic Product Construction] ([Customer], [OracleStatus]) INCLUDE ([Base], [Customer Part#], [Fiber Oracle item], [FiberType2], [Item No], [Jacket Color], [New Oracle Part #], [Print Spacing], [Revision Date]) ON [PRIMARY]
 GO
-CREATE NONCLUSTERED INDEX [IX_Basic Product Construction_1] ON [dbo].[Basic Product Construction] ([New Oracle Part #]) ON [PRIMARY]
+CREATE UNIQUE NONCLUSTERED INDEX [IX_Basic Product Construction_1] ON [dbo].[Basic Product Construction] ([New Oracle Part #]) ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[Basic Product Construction] ADD CONSTRAINT [FK_Basic Product Construction_Customers] FOREIGN KEY ([Customer]) REFERENCES [dbo].[Customers] ([Customer]) ON DELETE SET NULL ON UPDATE CASCADE
 GO

@@ -48,9 +48,5 @@ GRANT DELETE ON  [dbo].[tblStockItems] TO [NAA\houckmi]
 GO
 GRANT INSERT ON  [dbo].[tblStockItems] TO [NAA\houckmi]
 GO
-GRANT UPDATE ([ItemNo]) ON [dbo].[tblStockItems] TO [NAA\houckmi]
-GO
-GRANT UPDATE ([Min_Order_Quantity]) ON [dbo].[tblStockItems] TO [NAA\houckmi]
-GO
-GRANT UPDATE ([Price_feet]) ON [dbo].[tblStockItems] TO [NAA\houckmi]
+GRANT UPDATE ON  [dbo].[tblStockItems] TO [NAA\houckmi]
 GO

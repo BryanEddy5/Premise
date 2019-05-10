@@ -4,7 +4,8 @@ CREATE TABLE [dbo].[tblStandardsSafetyListing]
 [SafetyListing] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 [CreatedBy] [nvarchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF_tblStandardsSafetyListing_CreatedBy] DEFAULT (suser_sname()),
 [CreationDate] [datetime] NULL CONSTRAINT [DF_tblStandardsSafetyListing_CreationDate] DEFAULT (getdate()),
-[Timestampe] [timestamp] NULL
+[Timestampe] [timestamp] NULL,
+[StdSftyId] [int] NOT NULL IDENTITY(1000, 1)
 ) ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[tblStandardsSafetyListing] ADD CONSTRAINT [PK_tblStandardsSafetyListing] PRIMARY KEY CLUSTERED  ([Standard], [SafetyListing]) ON [PRIMARY]

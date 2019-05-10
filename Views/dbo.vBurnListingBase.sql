@@ -6,7 +6,7 @@ CREATE VIEW [dbo].[vBurnListingBase]
 AS
 SELECT        dbo.tblBurnListing.ListingCompany, dbo.tblBurnListing.Base, dbo.tblBurnListing.ListingTab, dbo.tblBurnListing.ListingSection, 
                          dbo.tblBurnListing.ListingConstruction, C.ConstructionID, Rating.Rating, R.US, 
-                         R.Canada, Priority,  D.DocumentID
+                         R.Canada, Priority,  D.DocumentID, R.ListingBodyID, I.Id AS ListingCompanyId
 FROM            dbo.tblBurnListing INNER JOIN
                          dbo.tblBurnListingConstruction C ON dbo.tblBurnListing.ListingConstruction = C.ListingConstruction AND 
                          dbo.tblBurnListing.ListingSection = C.ListingSection AND 
@@ -15,6 +15,7 @@ FROM            dbo.tblBurnListing INNER JOIN
                          INNER JOIN dbo.tblBurnListingRating Rating ON C.ConstructionID = Rating.ConstructionID 
                          INNER JOIN dbo.tblBurnListingRatingReference R ON Rating.Rating = R.Rating
 						 INNER JOIN dbo.tblBurnListingDocument D ON D.ListingDocument = C.ListingDocument
+						 INNER JOIN dbo.tblBurnListingCompany I ON I.ListingCompany = D.ListingCompany
 
 GO
 EXEC sp_addextendedproperty N'MS_DiagramPane1', N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]

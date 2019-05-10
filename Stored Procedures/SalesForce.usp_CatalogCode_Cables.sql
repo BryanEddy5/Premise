@@ -6,8 +6,8 @@ GO
 -- Author:		Bryan Eddy
 -- ALTER date: 10/5/2016
 -- Description:	Generate the catalog code and attributes for Sales Force Quoting - Appends All base cables to the table
--- Update:		Added error handling
--- Version:		3
+-- Update:		Join on SetupID instead of Base that is not immutable
+-- Version:		4
 -- =============================================
 CREATE PROCEDURE [SalesForce].[usp_CatalogCode_Cables] 
 
@@ -90,7 +90,7 @@ DECLARE @ErrorLine INT = ERROR_LINE();
 								 tblCableConstructionReferences INNER JOIN
 								 tblCableTightBufferReference ON tblCableConstructionReferences.TBType = tblCableTightBufferReference.TBType INNER JOIN
 								 tblCableConstructions ON tblCableConstructionReferences.BaseID = tblCableConstructions.BaseID ON 
-								 tblCableTBType.TBIndicatorID = tblCableTightBufferReference.TBTypeID ON tblBOM_Base_Weight.BASE = tblCableConstructionReferences.Base INNER JOIN
+								 tblCableTBType.TBIndicatorID = tblCableTightBufferReference.TBTypeID ON tblBOM_Base_Weight.SetupID = tblCableConstructionReferences.SetupID INNER JOIN
 								 tblDesignTypes ON tblCableConstructionReferences.DesignTypeID = tblDesignTypes.DesignTypeID INNER JOIN
 								 tblDesignTypeGroups ON tblDesignTypes.DesignTypeGroupID = tblDesignTypeGroups.DesignTypeGroupID INNER JOIN
 								 tblDesignCodeJacket ON tblCableConstructionReferences.CableFamily = tblDesignCodeJacket.CableLetter AND 

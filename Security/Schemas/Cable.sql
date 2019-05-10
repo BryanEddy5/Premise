@@ -1,0 +1,3 @@
+CREATE SCHEMA [Cable]
+AUTHORIZATION [dbo]
+GO

@@ -22,14 +22,40 @@ CREATE TABLE [dbo].[tbl_Fibers]
 [OD] [decimal] (6, 4) NULL,
 [Timestamp] [timestamp] NULL,
 [OpticalID] [int] NULL,
-[FiberItemID] [int] NOT NULL IDENTITY(1, 1)
+[FiberItemID] [int] NOT NULL IDENTITY(1, 1),
+[DateCreated] [datetime] NULL CONSTRAINT [DF__tbl_Fiber__DateC__15A6CAE1] DEFAULT (getdate()),
+[CreatedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF__tbl_Fiber__Creat__169AEF1A] DEFAULT (suser_sname()),
+[DateRevised] [datetime] NULL CONSTRAINT [DF__tbl_Fiber__DateR__178F1353] DEFAULT (getdate()),
+[RevisedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF__tbl_Fiber__Revis__1883378C] DEFAULT (suser_sname())
 ) ON [PRIMARY]
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+CREATE TRIGGER [dbo].[trgrFiber] ON [dbo].[tbl_Fibers]
+AFTER INSERT, UPDATE 
+AS
+	SET NOCOUNT ON
+	--Capture the user and time a change occured 
+	BEGIN 
+
+	UPDATE t
+	SET t.DateRevised = GETDATE() , t.RevisedBy = (SUSER_SNAME()) 
+	FROM tbl_Fibers as t
+	JOIN inserted i
+	ON i.FiberItemID = t.FiberItemID
+
+	END
+	;
 GO
 ALTER TABLE [dbo].[tbl_Fibers] ADD CONSTRAINT [DF_tbl_Fibers_BIF_YesNo] CHECK (([BIF]='No' OR [BIF]='Yes'))
 GO
 ALTER TABLE [dbo].[tbl_Fibers] ADD CONSTRAINT [CK__tbl_Fibers__BIF__3BF690FB] CHECK (([BIF]='Yes' OR [BIF]='No'))
 GO
-ALTER TABLE [dbo].[tbl_Fibers] ADD CONSTRAINT [tbl_Fibers$PrimaryKey] PRIMARY KEY CLUSTERED  ([Fiber]) ON [PRIMARY]
+ALTER TABLE [dbo].[tbl_Fibers] ADD CONSTRAINT [tbl_Fibers$PrimaryKey] PRIMARY KEY CLUSTERED  ([FiberItemID]) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[tbl_Fibers] ADD CONSTRAINT [IX_tbl_Fibers_2] UNIQUE NONCLUSTERED  ([Fiber]) ON [PRIMARY]
 GO
 CREATE NONCLUSTERED INDEX [IX_tbl_Fibers] ON [dbo].[tbl_Fibers] ([Fiber], [Extension], [Fiber_Type], [TBCatalogType], [Alt1_Fiber_Type], [OM#], [Alt2_Fiber_Type], [Alt3_Fiber_Type], [Alt4_Fiber_Type], [Active], [OpticalID]) ON [PRIMARY]
 GO
