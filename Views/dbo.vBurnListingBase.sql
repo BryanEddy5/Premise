@@ -2,11 +2,12 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
+
 CREATE VIEW [dbo].[vBurnListingBase]
 AS
 SELECT        dbo.tblBurnListing.ListingCompany, dbo.tblBurnListing.Base, dbo.tblBurnListing.ListingTab, dbo.tblBurnListing.ListingSection, 
                          dbo.tblBurnListing.ListingConstruction, C.ConstructionID, Rating.Rating, R.US, 
-                         R.Canada, Priority,  D.DocumentID, R.ListingBodyID, I.Id AS ListingCompanyId
+                         R.Canada, Priority,  D.DocumentID, R.ListingBodyID, I.Id AS ListingCompanyId, r.ID AS RatingId
 FROM            dbo.tblBurnListing INNER JOIN
                          dbo.tblBurnListingConstruction C ON dbo.tblBurnListing.ListingConstruction = C.ListingConstruction AND 
                          dbo.tblBurnListing.ListingSection = C.ListingSection AND 

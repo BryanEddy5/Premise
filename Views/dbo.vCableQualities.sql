@@ -110,7 +110,8 @@ SELECT R.Base,
        Cable.ItemEngineeringAssistReason,
        C.CableID,
        D.OracleCatalogCableType,
-	   COALESCE(CF.NewProductCode,r.NewProductCode) NewProductCode
+	   COALESCE(CF.NewProductCode,r.NewProductCode) NewProductCode,
+	   Cable.ID AS ItemId
 FROM dbo.tblCableConstructionReferences R
     INNER JOIN dbo.tblCableConstructions
         ON R.BaseID = dbo.tblCableConstructions.BaseID

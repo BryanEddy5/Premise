@@ -1,6 +1,6 @@
 CREATE TABLE [Oracle].[SpecElement]
 (
-[SpecElement] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[SpecElement] [nvarchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [SpecElementId] [int] NOT NULL IDENTITY(1000, 1),
 [DateCreated] [datetime] NULL CONSTRAINT [DF__SpecEleme__DateC__27C57B1C] DEFAULT (getdate()),
 [CreatedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF__SpecEleme__Creat__28B99F55] DEFAULT (suser_sname()),

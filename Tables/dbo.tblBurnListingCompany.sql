@@ -9,7 +9,9 @@ CREATE TABLE [dbo].[tblBurnListingCompany]
 [Display] [bit] NULL CONSTRAINT [DF_tblBurnListingCompany_Display] DEFAULT ((1))
 ) ON [PRIMARY]
 GO
-ALTER TABLE [dbo].[tblBurnListingCompany] ADD CONSTRAINT [PK_tblBurnListingCompany] PRIMARY KEY CLUSTERED  ([ListingCompany]) ON [PRIMARY]
+ALTER TABLE [dbo].[tblBurnListingCompany] ADD CONSTRAINT [PK_tblBurnListingCompany] PRIMARY KEY CLUSTERED  ([Id]) ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[tblBurnListingCompany] ADD CONSTRAINT [UQ__tblBurnL__3214EC06DD2975EE] UNIQUE NONCLUSTERED  ([Id]) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[tblBurnListingCompany] ADD CONSTRAINT [IX_tblBurnListingCompany] UNIQUE NONCLUSTERED  ([ListingCompany]) ON [PRIMARY]
 GO

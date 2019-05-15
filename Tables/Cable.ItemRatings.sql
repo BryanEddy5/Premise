@@ -7,7 +7,8 @@ CREATE TABLE [Cable].[ItemRatings]
 [CreatedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF__ItemRatin__Creat__4555DE03] DEFAULT (suser_sname()),
 [DateRevised] [datetime] NULL CONSTRAINT [DF__ItemRatin__DateR__464A023C] DEFAULT (getdate()),
 [RevisedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF__ItemRatin__Revis__473E2675] DEFAULT (suser_sname()),
-[SpecElementId] [int] NULL
+[SpecElementId] [int] NULL,
+[ListingCompanyId] [int] NULL
 ) ON [PRIMARY]
 GO
 SET QUOTED_IDENTIFIER ON
@@ -37,6 +38,8 @@ GO
 ALTER TABLE [Cable].[ItemRatings] ADD CONSTRAINT [IX_ItemRatings_1] UNIQUE NONCLUSTERED  ([SpecElementId], [ItemId]) ON [PRIMARY]
 GO
 ALTER TABLE [Cable].[ItemRatings] ADD CONSTRAINT [FK_ItemRatings_SpecElement] FOREIGN KEY ([SpecElementId]) REFERENCES [Oracle].[SpecElement] ([SpecElementId])
+GO
+ALTER TABLE [Cable].[ItemRatings] ADD CONSTRAINT [FK_ItemRatings_tblBurnListingCompany] FOREIGN KEY ([ListingCompanyId]) REFERENCES [dbo].[tblBurnListingCompany] ([Id]) ON DELETE SET NULL ON UPDATE CASCADE
 GO
 ALTER TABLE [Cable].[ItemRatings] ADD CONSTRAINT [FK__ItemRatin__ItemI__42797158] FOREIGN KEY ([ItemId]) REFERENCES [dbo].[Basic Product Construction] ([ID]) ON DELETE CASCADE ON UPDATE CASCADE
 GO

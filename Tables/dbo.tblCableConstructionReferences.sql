@@ -38,7 +38,8 @@ CREATE TABLE [dbo].[tblCableConstructionReferences]
 [ReleasedStatusChangedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [ImageGroupID] [int] NULL,
 [IsCommoned] [bit] NULL CONSTRAINT [DF_tblCableConstructionReferences_IsCommoned] DEFAULT ((1)),
-[NewProductCode] [nvarchar] (75) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
+[NewProductCode] [nvarchar] (75) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[CPR_DoP] [nvarchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
 ) ON [PRIMARY]
 GO
 SET QUOTED_IDENTIFIER ON
