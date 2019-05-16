@@ -28,7 +28,8 @@ CREATE TABLE [dbo].[Cust Order Specifications]
 [DateCreated] [datetime] NULL CONSTRAINT [DF__Cust Orde__DateC__25DD32AA] DEFAULT (getdate()),
 [CreatedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF__Cust Orde__Creat__26D156E3] DEFAULT (suser_sname()),
 [DateRevised] [datetime] NULL CONSTRAINT [DF__Cust Orde__DateR__27C57B1C] DEFAULT (getdate()),
-[RevisedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF__Cust Orde__Revis__28B99F55] DEFAULT (suser_sname())
+[RevisedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF__Cust Orde__Revis__28B99F55] DEFAULT (suser_sname()),
+[Cabler] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 SET QUOTED_IDENTIFIER ON

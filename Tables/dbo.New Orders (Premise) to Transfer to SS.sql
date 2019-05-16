@@ -28,7 +28,8 @@ CREATE TABLE [dbo].[New Orders (Premise) to Transfer to SS]
 [Units] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF__New Order__Units__7271D1E6] DEFAULT ('Meter'),
 [Intial Import Date] [datetime] NULL CONSTRAINT [DF__New Order__Intia__7365F61F] DEFAULT (getdate()),
 [OrderType] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-[SSMA_TimeStamp] [timestamp] NOT NULL
+[SSMA_TimeStamp] [timestamp] NOT NULL,
+[Cabler] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[New Orders (Premise) to Transfer to SS] ADD CONSTRAINT [SSMA_CC$New Orders (Premise) to Transfer to SS$Units$validation_rule] CHECK (([Units]='Meter' OR [Units]='Feet'))

@@ -31,7 +31,9 @@ CREATE TABLE [dbo].[Buff#1/#2 Alloc Table]
 [PrimaryBufferingLine] [int] NULL,
 [B18_Line_Speed] [decimal] (18, 3) NULL,
 [B2_Second_Pass] [decimal] (18, 3) NULL,
-[B18_Line_Speed_Second_Pass] [decimal] (18, 3) NULL
+[B18_Line_Speed_Second_Pass] [decimal] (18, 3) NULL,
+[PrimaryCabler] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[CL09LineSpeed] [decimal] (18, 3) NULL
 ) ON [PRIMARY]
 GO
 SET QUOTED_IDENTIFIER ON
