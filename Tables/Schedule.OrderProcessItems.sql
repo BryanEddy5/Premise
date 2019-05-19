@@ -11,7 +11,8 @@ CREATE TABLE [Schedule].[OrderProcessItems]
 [DateRevised] [datetime] NULL CONSTRAINT [DF__OrderProc__DateR__4A4F9D4A] DEFAULT (getdate()),
 [RevisedBy] [nvarchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL CONSTRAINT [DF__OrderProc__Revis__4B43C183] DEFAULT (suser_sname()),
 [BomLevel] [int] NULL,
-[Stamp] [timestamp] NULL
+[Stamp] [timestamp] NULL,
+[ScheduleDate] [datetime] NULL
 ) ON [PRIMARY]
 GO
 SET QUOTED_IDENTIFIER ON

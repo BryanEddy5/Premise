@@ -65,7 +65,7 @@ AS
                     K.Sh3Seq,
                     K.SSMA_TimeStamp,
                     K.B18Hrs,
-                    K.Setup, G.[Fiber Oracle item],E.EngineeringAssist,
+                    K.Setup, G.[Fiber Oracle item],K.EngineeringAssist,
 								 G.[Fiber Type], G.FiberType2, FIRST_VALUE(Start) OVER (PARTITION BY Line# ORDER BY Line#,ISNULL(Job#,0),Sequence) NextEmptyJobTime,ISNULL(Job#,0) NextEmptyJobFlag --, CASE WHEN Job# IS NULL AND (lag(Job#) OVER  (PARTITION BY Line# ORDER BY Line#, Sequence)) IS NOT NULL THEN 0 ELSE 1 END NextTimeFlag
 
 		FROM            dbo.[Temp (Premise Load)] K LEFT JOIN

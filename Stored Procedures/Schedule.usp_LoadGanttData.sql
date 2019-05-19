@@ -17,11 +17,11 @@ SELECT COALESCE(C.[Order Qty], 0) AS Length,
            IIF(C.[Units] = 'Feet', COALESCE(C.[Order Qty], 0) / 3.281, COALESCE(C.[Order Qty], 0)) AS LengthM,
            C.Customer,
            C.[Co Number],
-           C.[Schedule date],
+           COALESCE(i.ScheduleDate,C.[Schedule date]) AS [Schedule date],
            C.[Mfg commit date],
            C.[Type Order],
            C.[Reel No],
-           C.[Schedule date] - S.[Date Adjustments] AS [Adj Schedule Date],
+           COALESCE(I.ScheduleDate,C.[Schedule date]) - S.[Date Adjustments] AS [Adj Schedule Date],
            S.[Date Adjustments],
            I.OrderProcessItemsID,
            I.JobNumber,
@@ -33,7 +33,7 @@ SELECT COALESCE(C.[Order Qty], 0) AS Length,
            I.ItemNumber,
            C.Units,
            S.Color,
-           [Mfg commit date] - [Date Adjustments] AS [Adj Mfg Date],
+           C.[Mfg commit date] - [Date Adjustments] AS [Adj Mfg Date],
            S.[Item No],
            S.ItemNo,
            S.[Jacket Material],
@@ -87,7 +87,8 @@ INSERT INTO [Temp (Premise Load)]
     [Mfg commit date],
     [Order Source],
     [Reel number],
-    MachineId
+    MachineId,
+	EngineeringAssist
 )
 SELECT 
     C.Length,
@@ -100,7 +101,7 @@ SELECT
     P.[Setup SZ/SH],
     DATEADD(dd, 6 - (DATEPART(dw, [Adj Schedule Date])), [Adj Schedule Date]) AS [Week ending] ,
     C.ItemNumber,
-    [Length] * m.Quantity / IIF(C.[Units] = 'Feet', 3.28, 1) + [TotalStartUpScrap] AS RunLength,
+    C.LengthM * m.Quantity AS RunLength,--+ [TotalStartUpScrap] AS RunLength,
     [Adj Mfg Date],
     DATEADD(dd, 6 - (DATEPART(dw, [Adj Mfg Date])), [Adj Mfg Date]) AS [Week ending-mfg],
     M.Quantity,
@@ -115,7 +116,7 @@ SELECT
     COALESCE([Run Order], 999) AS Sequence,
     P.[Early Star Date],
     ((([LengthM] * (m.Quantity) - CompLength) / [PlannedLotSize]) * [Set-up time level 2] + IIF(C.CompLength < 1,[Set-up time level 1] , 0)) AS SetupHrs,
-    COALESCE([PromiseDate], IIF([Promise Date] IS NULL, [Mfg commit date], [Promise Date])) AS PromDate,
+    COALESCE([PromiseDate],[Promise Date], [Mfg commit date]) AS PromDate,
     C.CompLength,
     IIF(C.Active = 1, -1, 0) AS Active,
     C.Base,
@@ -127,7 +128,8 @@ SELECT
     C.[Mfg commit date],
     C.[Type Order],
     C.[Reel No],
-    M.MachineID
+    M.MachineID,
+	COALESCE(E.EngineeringAssist,0)
 FROM cteCustOrderSpec C
     INNER JOIN [Printed Labels (Data Products)] P
         ON C.[Reel No] = P.[Reel No]
@@ -139,7 +141,12 @@ FROM cteCustOrderSpec C
     INNER JOIN PlanetTogether.vSetupLineSpeed L
         ON L.Setup = M.Setup
            AND L.MachineID = M.MachineID
+	LEFT JOIN [NAACAB-SCH01].PlanetTogether_Data_Prod.[Scheduling].[vEngineeringAssist] E
+	ON E.Setup = M.Setup AND E.MachineID = M.MachineID
 WHERE P.Shipped = 0
       AND M.IsComplete = 0 
 
+UPDATE dbo.[Temp (Premise Load)]
+SET RequiredDays_Orig = 0
+WHERE RequiredDays_Orig < 0
 GO
