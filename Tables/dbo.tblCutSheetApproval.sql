@@ -41,9 +41,25 @@ GRANT UPDATE ([Requestor]) ON [dbo].[tblCutSheetApproval] TO [NAA\SPB Premise SQ
 GO
 GRANT UPDATE ([RequestedDate]) ON [dbo].[tblCutSheetApproval] TO [NAA\SPB Premise SQL RO]
 GO
+GRANT UPDATE ([Commercial_Approval]) ON [dbo].[tblCutSheetApproval] TO [SPB spb_PREMISE]
+GO
+GRANT UPDATE ([Commercial_Approver]) ON [dbo].[tblCutSheetApproval] TO [SPB spb_PREMISE]
+GO
+GRANT UPDATE ([Commercial_Approval_Date]) ON [dbo].[tblCutSheetApproval] TO [SPB spb_PREMISE]
+GO
+GRANT UPDATE ([Technical_Approval]) ON [dbo].[tblCutSheetApproval] TO [SPB spb_PREMISE]
+GO
+GRANT UPDATE ([Technical_Approver]) ON [dbo].[tblCutSheetApproval] TO [SPB spb_PREMISE]
+GO
+GRANT UPDATE ([Technical_Approval_Date]) ON [dbo].[tblCutSheetApproval] TO [SPB spb_PREMISE]
+GO
+GRANT UPDATE ([RecordCreationDate]) ON [dbo].[tblCutSheetApproval] TO [SPB spb_PREMISE]
+GO
 GRANT UPDATE ([Requested]) ON [dbo].[tblCutSheetApproval] TO [SPB spb_PREMISE]
 GO
 GRANT UPDATE ([Requestor]) ON [dbo].[tblCutSheetApproval] TO [SPB spb_PREMISE]
 GO
 GRANT UPDATE ([RequestedDate]) ON [dbo].[tblCutSheetApproval] TO [SPB spb_PREMISE]
+GO
+GRANT UPDATE ([ItemRequested]) ON [dbo].[tblCutSheetApproval] TO [SPB spb_PREMISE]
 GO
